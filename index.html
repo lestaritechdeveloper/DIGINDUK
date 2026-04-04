@@ -1928,7 +1928,7 @@ window.renderKelahiranTable=()=>{
       <td><span class="badge ${k.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${k.jenisKelamin==='L'?'♂':'♀'}</span></td>
       <td style="font-size:12px">${k.tanggalLahir?new Date(k.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td>
       <td>${k.tempatLahir||'-'}</td><td>${k.namaIbu||'-'}</td>
-      <td>${k.namaAyah||<span style="color:var(--text3);font-size:11px"></span>}</td>
+      <td>${k.namaAyah||'<span style="color:var(--text3);font-size:11px">-</span>'}</td>
       <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
       <td>${k.penolong||'-'}</td>
       <td><button class="btn btn-sm btn-danger" onclick="confirmDel('kelahiran','${k.id}','${k.namaBayi}')">🗑️</button></td>
