@@ -46,7 +46,13 @@
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background var(--t),color var(--t)}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
+  transition:background var(--t),color var(--t);
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
 
@@ -458,6 +464,35 @@ select.fc{cursor:pointer}
   .mo{padding:0;align-items:flex-end}
   .md{max-width:100%;border-radius:var(--r) var(--r) 0 0}
 }
+
+/* Perangkat sentuh / layar sempit: kurangi blur & animasi (Android Chrome jauh lebih berat dari iOS) */
+@media (max-width:900px), (hover: none) and (pointer: coarse){
+  .l-orb,.l-noise{display:none!important}
+  .l-bg{background:radial-gradient(ellipse 120% 80% at 50% -20%,rgba(0,122,255,.35),transparent 55%),radial-gradient(ellipse 100% 60% at 100% 100%,rgba(88,86,214,.2),transparent 50%),#0a0f1e}
+  .l-card{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:rgba(22,26,38,.96)!important;
+    border-color:rgba(255,255,255,.14);
+    box-shadow:0 16px 48px rgba(0,0,0,.45);
+  }
+  #sidebar,#topbar{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:var(--bg2)!important;
+  }
+  .mo{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:rgba(0,0,0,.55);
+  }
+  .page{animation:none!important}
+  .stat-card:hover{transform:none;box-shadow:var(--sh0)}
+  .bar-fill{transition:none!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .l-orb{animation:none!important}
+  .page{animation:none!important}
+  .bar-fill{transition:none!important}
+}
+
 @media print{
   #sidebar,#topbar,#toast-box,.no-print{display:none!important}
   #app{display:block}#main{overflow:visible}#content{padding:0;overflow:visible}
@@ -500,11 +535,11 @@ select.fc{cursor:pointer}
       <div class="sb-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:18px;height:18px"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
       </div>
-      <div><div class="sb-name">DigiNduk</div><div class="sb-tagline">Digitalisasi Penduduk</div></div>
+      <div><div class="sb-name">DigiNduk</div><div class="sb-tagline">Kependudukan Desa</div></div>
     </div>
     <div class="sb-user">
       <div class="sb-avatar" id="sb-ava">A</div>
-      <div><div class="sb-uname" id="sb-name">Administrator</div><div class="sb-urole" id="sb-role">Developer Sistem</div></div>
+      <div><div class="sb-uname" id="sb-name">Administrator</div><div class="sb-urole" id="sb-role">Kepala Desa</div></div>
     </div>
 
     <div class="sb-sec">
@@ -1114,7 +1149,7 @@ const db    = getDatabase(fbApp);
 const dbRef = (path) => ref(db, path);
 
 /* ── Local admin fallback ────────────────────────── */
-const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'};
+const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'Administrator',jabatan:'Kepala Desa',role:'admin',status:'aktif'};
 
 /* ── Store ───────────────────────────────────────── */
 const S = {kk:[],penduduk:[],sementara:[],kelahiran:[],kematian:[],mobilitas:[],users:[],activity:[]};
@@ -1234,8 +1269,8 @@ async function initApp() {
 
     // Seed admin user if empty
     if(S.users.length === 0) {
-      const uid = await fbPush('users', {username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'});
-      S.users.push({id:uid,username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'});
+      const uid = await fbPush('users', {username:'admin',password:'admin123',nama:'Administrator',jabatan:'Kepala Desa',role:'admin',status:'aktif'});
+      S.users.push({id:uid,username:'admin',password:'admin123',nama:'Administrator',jabatan:'Kepala Desa',role:'admin',status:'aktif'});
     }
 
     // Seed sample data if penduduk empty
@@ -1244,8 +1279,12 @@ async function initApp() {
     }
 
     fbStatus(true);
-    toast('Database terhubung & data dimuat','ok');
-    if(CU) renderDash();
+    if(CU) {
+      const cur = document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard';
+      goPage(cur);
+    } else {
+      toast('Database terhubung & data dimuat','ok');
+    }
 
   } catch(e) {
     console.error('Firebase init error:', e);
@@ -1253,6 +1292,10 @@ async function initApp() {
     toast('Firebase gagal terhubung. Login dengan akun lokal.','warn');
     const h = document.getElementById('l-hint');
     if(h) { h.textContent = '⚠️ Offline — login tetap bisa (akun lokal)'; h.style.color='rgba(255,200,80,.9)'; }
+    if(CU) {
+      const cur = document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard';
+      goPage(cur);
+    }
   }
 }
 
@@ -1362,10 +1405,11 @@ window.renderDash = () => {
       <div class="stat-lbl">${s.lbl}</div>
     </div>`).join('');
 
+  const dCh = chartFastDraw() ? 0 : 100;
   // Gender donut (animated)
   setTimeout(() => {
     animDonut('c-gender', [lk, pr], ['#007aff','#ff3b30'], ['Laki-laki','Perempuan'], 'c-gender-leg', 'c-gender-total', tot);
-  }, 100);
+  }, dCh);
 
   // Usia bars (animated)
   const ages = aktif.map(p => p.tanggalLahir ? Math.floor((now - new Date(p.tanggalLahir)) / 31557600000) : null).filter(a => a !== null);
@@ -1389,7 +1433,7 @@ window.renderDash = () => {
   const kwC = ['#5ac8fa','#34c759','#ff9500','#ff3b30'];
   setTimeout(() => {
     animDonut('c-kawin', kwV, kwC, kw, 'c-kawin-leg', 'c-kawin-total', tot);
-  }, 150);
+  }, dCh ? 0 : 150);
 
   // KK donut
   const kkLk = S.kk.filter(k => { const p = S.penduduk.find(pd => pd.noKK===k.noKK && pd.hubKK==='Kepala Keluarga'); return p&&p.jenisKelamin==='L'; }).length;
@@ -1397,7 +1441,7 @@ window.renderDash = () => {
   const kkTd = S.kk.length - kkLk - kkPr;
   setTimeout(() => {
     animDonut('c-kk', [kkLk, kkPr, kkTd], ['#007aff','#ff3b30','#8e8e93'], ['KK Laki-laki','KK Perempuan','Tidak Diketahui'], 'c-kk-leg', 'c-kk-total', S.kk.length);
-  }, 200);
+  }, dCh ? 0 : 200);
 
   // Pendidikan
   const pendOrder = ['Tidak/Belum Sekolah','SD/Sederajat','SMP/Sederajat','SMA/Sederajat','D1/D2/D3','S1/D4','S2','S3'];
@@ -1427,17 +1471,26 @@ window.renderDash = () => {
 };
 
 /* ── ANIMATED CHART ENGINES ──────────────────────── */
+function chartFastDraw() {
+  try {
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+    return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  } catch(e) { return false; }
+}
 function animDonut(canvasId, values, colors, labels, legId, totalId, totalVal) {
   const canvas = document.getElementById(canvasId); if(!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8, inner = r*0.52;
   const tot = values.reduce((a,b)=>a+b,0) || 1;
   const target = values.map(v => (v/tot)*2*Math.PI);
-  let progress = 0; const duration = 900;
+  const fast = chartFastDraw();
+  let progress = fast ? 1 : 0; const duration = fast ? 1 : 900;
   const start = performance.now();
 
   function draw(t) {
-    const elapsed = t - start; progress = Math.min(elapsed/duration, 1);
+    if(!fast) {
+      const elapsed = t - start; progress = Math.min(elapsed/duration, 1);
+    }
     const ease = 1 - Math.pow(1-progress, 3);
     ctx.clearRect(0,0,W,H);
     let angle = -Math.PI/2;
@@ -1454,9 +1507,10 @@ function animDonut(canvasId, values, colors, labels, legId, totalId, totalVal) {
     ctx.beginPath(); ctx.arc(cx,cy,inner,0,2*Math.PI);
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#fff';
     ctx.fill();
-    if(progress < 1) requestAnimationFrame(draw);
+    if(!fast && progress < 1) requestAnimationFrame(draw);
   }
-  requestAnimationFrame(draw);
+  if(fast) draw(performance.now());
+  else requestAnimationFrame(draw);
 
   if(totalId) document.getElementById(totalId).textContent = totalVal ?? tot;
   if(legId) {
@@ -1470,20 +1524,27 @@ function animBar(containerId, items) {
   const el = document.getElementById(containerId); if(!el) return;
   if(!items || items.length === 0) { el.innerHTML = '<div class="empty"><div class="empty-sub">Belum ada data</div></div>'; return; }
   const max = Math.max(...items.map(i=>i.val), 1);
-  el.innerHTML = items.map(item => `
+  const wPct = item => Math.round(item.val/max*100);
+  if(chartFastDraw()) {
+    el.innerHTML = items.map(item => `
     <div class="bar-row">
       <div class="bar-lbl" style="font-size:10px">${item.lbl}</div>
-      <div class="bar-track"><div class="bar-fill" data-w="${Math.round(item.val/max*100)}" style="background:${item.col};width:0%"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="background:${item.col};width:${wPct(item)}%"></div></div>
       <div class="bar-val">${item.val}</div>
     </div>`).join('');
-  // Trigger animation
-  requestAnimationFrame(() => {
+  } else {
+    el.innerHTML = items.map(item => `
+    <div class="bar-row">
+      <div class="bar-lbl" style="font-size:10px">${item.lbl}</div>
+      <div class="bar-track"><div class="bar-fill" data-w="${wPct(item)}" style="background:${item.col};width:0%"></div></div>
+      <div class="bar-val">${item.val}</div>
+    </div>`).join('');
     requestAnimationFrame(() => {
-      el.querySelectorAll('.bar-fill').forEach(fill => {
-        fill.style.width = fill.dataset.w + '%';
+      requestAnimationFrame(() => {
+        el.querySelectorAll('.bar-fill').forEach(fill => { fill.style.width = fill.dataset.w + '%'; });
       });
     });
-  });
+  }
 }
 
 /* ════════════════════════════════
@@ -2237,7 +2298,7 @@ const usiaSaatMatiThn = (tglLahir, tglMati) => {
 // Set laporan year
 document.getElementById('lap-thn').value = new Date().getFullYear();
 
-// Check session — restore login immediately if available
+// Check session — restore login immediately if available (render halaman setelah data Firebase siap di initApp, hindari kedip ganda)
 const sess = loadSession();
 if(sess) {
   CU = sess;
@@ -2246,7 +2307,6 @@ if(sess) {
   document.getElementById('sb-role').textContent = sess.jabatan || sess.role;
   document.getElementById('sb-ava').textContent = sess.nama[0].toUpperCase();
   addAct('Sesi dipulihkan');
-  goPage('dashboard');
 }
 
 // Load Firebase in background
