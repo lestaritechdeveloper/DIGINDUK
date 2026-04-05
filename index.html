@@ -392,6 +392,25 @@ select.fc{cursor:pointer}
 
 /* INFO BOX */
 .infobox{background:var(--blue-xs);border:1px solid rgba(0,122,255,.2);border-radius:var(--rx);padding:10px 14px;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:12px}
+.mati-suggest{
+  position:absolute;left:0;right:0;top:100%;margin-top:2px;
+  max-height:220px;overflow-y:auto;overflow-x:hidden;
+  border:1px solid var(--bg3);border-radius:var(--rx);
+  background:var(--bg2);background-color:var(--bg2);
+  box-shadow:var(--sh2),0 0 0 1px rgba(0,0,0,.06);
+  z-index:500;
+  -webkit-overflow-scrolling:touch;
+}
+[data-theme=dark] .mati-suggest{
+  box-shadow:var(--sh2),0 0 0 1px rgba(255,255,255,.08);
+}
+.mati-sug-btn{
+  display:block;width:100%;text-align:left;padding:10px 12px;border:0;
+  border-bottom:1px solid var(--bg3);background:var(--bg2);cursor:pointer;
+  font-size:13px;color:var(--text);font-family:inherit;
+}
+.mati-sug-btn:last-child{border-bottom:0}
+.mati-sug-btn:hover{background:var(--bg3)}
 
 /* ALERT */
 .alert{padding:10px 14px;border-radius:var(--rx);font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:flex-start;gap:7px}
@@ -693,9 +712,9 @@ select.fc{cursor:pointer}
         <div class="card">
           <div class="card-h">
             <div class="filters">
-              <input class="fc" style="width:200px" placeholder="Cari NIK / Nama..." oninput="PP=1;renderPddk()" id="pddk-q"/>
-              <select class="fsel" onchange="PP=1;renderPddk()" id="pddk-jk"><option value="">Semua JK</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
-              <select class="fsel" onchange="PP=1;renderPddk()" id="pddk-st"><option value="">Semua Status</option><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select>
+              <input class="fc" style="width:200px" placeholder="Cari NIK / Nama..." oninput="PP=1;window.PP=1;renderPddk()" id="pddk-q"/>
+              <select class="fsel" onchange="PP=1;window.PP=1;renderPddk()" id="pddk-jk"><option value="">Semua JK</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
+              <select class="fsel" onchange="PP=1;window.PP=1;renderPddk()" id="pddk-st"><option value="">Semua Status</option><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select>
             </div>
           </div>
           <div class="tbl-wrap">
@@ -718,6 +737,11 @@ select.fc{cursor:pointer}
           </button>
         </div>
         <div class="card">
+          <div class="card-h">
+            <div class="filters">
+              <input class="fc" style="width:220px" placeholder="Cari NIK / Nama..." oninput="renderSem()" id="sem-q"/>
+            </div>
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>NIK</th><th>Nama</th><th>Asal Daerah</th><th>Tujuan</th><th>Tgl. Masuk</th><th>Tgl. Keluar</th><th>Status</th><th>Aksi</th></tr></thead>
@@ -737,6 +761,11 @@ select.fc{cursor:pointer}
           </button>
         </div>
         <div class="card">
+          <div class="card-h">
+            <div class="filters">
+              <input class="fc" style="width:220px" placeholder="Cari nama bayi / ibu / ayah / No. KK..." oninput="renderLahir()" id="lahir-q"/>
+            </div>
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Nama Bayi</th><th>JK</th><th>Tgl. Lahir</th><th>Tempat</th><th>Nama Ibu</th><th>Nama Ayah</th><th>No. KK</th><th>Penolong</th><th>Aksi</th></tr></thead>
@@ -756,9 +785,14 @@ select.fc{cursor:pointer}
           </button>
         </div>
         <div class="card">
+          <div class="card-h">
+            <div class="filters">
+              <input class="fc" style="width:220px" placeholder="Cari NIK / Nama..." oninput="renderMati()" id="mati-q"/>
+            </div>
+          </div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>NIK</th><th>Nama</th><th>JK</th><th>Tgl. Meninggal</th><th>Tempat</th><th>Sebab</th><th>No. KK</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>NIK</th><th>Nama</th><th>JK</th><th>Tgl. Meninggal</th><th>Usia</th><th>Tempat</th><th>Sebab</th><th>No. KK</th><th>Aksi</th></tr></thead>
               <tbody id="mati-tb"></tbody>
             </table>
           </div>
@@ -788,6 +822,11 @@ select.fc{cursor:pointer}
           </div>
         </div>
         <div class="card">
+          <div class="card-h">
+            <div class="filters">
+              <input class="fc" style="width:220px" placeholder="Cari NIK / Nama..." oninput="renderMob()" id="mob-q"/>
+            </div>
+          </div>
           <div class="tbl-wrap">
             <table>
               <thead><tr><th>Jenis</th><th>NIK</th><th>Nama</th><th>JK</th><th>Asal/Tujuan</th><th>Alasan</th><th>Tgl. Pindah</th><th>KK Asal</th><th>Aksi</th></tr></thead>
@@ -928,7 +967,7 @@ select.fc{cursor:pointer}
       <div class="fr"><div class="fg"><label class="fl">Jenis Kelamin *</label><select class="fc" id="pddk-jk2"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="pddk-tmplahir" placeholder="Kota/Kabupaten"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="pddk-tgllahir"/></div><div class="fg"><label class="fl">Agama *</label><select class="fc" id="pddk-agama"><option value="Islam">Islam</option><option value="Kristen">Kristen</option><option value="Katolik">Katolik</option><option value="Hindu">Hindu</option><option value="Buddha">Buddha</option><option value="Konghucu">Konghucu</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Status Perkawinan</label><select class="fc" id="pddk-kawin"><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div><div class="fg"><label class="fl">Pendidikan Terakhir</label><select class="fc" id="pddk-pendidikan"><option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option><option value="SD/Sederajat">SD/Sederajat</option><option value="SMP/Sederajat">SMP/Sederajat</option><option value="SMA/Sederajat">SMA/Sederajat</option><option value="D1/D2/D3">D1/D2/D3</option><option value="S1/D4">S1/D4</option><option value="S2">S2</option><option value="S3">S3</option></select></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Pekerjaan</label><input class="fc" id="pddk-pekerjaan" placeholder="Pekerjaan"/></div><div class="fg"><label class="fl">Golongan Darah</label><select class="fc" id="pddk-goldar"><option value="-">Tidak Tahu</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div></div>
+      <div class="fr"><div class="fg" style="position:relative;z-index:40"><label class="fl">Pekerjaan</label><input class="fc" id="pddk-pekerjaan" placeholder="Ketik untuk mencari, lalu pilih dari daftar" autocomplete="off" oninput="updPddkKerjaSearch()" onfocus="updPddkKerjaSearch()" onblur="setTimeout(()=>{const x=document.getElementById('pddk-kerja-dd');if(x)x.style.display='none'},180)"/><div id="pddk-kerja-dd" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div></div><div class="fg"><label class="fl">Golongan Darah</label><select class="fc" id="pddk-goldar"><option value="-">Tidak Tahu</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Asal Daerah (jika pindah)</label><input class="fc" id="pddk-asal" placeholder="Dari daerah mana"/></div><div class="fg"><label class="fl">Status Penduduk</label><select class="fc" id="pddk-sts"><option value="Aktif">Aktif</option><option value="Meninggal">Meninggal</option><option value="Pindah">Pindah</option></select></div></div>
     </div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-pddk')">Batal</button><button class="btn btn-primary" onclick="savePddk()">Simpan</button></div>
@@ -960,8 +999,9 @@ select.fc{cursor:pointer}
       <div class="fr"><div class="fg"><label class="fl">Nama Bayi *</label><input class="fc" id="lahir-nama"/></div><div class="fg"><label class="fl">Jenis Kelamin *</label><select class="fc" id="lahir-jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="lahir-tgl"/></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="lahir-tmpat" placeholder="RS/Puskesmas/Rumah"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Nama Ibu *</label><input class="fc" id="lahir-ibu"/></div><div class="fg"><label class="fl">Nama Ayah <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="lahir-ayah" placeholder="Opsional"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">No. KK Orang Tua</label><input class="fc" id="lahir-nokk"/></div><div class="fg"><label class="fl">Penolong</label><select class="fc" id="lahir-penolong"><option value="Dokter">Dokter</option><option value="Bidan">Bidan</option><option value="Dukun Bayi">Dukun Bayi</option><option value="Lainnya">Lainnya</option></select></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Berat (gram)</label><input class="fc" type="number" id="lahir-berat" placeholder="3200"/></div><div class="fg"><label class="fl">Panjang (cm)</label><input class="fc" type="number" id="lahir-pjg" placeholder="50"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">NIK Bayi <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="lahir-nik" maxlength="16" placeholder="Kosongkan = NIK sementara otomatis"/></div><div class="fg"><label class="fl">No. KK Orang Tua</label><input class="fc" id="lahir-nokk" placeholder="Anggota KK bertambah 1 jiwa"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Penolong</label><select class="fc" id="lahir-penolong"><option value="Dokter">Dokter</option><option value="Bidan">Bidan</option><option value="Dukun Bayi">Dukun Bayi</option><option value="Lainnya">Lainnya</option></select></div><div class="fg"><label class="fl">Berat (gram)</label><input class="fc" type="number" id="lahir-berat" placeholder="3200"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Panjang (cm)</label><input class="fc" type="number" id="lahir-pjg" placeholder="50"/></div></div>
     </div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-lahir')">Batal</button><button class="btn btn-primary" onclick="saveLahir()">Simpan</button></div>
   </div>
@@ -972,11 +1012,22 @@ select.fc{cursor:pointer}
   <div class="md">
     <div class="md-head"><div class="md-title">Catat Kematian</div><button class="md-x" onclick="closeMd('md-mati')">✕</button></div>
     <div class="md-body">
-      <input type="hidden" id="mati-id"/>
-      <div class="fr"><div class="fg"><label class="fl">NIK *</label><input class="fc" id="mati-nik" maxlength="16"/></div><div class="fg"><label class="fl">Nama *</label><input class="fc" id="mati-nama"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Jenis Kelamin</label><select class="fc" id="mati-jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl">Tanggal Meninggal *</label><input class="fc" type="date" id="mati-tgl"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Tempat</label><input class="fc" id="mati-tmpat" placeholder="RS/Rumah/dll"/></div><div class="fg"><label class="fl">Sebab</label><input class="fc" id="mati-sebab" placeholder="Sakit/Kecelakaan/dll"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">No. KK</label><input class="fc" id="mati-nokk"/></div><div class="fg"><label class="fl">Usia (tahun)</label><input class="fc" type="number" id="mati-usia"/></div></div>
+      <div id="mati-hint" class="infobox">Warga harus ada di <strong>Data Penduduk</strong> (aktif). Ketik <strong>NIK</strong> atau <strong>nama</strong>, pilih dari daftar, lalu isi tanggal, tempat, dan sebab meninggal.</div>
+      <div class="fg" style="position:relative;z-index:40">
+        <label class="fl">Cari NIK atau nama *</label>
+        <input class="fc" id="mati-cari" placeholder="Minimal 2 huruf (nama) atau 4 digit (NIK)" autocomplete="off" oninput="updMatiSearch()"/>
+        <div id="mati-suggest" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div>
+      </div>
+      <input type="hidden" id="mati-pddk-id"/>
+      <input type="hidden" id="mati-tgllahir"/>
+      <input type="hidden" id="mati-nik"/>
+      <input type="hidden" id="mati-nama"/>
+      <input type="hidden" id="mati-jk"/>
+      <input type="hidden" id="mati-nokk"/>
+      <input type="hidden" id="mati-usia"/>
+      <div id="mati-preview" class="infobox" style="display:none;margin-top:0;background:var(--bg2);border-color:var(--bg3);color:var(--text);font-weight:600"></div>
+      <div class="fr"><div class="fg"><label class="fl">Tanggal meninggal *</label><input class="fc" type="date" id="mati-tgl" onchange="updMatiUsia()"/></div><div class="fg"><label class="fl">Usia saat meninggal</label><input class="fc" id="mati-usia-ro" readonly tabindex="-1" style="background:var(--bg3);cursor:default;color:var(--text)" placeholder="Terisi otomatis"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Tempat meninggal</label><input class="fc" id="mati-tmpat" placeholder="RS/Rumah/dll"/></div><div class="fg"><label class="fl">Sebab</label><input class="fc" id="mati-sebab" placeholder="Sakit/Kecelakaan/dll"/></div></div>
     </div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-mati')">Batal</button><button class="btn btn-primary" onclick="saveMati()">Simpan</button></div>
   </div>
@@ -1067,6 +1118,11 @@ const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'A
 
 /* ── Store ───────────────────────────────────────── */
 const S = {kk:[],penduduk:[],sementara:[],kelahiran:[],kematian:[],mobilitas:[],users:[],activity:[]};
+
+const PEKERJAAN_LIST = [
+  'Belum / Tidak Bekerja','Mengurus Rumah Tangga','Pelajar / Mahasiswa','Pensiunan','Pegawai Negeri Sipil','Tentara Nasional Indonesia','Kepolisian RI','Perdagangan','Petani / Pekebun','Peternak','Nelayan / Perikanan','Industri','Konstruksi','Transportasi','Karyawan Swasta','Karyawan BUMN','Karyawan BUMD','Karyawan Honorer','Buruh Harian Lepas','Buruh Tani / Perkebunan','Buruh Nelayan / Perikanan','Buruh Peternakan','Pembantu Rumah Tangga','Tukang Cukur','Tukang Listrik','Tukang Batu','Tukang Kayu','Tukang Sol Sepatu','Tukang Las / Pandai Besi','Tukang Jahit','Penata Rambut','Penata Rias','Penata Busana','Mekanik','Tukang Gigi','Seniman','Tabib','Paraji','Perancang Busana','Penterjemah','Imam Masjid','Pendeta','Pastur','Wartawan','Ustadz / Mubaligh','Juru Masak','Promotor Acara','Anggota DPR-RI','Anggota DPD','Anggota BPK','Presiden','Wakil Presiden','Anggota Mahkamah Konstitusi','Anggota Kabinet / Kementerian','Duta Besar','Gubernur','Wakil Gubernur','Bupati','Wakil Bupati','Walikota','Wakil Walikota','Anggota DPRD Propinsi','Anggota DPRD Kabupaten / Kota','Dosen','Guru','Pilot','Pengacara','Notaris','Arsitek','Akuntan','Konsultan','Dokter','Bidan','Perawat','Apoteker','Psikiater / Psikolog','Penyiar Televisi','Penyiar Radio','Pelaut','Peneliti','Sopir','Pialang','Paranormal','Pedagang','Perangkat Desa','Kepala Desa','Biarawati','Wiraswasta','Anggota Lembaga Tinggi','Artis','Atlit','Cheff','Manajer','Tenaga Tata Usaha','Operator','Pekerja Pengolahan, Kerajinan','Teknisi','Asisten Ahli','Lainnya'
+];
+const PEKERJAAN_SET = new Set(PEKERJAAN_LIST);
 
 /* ── Session ─────────────────────────────────────── */
 const saveSession = u => { try{sessionStorage.setItem('dn_u',JSON.stringify({id:u.id,username:u.username,nama:u.nama,jabatan:u.jabatan,role:u.role}));}catch(e){} };
@@ -1440,14 +1496,22 @@ window.resetF = (type) => {
     kk: ['kk-id','kk-nokk','kk-kepala','kk-dusun','kk-rt','kk-rw','kk-alamat','kk-tglterbit'],
     pddk: ['pddk-id','pddk-nik','pddk-nama','pddk-nokk','pddk-tmplahir','pddk-tgllahir','pddk-pekerjaan','pddk-asal'],
     sem: ['sem-id','sem-nik','sem-nama','sem-asal','sem-tujuan','sem-masuk','sem-keluar','sem-telp','sem-alamat'],
-    lahir: ['lahir-id','lahir-nama','lahir-tgl','lahir-tmpat','lahir-ibu','lahir-ayah','lahir-nokk','lahir-berat','lahir-pjg'],
-    mati: ['mati-id','mati-nik','mati-nama','mati-tgl','mati-tmpat','mati-sebab','mati-nokk','mati-usia'],
+    lahir: ['lahir-id','lahir-nama','lahir-nik','lahir-tgl','lahir-tmpat','lahir-ibu','lahir-ayah','lahir-nokk','lahir-berat','lahir-pjg'],
+    mati: ['mati-cari','mati-pddk-id','mati-tgllahir','mati-nik','mati-nama','mati-jk','mati-nokk','mati-usia','mati-tgl','mati-tmpat','mati-sebab'],
     user: ['user-id','user-uname','user-pass','user-nama','user-jabatan'],
   };
   (maps[type]||[]).forEach(id => sv(id,''));
   if(type==='kk') { document.getElementById('kk-status').value='Aktif'; document.getElementById('md-kk-t').textContent='Tambah Kartu Keluarga'; }
-  if(type==='pddk') { document.getElementById('pddk-mob-box').style.display='none'; document.getElementById('md-pddk-t').textContent='Tambah Data Penduduk'; }
+  if(type==='pddk') {
+    document.getElementById('pddk-mob-box').style.display='none'; document.getElementById('md-pddk-t').textContent='Tambah Data Penduduk';
+    const kd = document.getElementById('pddk-kerja-dd'); if(kd) { kd.innerHTML=''; kd.style.display='none'; }
+  }
   if(type==='user') { document.getElementById('md-user-t').textContent='Tambah Pengguna'; }
+  if(type==='mati') {
+    const sb = document.getElementById('mati-suggest'); if(sb) { sb.innerHTML=''; sb.style.display='none'; }
+    const pv = document.getElementById('mati-preview'); if(pv) { pv.innerHTML=''; pv.style.display='none'; }
+    const ro = document.getElementById('mati-usia-ro'); if(ro) ro.value='';
+  }
 };
 
 window.renderKK = () => {
@@ -1474,12 +1538,13 @@ window.renderKK = () => {
         <td><span class="badge badge-blue">${angg(k.noKK)} Jiwa</span></td>
         <td><span class="badge ${k.status==='Aktif'?'badge-green':'badge-gray'}">${k.status}</span></td>
         <td><div style="display:flex;gap:4px">
-          <button class="btn btn-sm btn-secondary" onclick="editKK('${k.id}')">Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="confirmDel('kk','${k.id}','KK '+${JSON.stringify(k.noKK)})">Hapus</button>
+          <button type="button" class="btn btn-sm btn-secondary" onclick='editKK(${JSON.stringify(k.id)})'>Edit</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kk", ${JSON.stringify(k.id)}, ${JSON.stringify('KK ' + (k.noKK || ''))})'>Hapus</button>
         </div></td>
       </tr>`).join('');
-  renderPag('kk-pag', KKP, pages, p => { window.KKP = KKP = p; renderKK(); });
+  renderPag('kk-pag', KKP, pages, 'pagGoto_kk');
 };
+window.pagGoto_kk = function(p) { window.KKP = KKP = p; renderKK(); };
 
 window.saveKK = async () => {
   const id = gv('kk-id');
@@ -1529,18 +1594,20 @@ window.renderPddk = () => {
         <td><span class="badge ${p.statusKawin==='Kawin'?'badge-green':p.statusKawin==='Belum Kawin'?'badge-blue':'badge-orange'}">${p.statusKawin||'-'}</span></td>
         <td style="font-size:12px">${p.agama||'-'}</td>
         <td><div style="display:flex;gap:3px">
-          <button class="btn btn-sm btn-secondary" onclick="detailPddk('${p.id}')">Lihat</button>
-          <button class="btn btn-sm btn-secondary" onclick="editPddk('${p.id}')">Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="confirmDel('penduduk','${p.id}',${JSON.stringify(p.namaLengkap)})">Hapus</button>
+          <button type="button" class="btn btn-sm btn-secondary" onclick='detailPddk(${JSON.stringify(p.id)})'>Lihat</button>
+          <button type="button" class="btn btn-sm btn-secondary" onclick='editPddk(${JSON.stringify(p.id)})'>Edit</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("penduduk", ${JSON.stringify(p.id)}, ${JSON.stringify(p.namaLengkap)})'>Hapus</button>
         </div></td>
       </tr>`).join('');
-  renderPag('pddk-pag', PP, pages, p => { window.PP = PP = p; renderPddk(); });
+  renderPag('pddk-pag', PP, pages, 'pagGoto_pddk');
 };
+window.pagGoto_pddk = function(p) { window.PP = PP = p; renderPddk(); };
 
 window.savePddk = async () => {
   const id = gv('pddk-id');
   const data = {nik:gv('pddk-nik'),namaLengkap:gv('pddk-nama'),noKK:gv('pddk-nokk'),hubKK:gv('pddk-hubkk'),jenisKelamin:gv('pddk-jk2'),tempatLahir:gv('pddk-tmplahir'),tanggalLahir:gv('pddk-tgllahir'),agama:gv('pddk-agama'),statusKawin:gv('pddk-kawin'),pendidikan:gv('pddk-pendidikan'),pekerjaan:gv('pddk-pekerjaan'),golonganDarah:gv('pddk-goldar'),statusPenduduk:gv('pddk-sts'),asalDaerah:gv('pddk-asal')};
   if(!data.nik || !data.namaLengkap) { toast('NIK dan Nama wajib diisi','warn'); return; }
+  if(data.pekerjaan && !PEKERJAAN_SET.has(data.pekerjaan)) { toast('Pekerjaan harus dipilih dari daftar (ketik untuk mencari lalu klik salah satu)','warn'); return; }
   try {
     if(id) {
       await fbUpdate(`penduduk/${id}`, data); ups('penduduk',{id,...data}); addAct(`Update penduduk ${data.namaLengkap}`);
@@ -1589,9 +1656,16 @@ const dr = (k,v) => `<div class="drow"><div class="dkey">${k}</div><div class="d
 ════════════════════════════════ */
 window.renderSem = () => {
   const today = new Date();
-  document.getElementById('sem-tb').innerHTML = S.sementara.length === 0
-    ? `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🏷️</div><div class="empty-title">Belum ada penduduk sementara</div></div></td></tr>`
-    : S.sementara.map(s => {
+  const raw = gv('sem-q');
+  const t = raw.toLowerCase();
+  const d = raw.replace(/\D/g,'');
+  const list = !raw ? S.sementara : S.sementara.filter(s => {
+    const nik = (s.nik||'').replace(/\D/g,'');
+    return (d && nik.includes(d)) || ((s.nama||'').toLowerCase().includes(t));
+  });
+  document.getElementById('sem-tb').innerHTML = list.length === 0
+    ? `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🏷️</div><div class="empty-title">${S.sementara.length===0?'Belum ada penduduk sementara':'Tidak ada data yang cocok dengan pencarian'}</div></div></td></tr>`
+    : list.map(s => {
         const exp = s.tanggalKeluar && new Date(s.tanggalKeluar) < today;
         return `<tr>
           <td style="font-family:'DM Mono',monospace;font-size:11px">${s.nik}</td>
@@ -1601,8 +1675,8 @@ window.renderSem = () => {
           <td style="font-size:12px">${s.tanggalKeluar?new Date(s.tanggalKeluar).toLocaleDateString('id-ID'):'-'}</td>
           <td><span class="badge ${exp?'badge-red':'badge-green'}">${exp?'Berakhir':'Aktif'}</span></td>
           <td><div style="display:flex;gap:4px">
-            <button class="btn btn-sm btn-secondary" onclick="editSem('${s.id}')">Edit</button>
-            <button class="btn btn-sm btn-danger" onclick="confirmDel('sementara','${s.id}',${JSON.stringify(s.nama)})">Hapus</button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick='editSem(${JSON.stringify(s.id)})'>Edit</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("sementara", ${JSON.stringify(s.id)}, ${JSON.stringify(s.nama)})'>Hapus</button>
           </div></td>
         </tr>`;
       }).join('');
@@ -1631,9 +1705,16 @@ window.editSem = (id) => {
    KELAHIRAN
 ════════════════════════════════ */
 window.renderLahir = () => {
-  document.getElementById('lahir-tb').innerHTML = S.kelahiran.length === 0
-    ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">👶</div><div class="empty-title">Belum ada data kelahiran</div></div></td></tr>`
-    : S.kelahiran.map(k => `<tr>
+  const raw = gv('lahir-q');
+  const t = raw.toLowerCase();
+  const d = raw.replace(/\D/g,'');
+  const list = !raw ? S.kelahiran : S.kelahiran.filter(k => {
+    const kk = (k.noKK||'').replace(/\D/g,'');
+    return [k.namaBayi,k.namaIbu,k.namaAyah].some(x => (x||'').toLowerCase().includes(t)) || (d.length >= 4 && kk.includes(d));
+  });
+  document.getElementById('lahir-tb').innerHTML = list.length === 0
+    ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">👶</div><div class="empty-title">${S.kelahiran.length===0?'Belum ada data kelahiran':'Tidak ada data yang cocok dengan pencarian'}</div></div></td></tr>`
+    : list.map(k => `<tr>
         <td><strong>${k.namaBayi}</strong></td>
         <td><span class="badge ${k.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${k.jenisKelamin==='L'?'L':'P'}</span></td>
         <td style="font-size:12px">${k.tanggalLahir?new Date(k.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td>
@@ -1641,44 +1722,159 @@ window.renderLahir = () => {
         <td style="color:var(--text3)">${k.namaAyah||'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
         <td>${k.penolong||'-'}</td>
-        <td><button class="btn btn-sm btn-danger" onclick="confirmDel('kelahiran','${k.id}',${JSON.stringify(k.namaBayi)})">Hapus</button></td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kelahiran", ${JSON.stringify(k.id)}, ${JSON.stringify(k.namaBayi)})'>Hapus</button></td>
       </tr>`).join('');
 };
 
 window.saveLahir = async () => {
   const data = {namaBayi:gv('lahir-nama'),jenisKelamin:gv('lahir-jk'),tanggalLahir:gv('lahir-tgl'),tempatLahir:gv('lahir-tmpat'),namaIbu:gv('lahir-ibu'),namaAyah:gv('lahir-ayah'),noKK:gv('lahir-nokk'),penolong:gv('lahir-penolong'),beratLahir:gv('lahir-berat'),panjangLahir:gv('lahir-pjg')};
   if(!data.namaBayi || !data.tanggalLahir || !data.namaIbu) { toast('Nama bayi, tanggal, ibu wajib','warn'); return; }
+  let nikBayi = gv('lahir-nik').replace(/\D/g,'');
+  if(nikBayi) {
+    if(nikBayi.length !== 16) { toast('NIK bayi harus 16 digit','warn'); return; }
+    if(S.penduduk.some(p => p.nik === nikBayi)) { toast('NIK sudah ada di data penduduk','warn'); return; }
+  } else {
+    let g;
+    do { g = ('9999' + String(Date.now()) + String(Math.floor(Math.random()*1e6))).replace(/\D/g,''); } while(g.length < 16);
+    nikBayi = g.slice(-16).padStart(16,'0');
+    while(S.penduduk.some(p => p.nik === nikBayi)) {
+      g = ('9999' + String(Date.now()) + String(Math.floor(Math.random()*1e6))).replace(/\D/g,'');
+      nikBayi = g.slice(-16).padStart(16,'0');
+    }
+  }
   try {
-    const nid = await fbPush('kelahiran', data); S.kelahiran.push({id:nid,...data});
-    addAct(`Kelahiran: ${data.namaBayi}`); closeMd('md-lahir'); renderLahir(); toast('Data kelahiran tersimpan');
+    const nid = await fbPush('kelahiran', data);
+    const kelRec = {id:nid,...data};
+    S.kelahiran.push(kelRec);
+    const pddkData = {
+      nik:nikBayi,namaLengkap:data.namaBayi,noKK:data.noKK||'',hubKK:'Anak',jenisKelamin:data.jenisKelamin,
+      tempatLahir:data.tempatLahir||'',tanggalLahir:data.tanggalLahir,agama:'Islam',statusKawin:'Belum Kawin',
+      pendidikan:'Tidak/Belum Sekolah',pekerjaan:'',golonganDarah:'-',statusPenduduk:'Aktif',asalDaerah:''
+    };
+    const pid = await fbPush('penduduk', pddkData);
+    await fbUpdate(`kelahiran/${nid}`, {pendudukId:pid});
+    kelRec.pendudukId = pid;
+    S.penduduk.push({id:pid,...pddkData});
+    addAct(`Kelahiran: ${data.namaBayi} → Data Penduduk`);
+    closeMd('md-lahir'); renderLahir(); renderPddk(); renderDash();
+    toast('Kelahiran tersimpan; bayi otomatis masuk Data Penduduk (register kelahiran tetap ada)');
   } catch(e) { toast('Gagal: '+e.message,'err'); }
 };
 
 /* ════════════════════════════════
    KEMATIAN
 ════════════════════════════════ */
+window.clearMatiSelection = () => {
+  sv('mati-pddk-id',''); sv('mati-tgllahir',''); sv('mati-nik',''); sv('mati-nama',''); sv('mati-jk',''); sv('mati-nokk',''); sv('mati-usia','');
+  sv('mati-tgl','');
+  const ro = document.getElementById('mati-usia-ro'); if(ro) ro.value='';
+  const pv = document.getElementById('mati-preview'); if(pv) { pv.innerHTML=''; pv.style.display='none'; }
+};
+window.updMatiSearch = () => {
+  const cariEl = document.getElementById('mati-cari');
+  const box = document.getElementById('mati-suggest');
+  if(!cariEl || !box) return;
+  const raw = cariEl.value.trim();
+  const selId = gv('mati-pddk-id');
+  if(selId) {
+    const p0 = S.penduduk.find(x => x.id === selId);
+    const expect = p0 ? `${p0.nik||''} — ${p0.namaLengkap||''}`.trim() : '';
+    if(p0 && raw === expect) { box.style.display='none'; return; }
+    window.clearMatiSelection();
+  }
+  const q = raw.toLowerCase();
+  const digits = raw.replace(/\D/g,'');
+  if(digits.length < 4 && q.replace(/\s/g,'').length < 2) { box.style.display='none'; box.innerHTML=''; return; }
+  const eligible = S.penduduk.filter(p => p.statusPenduduk !== 'Meninggal' && p.statusPenduduk !== 'Pindah');
+  const list = eligible.filter(p => {
+    const nik = (p.nik||'').replace(/\D/g,'');
+    const nama = (p.namaLengkap||'').toLowerCase();
+    const byNik = digits.length >= 4 && nik.includes(digits);
+    const byNama = q.replace(/\s/g,'').length >= 2 && nama.includes(q);
+    return byNik || byNama;
+  }).slice(0, 15);
+  if(list.length === 0) {
+    box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text3);font-weight:600">Tidak ada penduduk aktif yang cocok.</div>';
+    box.style.display='block';
+    return;
+  }
+  box.innerHTML = list.map(p => `<button type="button" class="mati-sug-btn" onclick='pickMatiPddk(${JSON.stringify(p.id)})'><strong>${escapeHtml(p.namaLengkap||'')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(p.nik||'')}</div></button>`).join('');
+  box.style.display='block';
+};
+window.pickMatiPddk = (id) => {
+  const p = S.penduduk.find(x => x.id === id); if(!p) return;
+  sv('mati-tgl','');
+  sv('mati-pddk-id', id);
+  sv('mati-nik', p.nik||'');
+  sv('mati-nama', p.namaLengkap||'');
+  sv('mati-jk', p.jenisKelamin||'L');
+  sv('mati-nokk', p.noKK||'');
+  sv('mati-tgllahir', p.tanggalLahir||'');
+  document.getElementById('mati-cari').value = `${p.nik||''} — ${p.namaLengkap||''}`.trim();
+  document.getElementById('mati-suggest').style.display='none';
+  document.getElementById('mati-suggest').innerHTML='';
+  const prev = document.getElementById('mati-preview');
+  const tl = p.tanggalLahir ? new Date(p.tanggalLahir).toLocaleDateString('id-ID') : '—';
+  const jk = p.jenisKelamin==='L' ? 'Laki-laki' : 'Perempuan';
+  prev.innerHTML = `<div style="font-size:11px;font-weight:900;margin-bottom:8px;letter-spacing:.03em;text-transform:uppercase;color:var(--text3)">Data penduduk</div>
+    <div class="drow"><div class="dkey">NIK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.nik||'')}</div></div>
+    <div class="drow"><div class="dkey">Nama</div><div class="dval">${escapeHtml(p.namaLengkap||'')}</div></div>
+    <div class="drow"><div class="dkey">JK</div><div class="dval">${jk}</div></div>
+    <div class="drow"><div class="dkey">Tgl. lahir</div><div class="dval">${tl}</div></div>
+    <div class="drow"><div class="dkey">No. KK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.noKK||'—')}</div></div>`;
+  prev.style.display='block';
+  window.updMatiUsia();
+};
+window.updMatiUsia = () => {
+  const tl = gv('mati-tgllahir');
+  const tm = gv('mati-tgl');
+  const y = usiaSaatMatiThn(tl, tm);
+  sv('mati-usia', y);
+  const ro = document.getElementById('mati-usia-ro');
+  if(ro) ro.value = y !== '' ? `${y} tahun` : (tl ? 'Isi tanggal meninggal' : '—');
+};
+
 window.renderMati = () => {
-  document.getElementById('mati-tb').innerHTML = S.kematian.length === 0
-    ? `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🕊️</div><div class="empty-title">Belum ada data kematian</div></div></td></tr>`
-    : S.kematian.map(k => `<tr>
+  const raw = gv('mati-q');
+  const t = raw.toLowerCase();
+  const d = raw.replace(/\D/g,'');
+  const list = !raw ? S.kematian : S.kematian.filter(k => {
+    const nik = (k.nik||'').replace(/\D/g,'');
+    return (d && nik.includes(d)) || ((k.nama||'').toLowerCase().includes(t));
+  });
+  document.getElementById('mati-tb').innerHTML = list.length === 0
+    ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🕊️</div><div class="empty-title">${S.kematian.length===0?'Belum ada data kematian':'Tidak ada data yang cocok dengan pencarian'}</div></div></td></tr>`
+    : list.map(k => `<tr>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.nik}</td>
         <td><strong>${k.nama}</strong></td>
         <td><span class="badge ${k.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${k.jenisKelamin==='L'?'L':'P'}</span></td>
         <td style="font-size:12px">${k.tanggalMeninggal?new Date(k.tanggalMeninggal).toLocaleDateString('id-ID'):'-'}</td>
+        <td style="font-size:12px">${k.usia!==undefined&&k.usia!==''?`${k.usia} th`:'-'}</td>
         <td>${k.tempatMeninggal||'-'}</td><td>${k.sebabKematian||'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
-        <td><button class="btn btn-sm btn-danger" onclick="confirmDel('kematian','${k.id}',${JSON.stringify(k.nama)})">Hapus</button></td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kematian", ${JSON.stringify(k.id)}, ${JSON.stringify(k.nama)})'>Hapus</button></td>
       </tr>`).join('');
 };
 
 window.saveMati = async () => {
-  const data = {nik:gv('mati-nik'),nama:gv('mati-nama'),jenisKelamin:gv('mati-jk'),tanggalMeninggal:gv('mati-tgl'),tempatMeninggal:gv('mati-tmpat'),sebabKematian:gv('mati-sebab'),noKK:gv('mati-nokk'),usia:gv('mati-usia')};
-  if(!data.nik || !data.nama || !data.tanggalMeninggal) { toast('NIK, Nama, Tanggal wajib','warn'); return; }
+  const pid = gv('mati-pddk-id');
+  const p = S.penduduk.find(x => x.id === pid);
+  if(!p) { toast('Pilih warga dari Data Penduduk (cari NIK atau nama)','warn'); return; }
+  const tanggalMeninggal = gv('mati-tgl');
+  if(!tanggalMeninggal) { toast('Tanggal meninggal wajib diisi','warn'); return; }
+  if(p.tanggalLahir && new Date(tanggalMeninggal) < new Date(p.tanggalLahir)) { toast('Tanggal meninggal tidak boleh sebelum tanggal lahir','warn'); return; }
+  window.updMatiUsia();
+  const data = {
+    nik:p.nik||'', nama:p.namaLengkap||'', jenisKelamin:p.jenisKelamin||'L', tanggalMeninggal,
+    tempatMeninggal:gv('mati-tmpat'), sebabKematian:gv('mati-sebab'), noKK:p.noKK||'',
+    usia:gv('mati-usia'), sumberPendudukId:p.id
+  };
   try {
     const nid = await fbPush('kematian', data); S.kematian.push({id:nid,...data});
-    const p = S.penduduk.find(pd => pd.nik === data.nik);
-    if(p) { await fbUpdate(`penduduk/${p.id}`,{statusPenduduk:'Meninggal'}); p.statusPenduduk='Meninggal'; }
-    addAct(`Kematian: ${data.nama}`); closeMd('md-mati'); renderMati(); toast('Data kematian tersimpan');
+    await fbRemove(`penduduk/${p.id}`);
+    S.penduduk = S.penduduk.filter(x => x.id !== p.id);
+    addAct(`Kematian: ${data.nama}`); closeMd('md-mati'); renderMati(); renderPddk(); renderDash();
+    toast('Kematian tersimpan; entri di Data Penduduk dihapus (register kematian tetap ada)');
   } catch(e) { toast('Gagal: '+e.message,'err'); }
 };
 
@@ -1714,9 +1910,20 @@ window.switchMobTab = (tab) => {
 };
 
 window.renderMob = () => {
-  const data = mobTab==='semua' ? S.mobilitas : S.mobilitas.filter(m=>m.jenis===mobTab);
+  let data = mobTab==='semua' ? [...S.mobilitas] : S.mobilitas.filter(m=>m.jenis===mobTab);
+  const countTab = data.length;
+  const raw = gv('mob-q');
+  if(raw) {
+    const t = raw.toLowerCase();
+    const d = raw.replace(/\D/g,'');
+    data = data.filter(m => {
+      const nik = (m.nik||'').replace(/\D/g,'');
+      return (d && nik.includes(d)) || ((m.nama||'').toLowerCase().includes(t));
+    });
+  }
+  const mobEmpty = data.length===0 ? (countTab===0 ? 'Belum ada data mobilitas' : 'Tidak ada data yang cocok dengan pencarian') : '';
   document.getElementById('mob-tb').innerHTML = data.length === 0
-    ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🚚</div><div class="empty-title">Belum ada data mobilitas</div></div></td></tr>`
+    ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🚚</div><div class="empty-title">${mobEmpty}</div></div></td></tr>`
     : data.map(m => `<tr>
         <td><span class="badge ${m.jenis==='masuk'?'badge-green':'badge-red'}">${m.jenis==='masuk'?'Masuk':'Keluar'}</span></td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${m.nik}</td>
@@ -1727,8 +1934,8 @@ window.renderMob = () => {
         <td style="font-size:12px">${m.tanggalPindah?new Date(m.tanggalPindah).toLocaleDateString('id-ID'):'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${m.noKKLama||'-'}</td>
         <td><div style="display:flex;gap:3px">
-          ${m.jenis==='masuk'?`<button class="btn btn-sm btn-success" onclick="mobToPddk('${m.id}')">+ Penduduk</button>`:''}
-          <button class="btn btn-sm btn-danger" onclick="confirmDel('mobilitas','${m.id}',${JSON.stringify(m.nama)})">Hapus</button>
+          ${m.jenis==='masuk'?`<button type="button" class="btn btn-sm btn-success" onclick='mobToPddk(${JSON.stringify(m.id)})'>+ Penduduk</button>`:''}
+          <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("mobilitas", ${JSON.stringify(m.id)}, ${JSON.stringify(m.nama)})'>Hapus</button>
         </div></td>
       </tr>`).join('');
 };
@@ -1869,8 +2076,8 @@ window.renderUsers = () => {
         <td><span class="badge ${u.role==='admin'?'badge-purple':'badge-blue'}">${u.role}</span></td>
         <td><span class="badge ${u.status!=='nonaktif'?'badge-green':'badge-gray'}">${u.status||'aktif'}</span></td>
         <td><div style="display:flex;gap:4px">
-          <button class="btn btn-sm btn-secondary" onclick="editUser('${u.id}')">Edit</button>
-          ${u.id!==CU?.id?`<button class="btn btn-sm btn-danger" onclick="confirmDel('users','${u.id}',${JSON.stringify(u.username)})">Hapus</button>`:'<span class="badge badge-blue">Anda</span>'}
+          <button type="button" class="btn btn-sm btn-secondary" onclick='editUser(${JSON.stringify(u.id)})'>Edit</button>
+          ${u.id!==CU?.id?`<button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("users", ${JSON.stringify(u.id)}, ${JSON.stringify(u.username)})'>Hapus</button>`:'<span class="badge badge-blue">Anda</span>'}
         </div></td>
       </tr>`).join('');
 };
@@ -1946,12 +2153,21 @@ window.confirmDel = (col, id, label) => {
 };
 window.delRec = async (col, id) => {
   try {
+    if(col === 'kelahiran') {
+      const rec = S.kelahiran.find(x => x.id === id);
+      if(rec?.pendudukId) {
+        try { await fbRemove(`penduduk/${rec.pendudukId}`); } catch(_) {}
+        S.penduduk = S.penduduk.filter(x => x.id !== rec.pendudukId);
+      }
+    }
     await fbRemove(`${col}/${id}`);
     S[col] = S[col].filter(x => x.id !== id);
     addAct(`Hapus data`); closeMd('md-confirm'); toast('Dihapus');
     const pg = document.querySelector('.page.active')?.id?.replace('page-','');
     const fn = {kk:renderKK,penduduk:renderPddk,sementara:renderSem,kelahiran:renderLahir,kematian:renderMati,mobilitas:renderMob,users:renderUsers,dashboard:renderDash};
     if(fn[pg]) fn[pg]();
+    if(col === 'kelahiran') renderPddk();
+    renderDash();
   } catch(e) { toast('Gagal hapus: '+e.message,'err'); }
 };
 
@@ -1966,16 +2182,16 @@ window.gSearch = (q) => {
 /* ════════════════════════════════
    PAGINATION
 ════════════════════════════════ */
-function renderPag(elId, current, total, onClick) {
+function renderPag(elId, current, total, handlerName) {
   const el = document.getElementById(elId); if(!el) return;
   if(total <= 1) { el.innerHTML=''; return; }
   let html = `<div class="pag-info">Hal. ${current} dari ${total}</div><div class="pag-btns">`;
-  html += `<button class="pg" onclick="(${onClick})(${current-1})" ${current===1?'disabled':''}>‹</button>`;
+  html += `<button type="button" class="pg" onclick="window.${handlerName}(${current-1})" ${current===1?'disabled':''}>‹</button>`;
   for(let i=1;i<=total;i++){
     if(total>7&&i>2&&i<total-1&&Math.abs(i-current)>1){if(i===3||i===total-2)html+='<span style="padding:4px 2px;color:var(--text3)">…</span>';continue;}
-    html+=`<button class="pg${i===current?' active':''}" onclick="(${onClick})(${i})">${i}</button>`;
+    html+=`<button type="button" class="pg${i===current?' active':''}" onclick="window.${handlerName}(${i})">${i}</button>`;
   }
-  html+=`<button class="pg" onclick="(${onClick})(${current+1})" ${current===total?'disabled':''}>›</button></div>`;
+  html+=`<button type="button" class="pg" onclick="window.${handlerName}(${current+1})" ${current===total?'disabled':''}>›</button></div>`;
   el.innerHTML=html;
 }
 
@@ -1988,6 +2204,32 @@ const selv= (id, v) => { const el=document.getElementById(id); if(el&&v) el.valu
 const ups = (col, item) => { const i=S[col].findIndex(x=>x.id===item.id); if(i>=0) S[col][i]=item; else S[col].push(item); };
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const ageStr = tgl => tgl ? Math.floor((new Date()-new Date(tgl))/31557600000)+' th' : '-';
+const escapeHtml = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+window.updPddkKerjaSearch = () => {
+  const inp = document.getElementById('pddk-pekerjaan');
+  const box = document.getElementById('pddk-kerja-dd');
+  if(!inp || !box) return;
+  const q = inp.value.trim().toLowerCase();
+  let list = !q ? PEKERJAAN_LIST.slice(0, 28) : PEKERJAAN_LIST.filter(x => x.toLowerCase().includes(q));
+  list = list.slice(0, 45);
+  if(list.length === 0) { box.innerHTML = ''; box.style.display = 'none'; return; }
+  box.innerHTML = list.map(t => `<button type="button" class="mati-sug-btn" onclick='pickPddkKerja(${JSON.stringify(t)})'>${escapeHtml(t)}</button>`).join('');
+  box.style.display = 'block';
+};
+window.pickPddkKerja = (t) => {
+  sv('pddk-pekerjaan', t);
+  const box = document.getElementById('pddk-kerja-dd');
+  if(box) box.style.display = 'none';
+};
+const usiaSaatMatiThn = (tglLahir, tglMati) => {
+  if(!tglLahir || !tglMati) return '';
+  const a = new Date(tglLahir); const b = new Date(tglMati);
+  if(isNaN(a.getTime()) || isNaN(b.getTime()) || b < a) return '';
+  let y = b.getFullYear() - a.getFullYear();
+  const md = b.getMonth() - a.getMonth();
+  if(md < 0 || (md === 0 && b.getDate() < a.getDate())) y--;
+  return String(Math.max(0, y));
+};
 
 /* ════════════════════════════════
    BOOT
