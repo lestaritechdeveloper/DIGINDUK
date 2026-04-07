@@ -2,7 +2,10 @@
 <html lang="id" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <title>DigiNduk</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -45,16 +48,38 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-html{-webkit-text-size-adjust:100%}
-body{
-  font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;
-  transition:background var(--t),color var(--t);
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
+
+/* ── Android/Chrome critical fixes ──────────────── */
+html{
+  height:100%;
+  /* Prevent elastic overscroll on Android */
+  overscroll-behavior:none;
+  /* Prevent font boosting on Android */
+  text-size-adjust:100%;-webkit-text-size-adjust:100%;
 }
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);color:var(--text);
+  overflow-x:hidden;
+  /* Only transition color, not background to reduce paint */
+  transition:color var(--t);
+  /* Full height without address-bar jump: dvh → vh fallback */
+  min-height:100vh;
+  min-height:100dvh;
+  /* Prevent overscroll bounce that looks janky on Android */
+  overscroll-behavior-y:none;
+  /* Crisp rendering */
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Remove tap highlight on Android Chrome */
+*{-webkit-tap-highlight-color:transparent}
+
+/* Scrollbar — hidden on mobile naturally */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
+@media(max-width:768px){::-webkit-scrollbar{width:0;height:0}}
 
 /* ============================
    LOGIN
@@ -62,24 +87,42 @@ body{
 #login-screen{
   position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;
   background:#0a0f1e;overflow:hidden;
+  /* Safe area for notched phones */
+  padding-left:max(20px,env(safe-area-inset-left));
+  padding-right:max(20px,env(safe-area-inset-right));
+  padding-bottom:max(20px,env(safe-area-inset-bottom));
 }
 .l-bg{position:absolute;inset:0;overflow:hidden}
-.l-orb{position:absolute;border-radius:50%;filter:blur(70px);animation:orbf 7s ease-in-out infinite}
-.l-orb:nth-child(1){width:480px;height:480px;background:rgba(0,122,255,.25);top:-120px;left:-100px;animation-delay:0s}
-.l-orb:nth-child(2){width:360px;height:360px;background:rgba(88,86,214,.22);bottom:-80px;right:-60px;animation-delay:-3s}
-.l-orb:nth-child(3){width:220px;height:220px;background:rgba(52,199,89,.15);top:40%;right:20%;animation-delay:-5s}
-@keyframes orbf{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-24px) scale(1.06)}}
+.l-orb{
+  position:absolute;border-radius:50%;
+  /* Reduced blur: 40px instead of 70px — big perf win on Android */
+  filter:blur(40px);
+  will-change:transform;
+  /* Use transform3d to force GPU layer */
+  animation:orbf 8s ease-in-out infinite;
+  /* Reduce paint: contain layout */
+  contain:layout style;
+}
+.l-orb:nth-child(1){width:380px;height:380px;background:rgba(0,122,255,.28);top:-100px;left:-80px;animation-delay:0s}
+.l-orb:nth-child(2){width:300px;height:300px;background:rgba(88,86,214,.24);bottom:-60px;right:-40px;animation-delay:-3s}
+.l-orb:nth-child(3){width:180px;height:180px;background:rgba(52,199,89,.18);top:40%;right:20%;animation-delay:-5s}
+/* Only translate — no scale to avoid layer recomposite */
+@keyframes orbf{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-20px,0)}}
 .l-noise{position:absolute;inset:0;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
 .l-card{
   position:relative;z-index:1;width:100%;max-width:390px;
-  background:rgba(255,255,255,.07);
-  backdrop-filter:blur(48px) saturate(180%);-webkit-backdrop-filter:blur(48px) saturate(180%);
+  background:rgba(255,255,255,.08);
+  /* Reduced backdrop-filter: 28px performs well on Android */
+  backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);
   border:1px solid rgba(255,255,255,.13);border-radius:24px;
-  padding:40px 36px 32px;
-  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 32px 80px rgba(0,0,0,.55),0 8px 24px rgba(0,0,0,.3);
+  padding:36px 32px 28px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 24px 64px rgba(0,0,0,.55),0 6px 20px rgba(0,0,0,.3);
+  /* GPU layer hint */
+  will-change:auto;
+  transform:translateZ(0);
 }
-.l-logo{text-align:center;margin-bottom:30px}
+.l-logo{text-align:center;margin-bottom:28px}
 .l-logo-icon{
   width:68px;height:68px;margin:0 auto 14px;border-radius:18px;
   background:linear-gradient(145deg,#007aff,#5856d6);
@@ -90,38 +133,65 @@ body{
 .l-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;font-weight:600}
 .l-label{display:block;font-size:11px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
 .l-inp{
-  width:100%;padding:12px 16px;margin-bottom:14px;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:500;
-  color:#fff;outline:none;transition:border var(--t),background var(--t),box-shadow var(--t);
+  width:100%;padding:13px 16px;margin-bottom:14px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);
+  border-radius:12px;font-family:'Nunito',sans-serif;
+  /* 16px prevents Android auto-zoom on focus */
+  font-size:16px;font-weight:500;
+  color:#fff;outline:none;
+  transition:border .15s ease,box-shadow .15s ease;
+  /* Prevent Android input styling */
+  -webkit-appearance:none;appearance:none;
 }
 .l-inp::placeholder{color:rgba(255,255,255,.25)}
-.l-inp:focus{border-color:rgba(0,122,255,.7);background:rgba(255,255,255,.11);box-shadow:0 0 0 3px rgba(0,122,255,.22)}
+.l-inp:focus{border-color:rgba(0,122,255,.75);box-shadow:0 0 0 3px rgba(0,122,255,.22)}
 .l-btn{
-  width:100%;padding:13px;margin-top:2px;border:none;border-radius:12px;cursor:pointer;
+  width:100%;padding:14px;margin-top:2px;border:none;border-radius:12px;cursor:pointer;
   background:linear-gradient(135deg,#007aff,#5856d6);color:#fff;
-  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
-  box-shadow:0 4px 18px rgba(0,122,255,.4);transition:all var(--t);
+  font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
+  box-shadow:0 4px 18px rgba(0,122,255,.4);
+  /* No transform on hover — hover doesn't work well on touch anyway */
+  transition:opacity .15s ease,box-shadow .15s ease;
+  /* Prevent double-tap zoom */
+  touch-action:manipulation;
+  -webkit-appearance:none;
 }
-.l-btn:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(0,122,255,.5)}
-.l-btn:active{transform:none}
-.l-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.l-btn:active{opacity:.85}
+.l-btn:disabled{opacity:.55;cursor:not-allowed}
 .l-err{color:#ff6b6b;font-size:12px;font-weight:600;text-align:center;margin-top:10px;min-height:18px}
 .l-hint{font-size:11px;color:rgba(255,255,255,.3);text-align:center;margin-top:10px;min-height:16px;transition:color .5s}
 
 /* ============================
    APP LAYOUT
 ============================ */
-#app{display:flex;height:100vh;overflow:hidden}
+#app{
+  display:flex;
+  /* dvh prevents address-bar layout jump on Android Chrome */
+  height:100vh;height:100dvh;
+  /* Do NOT use overflow:hidden on #app — causes modal issues on Android */
+  overflow:hidden;
+}
 
 /* SIDEBAR */
 #sidebar{
-  width:var(--sw);height:100vh;flex-shrink:0;
-  background:var(--sidebar-bg);backdrop-filter:blur(24px) saturate(200%);
-  -webkit-backdrop-filter:blur(24px) saturate(200%);
+  width:var(--sw);
+  height:100vh;height:100dvh;
+  flex-shrink:0;
+  /* Reduced backdrop-filter for Android — 16px is good enough */
+  background:var(--sidebar-bg);
+  backdrop-filter:blur(16px) saturate(160%);
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
   border-right:1px solid var(--glass-b);
   display:flex;flex-direction:column;z-index:100;
-  transition:transform var(--t),background var(--t);overflow-y:auto;
+  /* Only transform — no background transition on sidebar */
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+  /* Smooth momentum scroll on iOS, normal on Android */
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  /* Promote to GPU layer */
+  will-change:transform;
+  transform:translateZ(0);
 }
 .sb-brand{padding:16px 14px 12px;border-bottom:1px solid var(--bg3);display:flex;align-items:center;gap:10px}
 .sb-icon{
@@ -150,13 +220,20 @@ body{
 .sb-sec{padding:12px 10px 2px}
 .sb-sec-label{font-size:10px;font-weight:700;color:var(--text4);letter-spacing:.08em;text-transform:uppercase;padding:0 8px 5px}
 .sb-item{
-  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rx);
+  display:flex;align-items:center;gap:8px;
+  /* Min 44px touch target for Android accessibility */
+  padding:10px 10px;
+  border-radius:var(--rx);
   cursor:pointer;color:var(--text3);font-size:13px;font-weight:700;
-  transition:background var(--t),color var(--t);user-select:none;margin-bottom:1px;
+  /* Only transition background, not all */
+  transition:background .15s ease,color .15s ease;
+  user-select:none;margin-bottom:1px;
+  /* Prevent double-tap zoom on nav items */
+  touch-action:manipulation;
 }
 .sb-item:hover{background:var(--blue-xs);color:var(--blue)}
 .sb-item.active{background:var(--blue-xs);color:var(--blue)}
-.sb-item svg{width:16px;height:16px;flex-shrink:0;transition:color var(--t)}
+.sb-item svg{width:16px;height:16px;flex-shrink:0}
 
 .sb-foot{margin-top:auto;padding:10px;border-top:1px solid var(--bg3)}
 .fb-pill{
@@ -169,45 +246,79 @@ body{
 .fb-dot.spin{background:var(--orange);animation:fbpulse .8s infinite alternate}
 @keyframes fbpulse{to{opacity:.3}}
 .sb-logout{
-  width:100%;padding:8px;border:none;border-radius:var(--rx);cursor:pointer;
+  width:100%;padding:10px;border:none;border-radius:var(--rx);cursor:pointer;
   background:var(--red-xs);color:var(--red);font-family:'Nunito',sans-serif;
-  font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:background var(--t);
+  font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;
+  min-height:42px;
+  transition:background .12s ease;
+  touch-action:manipulation;
 }
-.sb-logout:hover{background:rgba(255,59,48,.2)}
+@media(hover:hover){.sb-logout:hover{background:rgba(255,59,48,.2)}}
+.sb-logout:active{background:rgba(255,59,48,.2)}
 
 /* TOPBAR */
 #topbar{
   height:var(--hh);flex-shrink:0;
-  background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  /* Lighter blur for Android — 12px is sufficient */
+  background:var(--glass);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:1px solid var(--bg3);
   display:flex;align-items:center;padding:0 18px;gap:10px;z-index:50;
-  transition:background var(--t);
+  /* Safe area for notched/punch-hole devices */
+  padding-left:max(18px,env(safe-area-inset-left));
+  padding-right:max(18px,env(safe-area-inset-right));
+  /* Promote topbar to own GPU layer */
+  will-change:auto;
+  transform:translateZ(0);
 }
-.tb-menu{display:none;background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);padding:5px;border-radius:8px}
-.tb-title{font-size:16px;font-weight:900;color:var(--text);flex:1}
+.tb-menu{
+  display:none;background:none;border:none;
+  /* 44px touch target */
+  width:40px;height:40px;
+  cursor:pointer;color:var(--text2);
+  display:none;align-items:center;justify-content:center;
+  border-radius:9px;
+  touch-action:manipulation;
+  flex-shrink:0;
+}
+.tb-title{font-size:16px;font-weight:900;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tb-search{
   display:flex;align-items:center;gap:7px;background:var(--bg3);
   border:1.5px solid transparent;border-radius:10px;padding:6px 12px;min-width:190px;
-  transition:all var(--t);
+  transition:border .15s ease,box-shadow .15s ease;
 }
 .tb-search:focus-within{border-color:var(--blue);background:var(--bg2);box-shadow:0 0 0 3px var(--blue-xs)}
 .tb-search svg{width:14px;height:14px;color:var(--text3);flex-shrink:0}
-.tb-search input{border:none;background:none;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:var(--text);outline:none;width:100%}
-.tb-search input::placeholder{color:var(--text3)}
+.tb-search input{
+  border:none;background:none;font-family:'Nunito',sans-serif;
+  font-size:16px;font-weight:600;color:var(--text);outline:none;width:100%;
+  /* 16px prevents Android zoom */
+}
+.tb-search input::placeholder{color:var(--text3);font-size:13px}
 .tb-dark{
-  width:34px;height:34px;border:none;cursor:pointer;background:var(--bg3);
+  width:40px;height:40px;border:none;cursor:pointer;background:var(--bg3);
   border-radius:9px;display:flex;align-items:center;justify-content:center;
-  font-size:15px;transition:background var(--t);
+  font-size:16px;
+  transition:background .15s ease;
+  touch-action:manipulation;
+  flex-shrink:0;
 }
 .tb-dark:hover{background:var(--bg4)}
+.tb-dark:active{background:var(--bg4)}
 
 /* MAIN */
-#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-#content{flex:1;overflow-y:auto;padding:20px}
-.page{display:none;animation:fadeUp .25s var(--ease)}
-.page.active{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#content{
+  flex:1;overflow-y:auto;padding:20px;
+  /* Momentum scroll on iOS, smooth on Android */
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  /* Avoid painting during scroll */
+  will-change:scroll-position;
+}
+.page{display:none}
+.page.active{display:block;animation:fadeUp .2s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 
 /* ============================
    COMPONENTS
@@ -222,7 +333,7 @@ body{
 .card{
   background:var(--bg2);border-radius:var(--r);border:1px solid var(--bg3);
   box-shadow:var(--sh0);overflow:hidden;margin-bottom:14px;
-  transition:background var(--t),border var(--t);
+  /* Remove background transition — causes paint on every scroll frame */
 }
 .card:last-child{margin-bottom:0}
 .card-h{padding:13px 16px;border-bottom:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -234,9 +345,11 @@ body{
 .stat-card{
   background:var(--bg2);border-radius:var(--r);border:1px solid var(--bg3);
   padding:16px;box-shadow:var(--sh0);cursor:default;
-  transition:transform var(--t),box-shadow var(--t),background var(--t);
+  transition:box-shadow .15s ease;
+  touch-action:manipulation;
 }
-.stat-card:hover{transform:translateY(-2px);box-shadow:var(--sh1)}
+/* Only show hover lift on non-touch devices */
+@media(hover:hover){.stat-card:hover{box-shadow:var(--sh1)}}
 .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
 .stat-icon svg{width:18px;height:18px}
 .stat-val{font-size:28px;font-weight:900;line-height:1;color:var(--text)}
@@ -247,16 +360,19 @@ body{
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 
 /* TABLE */
-.tbl-wrap{overflow-x:auto}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead th{
   text-align:left;padding:9px 14px;border-bottom:1px solid var(--bg3);
   font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
   color:var(--text3);background:var(--bg);white-space:nowrap;
+  /* Sticky header for long tables */
+  position:sticky;top:0;z-index:1;
 }
 tbody td{padding:10px 14px;border-bottom:1px solid var(--bg3);color:var(--text2);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:var(--blue-xs)}
+/* Only show hover on devices that support it — prevents sticky hover on Android */
+@media(hover:hover){tbody tr:hover td{background:var(--blue-xs)}}
 
 /* BADGE */
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:800;white-space:nowrap}
@@ -270,49 +386,90 @@ tbody tr:hover td{background:var(--blue-xs)}
 
 /* BTN */
 .btn{
-  display:inline-flex;align-items:center;gap:5px;padding:8px 14px;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  padding:10px 14px;
+  /* Min 44px height for touch accessibility */
+  min-height:40px;
   border-radius:var(--rx);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
-  border:none;cursor:pointer;white-space:nowrap;transition:all var(--t);
+  border:none;cursor:pointer;white-space:nowrap;
+  transition:opacity .12s ease,background .12s ease;
+  touch-action:manipulation;
+  /* Prevent text selection on tap */
+  user-select:none;-webkit-user-select:none;
 }
+.btn:active{opacity:.8}
 .btn-primary{background:var(--blue);color:#fff}
-.btn-primary:hover{background:var(--blue-d)}
+@media(hover:hover){.btn-primary:hover{background:var(--blue-d)}}
 .btn-secondary{background:var(--bg3);color:var(--text2)}
-.btn-secondary:hover{background:var(--bg4)}
+@media(hover:hover){.btn-secondary:hover{background:var(--bg4)}}
 .btn-danger{background:var(--red-xs);color:var(--red)}
-.btn-danger:hover{background:rgba(255,59,48,.2)}
+@media(hover:hover){.btn-danger:hover{background:rgba(255,59,48,.2)}}
 .btn-success{background:var(--accent-xs);color:var(--accent)}
-.btn-success:hover{background:rgba(52,199,89,.2)}
-.btn-sm{padding:5px 9px;font-size:11px;border-radius:7px}
+@media(hover:hover){.btn-success:hover{background:rgba(52,199,89,.2)}}
+.btn-sm{padding:7px 9px;font-size:11px;border-radius:7px;min-height:34px}
 
 /* FORM */
 .fg{margin-bottom:12px}
 .fl{display:block;font-size:11px;font-weight:800;color:var(--text3);margin-bottom:4px;letter-spacing:.02em}
 .fc{
-  width:100%;padding:9px 12px;border:1.5px solid var(--bg3);border-radius:var(--rx);
-  font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;
+  width:100%;padding:11px 12px;border:1.5px solid var(--bg3);border-radius:var(--rx);
+  font-family:'Nunito',sans-serif;
+  /* 16px critical: prevents Android Chrome from zooming on focus */
+  font-size:16px;font-weight:600;
   color:var(--text);background:var(--bg);outline:none;
-  transition:border var(--t),box-shadow var(--t),background var(--t);
+  transition:border .15s ease,box-shadow .15s ease;
+  /* Prevent iOS default styling */
+  -webkit-appearance:none;appearance:none;
+  /* Min touch height */
+  min-height:44px;
+  touch-action:manipulation;
+  /* Fix 4: Kapitalisasi semua input teks */
+  text-transform:uppercase;
 }
 .fc:focus{border-color:var(--blue);background:var(--bg2);box-shadow:0 0 0 3px var(--blue-xs)}
-select.fc{cursor:pointer}
+select.fc{cursor:pointer;padding-right:28px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:14px}
+/* Exclude tipe yang tidak perlu uppercase: tanggal, angka, password */
+input[type=date].fc,
+input[type=number].fc,
+input[type=password].fc { text-transform:none }
+/* Placeholder tetap normal agar terbaca */
+.fc::placeholder { text-transform:none; color:var(--text3) }
+/* Filter search input di topbar — jangan uppercase */
+.tb-search input { text-transform:none }
+/* Autocomplete suggestion juga jangan uppercase */
+.mati-sug-btn, .mati-suggest { text-transform:none }
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 
 /* MODAL */
 .mo{
-  position:fixed;inset:0;background:rgba(0,0,0,.45);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  position:fixed;inset:0;
+  /* Lighter backdrop for Android — 8px is enough to blur bg */
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;
-  opacity:0;pointer-events:none;transition:opacity var(--t);
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease;
+  /* Safe area padding */
+  padding-bottom:max(16px,env(safe-area-inset-bottom));
+  will-change:opacity;
 }
 .mo.open{opacity:1;pointer-events:all}
 .md{
   background:var(--bg2);border-radius:var(--r);box-shadow:var(--sh2);
-  width:100%;max-width:540px;max-height:90vh;overflow-y:auto;
+  width:100%;max-width:540px;
+  /* Use max-height with dvh fallback */
+  max-height:90vh;max-height:90dvh;
+  overflow-y:auto;
   border:1px solid var(--bg3);
-  transform:scale(.96) translateY(10px);transition:transform var(--t);
+  /* Use translateY only — scale causes blurry text on some Android */
+  transform:translate3d(0,16px,0);
+  transition:transform .2s cubic-bezier(.4,0,.2,1);
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  will-change:transform;
 }
-.mo.open .md{transform:scale(1) translateY(0)}
+.mo.open .md{transform:translate3d(0,0,0)}
 .md-head{
   padding:15px 16px 11px;border-bottom:1px solid var(--bg3);
   display:flex;align-items:center;justify-content:space-between;
@@ -320,38 +477,60 @@ select.fc{cursor:pointer}
 }
 .md-title{font-size:14px;font-weight:900;color:var(--text)}
 .md-x{
-  background:var(--bg3);border:none;width:24px;height:24px;border-radius:50%;
+  background:var(--bg3);border:none;
+  /* 36px touch target */
+  width:32px;height:32px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--text3);font-size:13px;transition:background var(--t);
+  color:var(--text3);font-size:14px;
+  transition:background .12s ease;
+  touch-action:manipulation;
+  flex-shrink:0;
 }
-.md-x:hover{background:var(--red-xs);color:var(--red)}
+.md-x:active{background:var(--red-xs);color:var(--red)}
+@media(hover:hover){.md-x:hover{background:var(--red-xs);color:var(--red)}}
 .md-body{padding:16px}
 .md-foot{
   padding:11px 16px;border-top:1px solid var(--bg3);
   display:flex;justify-content:flex-end;gap:8px;
   position:sticky;bottom:0;background:var(--bg2);
+  padding-bottom:max(11px,env(safe-area-inset-bottom));
 }
 
 /* TOAST */
-#toast-box{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:7px;z-index:9999}
+#toast-box{
+  position:fixed;
+  bottom:max(20px,env(safe-area-inset-bottom));
+  right:max(20px,env(safe-area-inset-right));
+  display:flex;flex-direction:column;gap:7px;z-index:9999;
+  pointer-events:none;
+}
 .toast{
-  background:var(--ink);color:#fff;padding:10px 15px;border-radius:var(--rs);
+  background:var(--ink);color:#fff;padding:11px 16px;border-radius:var(--rs);
   font-size:13px;font-weight:700;box-shadow:var(--sh2);
-  display:flex;align-items:center;gap:8px;min-width:190px;max-width:300px;
-  animation:toastIn .25s var(--ease);
+  display:flex;align-items:center;gap:8px;min-width:200px;max-width:min(300px,calc(100vw - 40px));
+  animation:toastIn .2s ease forwards;
+  pointer-events:all;
+  /* Promote to own layer */
+  will-change:transform,opacity;
 }
 .toast.ok{background:var(--accent)}
 .toast.err{background:var(--red)}
 .toast.warn{background:var(--orange)}
-@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes toastIn{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 
 /* CHARTS */
 .bar-chart{display:flex;flex-direction:column;gap:8px}
 .bar-row{display:flex;align-items:center;gap:8px}
-.bar-lbl{font-size:11px;font-weight:700;color:var(--text2);width:110px;flex-shrink:0;text-align:right;line-height:1.2}
-.bar-track{flex:1;height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;position:relative}
-.bar-fill{height:100%;border-radius:99px;width:0;transition:width 1.1s cubic-bezier(.34,1.56,.64,1)}
-.bar-val{font-size:11px;font-weight:800;color:var(--text3);width:30px}
+.bar-lbl{font-size:11px;font-weight:700;color:var(--text2);width:110px;flex-shrink:0;text-align:right;line-height:1.3}
+.bar-track{flex:1;height:8px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.bar-fill{
+  height:100%;border-radius:99px;width:0%;
+  /* Use transform instead of width for GPU-accelerated animation */
+  transform-origin:left center;
+  transition:width .9s cubic-bezier(.25,1,.5,1);
+  will-change:width;
+}
+.bar-val{font-size:11px;font-weight:800;color:var(--text3);width:30px;flex-shrink:0}
 
 .donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
 .donut-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center}
@@ -377,46 +556,81 @@ select.fc{cursor:pointer}
 /* PAGINATION */
 .pag{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--bg3);gap:8px;flex-wrap:wrap}
 .pag-info{font-size:11px;font-weight:700;color:var(--text3)}
-.pag-btns{display:flex;gap:3px}
-.pg{padding:4px 9px;border:1px solid var(--bg3);background:var(--bg2);border-radius:7px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;color:var(--text2);transition:all var(--t)}
-.pg:hover{background:var(--blue-xs);color:var(--blue);border-color:var(--blue)}
+.pag-btns{display:flex;gap:3px;flex-wrap:wrap}
+.pg{
+  padding:6px 10px;min-width:34px;min-height:34px;
+  border:1px solid var(--bg3);background:var(--bg2);border-radius:7px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  cursor:pointer;color:var(--text2);
+  transition:background .12s ease,color .12s ease,border-color .12s ease;
+  touch-action:manipulation;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+@media(hover:hover){.pg:hover{background:var(--blue-xs);color:var(--blue);border-color:var(--blue)}}
+.pg:active{background:var(--blue-xs);color:var(--blue);border-color:var(--blue)}
 .pg.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .pg:disabled{opacity:.3;cursor:not-allowed}
 
 /* FILTERS */
 .filters{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
-.fsel{padding:6px 10px;border:1.5px solid var(--bg3);border-radius:var(--rx);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;background:var(--bg2);color:var(--text2);cursor:pointer;outline:none;transition:border var(--t)}
+.fsel{
+  padding:8px 10px;min-height:40px;
+  border:1.5px solid var(--bg3);border-radius:var(--rx);
+  font-family:'Nunito',sans-serif;
+  /* 16px prevents zoom on Android */
+  font-size:16px;font-weight:700;
+  background:var(--bg2);color:var(--text2);cursor:pointer;outline:none;
+  transition:border .12s ease;
+  touch-action:manipulation;
+  -webkit-appearance:none;appearance:none;
+  /* Filter dropdown: tidak perlu uppercase, kontennya label bawaan */
+}
 .fsel:focus{border-color:var(--blue)}
+/* Filter search input — uppercase agar konsisten */
+.filters input.fc { text-transform:uppercase }
 
 /* CHIP */
 .chip{display:inline-flex;align-items:center;padding:2px 8px;background:var(--bg3);border-radius:99px;font-size:11px;font-weight:700;color:var(--text2)}
 
 /* TABS */
-.tabs{display:flex;gap:3px;padding:3px;background:var(--bg3);border-radius:var(--rx);width:fit-content}
-.tab{padding:5px 13px;border-radius:7px;font-size:13px;font-weight:800;cursor:pointer;color:var(--text3);border:none;background:none;font-family:'Nunito',sans-serif;transition:all var(--t)}
+.tabs{display:flex;gap:3px;padding:3px;background:var(--bg3);border-radius:var(--rx);width:fit-content;max-width:100%;overflow-x:auto}
+.tab{
+  padding:8px 14px;min-height:36px;
+  border-radius:7px;font-size:13px;font-weight:800;cursor:pointer;
+  color:var(--text3);border:none;background:none;
+  font-family:'Nunito',sans-serif;
+  transition:background .12s ease,color .12s ease,box-shadow .12s ease;
+  touch-action:manipulation;white-space:nowrap;
+}
 .tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--sh0)}
 
 /* INFO BOX */
 .infobox{background:var(--blue-xs);border:1px solid rgba(0,122,255,.2);border-radius:var(--rx);padding:10px 14px;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:12px}
 .mati-suggest{
   position:absolute;left:0;right:0;top:100%;margin-top:2px;
-  max-height:220px;overflow-y:auto;overflow-x:hidden;
+  max-height:200px;overflow-y:auto;overflow-x:hidden;
   border:1px solid var(--bg3);border-radius:var(--rx);
-  background:var(--bg2);background-color:var(--bg2);
-  box-shadow:var(--sh2),0 0 0 1px rgba(0,0,0,.06);
+  background:var(--bg2);
+  box-shadow:var(--sh2);
   z-index:500;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
 [data-theme=dark] .mati-suggest{
   box-shadow:var(--sh2),0 0 0 1px rgba(255,255,255,.08);
 }
 .mati-sug-btn{
-  display:block;width:100%;text-align:left;padding:10px 12px;border:0;
-  border-bottom:1px solid var(--bg3);background:var(--bg2);cursor:pointer;
+  display:block;width:100%;text-align:left;
+  padding:12px 14px;
+  min-height:44px;
+  border:0;border-bottom:1px solid var(--bg3);
+  background:var(--bg2);cursor:pointer;
   font-size:13px;color:var(--text);font-family:inherit;
+  touch-action:manipulation;
 }
 .mati-sug-btn:last-child{border-bottom:0}
-.mati-sug-btn:hover{background:var(--bg3)}
+@media(hover:hover){.mati-sug-btn:hover{background:var(--bg3)}}
+.mati-sug-btn:active{background:var(--bg3)}
 
 /* ALERT */
 .alert{padding:10px 14px;border-radius:var(--rx);font-size:12px;font-weight:700;margin-bottom:12px;display:flex;align-items:flex-start;gap:7px}
@@ -435,68 +649,150 @@ select.fc{cursor:pointer}
 .rval{color:var(--text);font-weight:900}
 
 /* SIDEBAR OVERLAY */
-#sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:99}
+#sb-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.35);z-index:99;
+  /* GPU layer */
+  will-change:opacity;
+}
 
 /* SPINNER */
 .spin-wrap{display:flex;align-items:center;justify-content:center;padding:32px}
-.spinner{width:26px;height:26px;border:3px solid var(--bg3);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+.spinner{
+  width:26px;height:26px;border:3px solid var(--bg3);border-top-color:var(--blue);
+  border-radius:50%;animation:spin .65s linear infinite;
+  will-change:transform;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* RESPONSIVE */
 @media(max-width:900px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
+
 @media(max-width:768px){
-  #sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}
-  #sidebar.open{transform:translateX(0)}
-  #sb-overlay{display:block;opacity:0;pointer-events:none;transition:opacity var(--t)}
+  /* Sidebar as drawer */
+  #sidebar{
+    position:fixed;left:0;top:0;
+    transform:translate3d(-100%,0,0);
+    /* Remove backdrop-filter on mobile sidebar — too heavy on Android */
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+    background:var(--bg2);
+    box-shadow:none;
+    border-right:1px solid var(--bg3);
+  }
+  #sidebar.open{
+    transform:translate3d(0,0,0);
+    box-shadow:4px 0 24px rgba(0,0,0,.15);
+  }
+  #sb-overlay{display:block;opacity:0;pointer-events:none;transition:opacity .2s ease}
   #sb-overlay.open{opacity:1;pointer-events:all}
   .tb-menu{display:flex}
-  .tb-search{min-width:120px}
+  .tb-search{min-width:120px;flex:1}
   #content{padding:14px}
   .stats-grid{grid-template-columns:1fr 1fr}
   .fr,.fr3{grid-template-columns:1fr}
   .g3{grid-template-columns:1fr}
   .sec-head{flex-direction:column;align-items:flex-start}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr}
-  .tb-search{display:none}
-  #content{padding:10px}
-  .mo{padding:0;align-items:flex-end}
-  .md{max-width:100%;border-radius:var(--r) var(--r) 0 0}
+  /* Larger touch targets in tables */
+  tbody td{padding:12px 10px}
+  thead th{padding:10px}
 }
 
-/* Perangkat sentuh / layar sempit: kurangi blur & animasi (Android Chrome jauh lebih berat dari iOS) */
-@media (max-width:900px), (hover: none) and (pointer: coarse){
-  .l-orb,.l-noise{display:none!important}
-  .l-bg{background:radial-gradient(ellipse 120% 80% at 50% -20%,rgba(0,122,255,.35),transparent 55%),radial-gradient(ellipse 100% 60% at 100% 100%,rgba(88,86,214,.2),transparent 50%),#0a0f1e}
-  .l-card{
-    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-    background:rgba(22,26,38,.96)!important;
-    border-color:rgba(255,255,255,.14);
-    box-shadow:0 16px 48px rgba(0,0,0,.45);
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .tb-search{display:none}
+  #content{
+    padding:12px;
+    padding-bottom:max(12px,env(safe-area-inset-bottom));
   }
-  #sidebar,#topbar{
-    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-    background:var(--bg2)!important;
-  }
+  /* Full-screen bottom sheet modal on mobile */
   .mo{
-    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-    background:rgba(0,0,0,.55);
+    padding:0;
+    align-items:flex-end;
+    /* Remove backdrop-filter on small mobile — too heavy */
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+    background:rgba(0,0,0,.5);
   }
-  .page{animation:none!important}
-  .stat-card:hover{transform:none;box-shadow:var(--sh0)}
-  .bar-fill{transition:none!important}
+  .md{
+    max-width:100%;
+    border-radius:20px 20px 0 0;
+    max-height:92dvh;
+    /* Add bottom safe area padding */
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .md-foot{
+    padding-bottom:max(12px,env(safe-area-inset-bottom));
+  }
+  /* Stack filters vertically */
+  .filters{flex-direction:column;align-items:stretch}
+  .filters .fc,.filters .fsel{width:100%}
 }
-@media (prefers-reduced-motion:reduce){
-  .l-orb{animation:none!important}
-  .page{animation:none!important}
-  .bar-fill{transition:none!important}
+
+/* Android Chrome specific: remove bottom nav bar overlap */
+@supports(height:100dvh){
+  #app,#sidebar{height:100dvh}
+  #content{padding-bottom:max(20px,env(safe-area-inset-bottom))}
 }
 
 @media print{
   #sidebar,#topbar,#toast-box,.no-print{display:none!important}
   #app{display:block}#main{overflow:visible}#content{padding:0;overflow:visible}
   .page{display:block!important}body{background:#fff}.card{box-shadow:none}
+}
+/* ── Multi-filter panel ─────────────────────────── */
+#pddk-filter-body { transition:none }
+.pddk-filter-row { }
+@media(max-width:600px){
+  .pddk-filter-row { grid-template-columns:1fr !important }
+}
+
+/* Preset usia chips */
+.pddk-preset-chip {
+  padding:5px 10px;
+  border:1.5px solid var(--bg3);
+  background:var(--bg2);
+  border-radius:99px;
+  font-family:'Nunito',sans-serif;
+  font-size:11px;font-weight:800;
+  color:var(--text3);cursor:pointer;
+  transition:all .12s ease;
+  touch-action:manipulation;
+  white-space:nowrap;
+}
+.pddk-preset-chip:hover,.pddk-preset-chip:active {
+  border-color:var(--blue);
+  background:var(--blue-xs);
+  color:var(--blue);
+}
+.pddk-preset-chip.active-preset {
+  border-color:var(--blue);
+  background:var(--blue);
+  color:#fff;
+}
+
+/* Active filter tag pills (shown when filter active) */
+.pddk-filter-tags {
+  display:flex;gap:6px;flex-wrap:wrap;
+  padding:0 16px 10px;
+}
+.pddk-filter-tag {
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px 3px 10px;
+  background:var(--blue-xs);border:1px solid rgba(0,122,255,.2);
+  color:var(--blue);border-radius:99px;
+  font-size:11px;font-weight:800;
+}
+.pddk-filter-tag button {
+  background:none;border:none;cursor:pointer;
+  color:var(--blue);padding:0;line-height:1;
+  display:flex;align-items:center;
+  opacity:.7;transition:opacity .1s;
+}
+.pddk-filter-tag button:hover{opacity:1}
+
+/* Clear button in search input */
+#pddk-q:not(:placeholder-shown) ~ button,
+#pddk-f-pekerjaan:not(:placeholder-shown) ~ button {
+  display:flex !important;
 }
 </style>
 </head>
@@ -738,23 +1034,154 @@ select.fc{cursor:pointer}
       <!-- PENDUDUK -->
       <div class="page" id="page-penduduk">
         <div class="sec-head">
-          <div><div class="sec-title">Data Penduduk</div><div class="sec-sub">Seluruh penduduk terdaftar</div></div>
+          <div><div class="sec-title">Data Penduduk</div><div class="sec-sub" id="pddk-result-sub">Seluruh penduduk terdaftar</div></div>
           <button class="btn btn-primary" onclick="openMd('md-pddk');resetF('pddk')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Tambah Penduduk
           </button>
         </div>
-        <div class="card">
-          <div class="card-h">
-            <div class="filters">
-              <input class="fc" style="width:200px" placeholder="Cari NIK / Nama..." oninput="PP=1;window.PP=1;renderPddk()" id="pddk-q"/>
-              <select class="fsel" onchange="PP=1;window.PP=1;renderPddk()" id="pddk-jk"><option value="">Semua JK</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
-              <select class="fsel" onchange="PP=1;window.PP=1;renderPddk()" id="pddk-st"><option value="">Semua Status</option><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select>
+
+        <!-- MULTI-FILTER PANEL -->
+        <div class="card" id="pddk-filter-panel" style="margin-bottom:14px">
+          <div class="card-h" style="cursor:pointer;user-select:none" onclick="toggleFilterPanel()">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filter &amp; Pencarian
+              <span id="pddk-active-count" style="display:none;background:var(--blue);color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:99px;margin-left:4px">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button type="button" id="pddk-reset-btn" class="btn btn-sm btn-danger" onclick="event.stopPropagation();resetPddkFilters()" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:11px;height:11px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Reset Filter
+              </button>
+              <svg id="pddk-filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;color:var(--text3);transition:transform .2s ease;flex-shrink:0"><polyline points="6,9 12,15 18,9"/></svg>
             </div>
           </div>
+          <div id="pddk-filter-body" style="padding:14px 16px">
+            <!-- Row 1: Search + JK -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" class="pddk-filter-row">
+              <div>
+                <div class="fl">NIK / Nama</div>
+                <div style="position:relative">
+                  <input class="fc" id="pddk-q" placeholder="Cari NIK atau nama..."
+                    oninput="debouncePddkFilter()"
+                    style="padding-right:32px;text-transform:none"/>
+                  <button type="button" id="pddk-q-clear"
+                    onclick="clearPddkField('pddk-q')"
+                    style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;line-height:1">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div class="fl">Jenis Kelamin</div>
+                <select class="fc" id="pddk-f-jk" onchange="runPddkFilter()">
+                  <option value="">Semua</option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </div>
+            </div>
+            <!-- Row 2: Status Kawin + Agama -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" class="pddk-filter-row">
+              <div>
+                <div class="fl">Status Perkawinan</div>
+                <select class="fc" id="pddk-f-kawin" onchange="runPddkFilter()">
+                  <option value="">Semua</option>
+                  <option value="Belum Kawin">Belum Kawin</option>
+                  <option value="Kawin">Kawin</option>
+                  <option value="Cerai Hidup">Cerai Hidup</option>
+                  <option value="Cerai Mati">Cerai Mati</option>
+                </select>
+              </div>
+              <div>
+                <div class="fl">Agama</div>
+                <select class="fc" id="pddk-f-agama" onchange="runPddkFilter()">
+                  <option value="">Semua</option>
+                  <option value="Islam">Islam</option>
+                  <option value="Kristen">Kristen</option>
+                  <option value="Katolik">Katolik</option>
+                  <option value="Hindu">Hindu</option>
+                  <option value="Buddha">Buddha</option>
+                  <option value="Konghucu">Konghucu</option>
+                </select>
+              </div>
+            </div>
+            <!-- Row 3: Pendidikan + Golongan Darah -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" class="pddk-filter-row">
+              <div>
+                <div class="fl">Pendidikan Terakhir</div>
+                <select class="fc" id="pddk-f-pendidikan" onchange="runPddkFilter()">
+                  <option value="">Semua</option>
+                  <option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option>
+                  <option value="SD/Sederajat">SD/Sederajat</option>
+                  <option value="SMP/Sederajat">SMP/Sederajat</option>
+                  <option value="SMA/Sederajat">SMA/Sederajat</option>
+                  <option value="D1/D2/D3">D1/D2/D3</option>
+                  <option value="S1/D4">S1/D4</option>
+                  <option value="S2">S2</option>
+                  <option value="S3">S3</option>
+                </select>
+              </div>
+              <div>
+                <div class="fl">Golongan Darah</div>
+                <select class="fc" id="pddk-f-goldar" onchange="runPddkFilter()">
+                  <option value="">Semua</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="AB">AB</option>
+                  <option value="O">O</option>
+                  <option value="-">Tidak Tahu</option>
+                </select>
+              </div>
+            </div>
+            <!-- Row 4: Pekerjaan (full width) -->
+            <div style="margin-bottom:10px">
+              <div class="fl">Pekerjaan</div>
+              <div style="position:relative">
+                <input class="fc" id="pddk-f-pekerjaan" placeholder="Ketik untuk mencari pekerjaan..."
+                  oninput="debouncePddkFilter();showPddkPekFilter()"
+                  onfocus="showPddkPekFilter()"
+                  onblur="setTimeout(()=>{const x=document.getElementById('pddk-f-pek-dd');if(x)x.style.display='none'},180)"
+                  autocomplete="off"
+                  style="text-transform:none"/>
+                <button type="button" id="pddk-f-pek-clear"
+                  onclick="clearPddkField('pddk-f-pekerjaan');document.getElementById('pddk-f-pek-dd').style.display='none'"
+                  style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;line-height:1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <div id="pddk-f-pek-dd" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div>
+              </div>
+            </div>
+            <!-- Row 5: Usia range -->
+            <div>
+              <div class="fl">Rentang Usia (tahun)</div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+                  <input type="number" class="fc" id="pddk-f-usia-min" placeholder="Min" min="0" max="150"
+                    oninput="debouncePddkFilter()" style="text-align:center;max-width:90px"/>
+                  <span style="color:var(--text3);font-weight:700;flex-shrink:0">—</span>
+                  <input type="number" class="fc" id="pddk-f-usia-max" placeholder="Maks" min="0" max="150"
+                    oninput="debouncePddkFilter()" style="text-align:center;max-width:90px"/>
+                </div>
+                <!-- Quick-pick usia preset chips -->
+                <div style="display:flex;gap:6px;flex-wrap:wrap" id="pddk-usia-presets">
+                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(0,5)">0–5</button>
+                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(6,17)">6–17</button>
+                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(18,35)">18–35</button>
+                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(36,60)">36–60</button>
+                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(61,150)">&gt;60</button>
+                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(17,17)">17 th</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>NIK</th><th>Nama Lengkap</th><th>JK</th><th>Tgl. Lahir</th><th>Hub. KK</th><th>Status Kawin</th><th>Agama</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>NIK</th><th>Nama Lengkap</th><th>JK</th><th>Usia</th><th>Hub. KK</th><th>Status Kawin</th><th>Agama</th><th>Pekerjaan</th><th>Aksi</th></tr></thead>
               <tbody id="pddk-tb"></tbody>
             </table>
           </div>
@@ -952,7 +1379,7 @@ select.fc{cursor:pointer}
               </div>
             </div>
           </div>
-          <div class="card">
+          <div class="card" id="backup-import-card">
             <div class="card-h"><div class="card-title">Import Data</div></div>
             <div class="card-body">
               <div class="alert alert-warn">Backup data sebelum import. Data akan digabung dengan yang ada.</div>
@@ -963,7 +1390,7 @@ select.fc{cursor:pointer}
             </div>
           </div>
         </div>
-        <div class="card" style="margin-top:14px">
+        <div class="card" id="backup-fb-card" style="margin-top:14px">
           <div class="card-h"><div class="card-title">Status Firebase Realtime Database</div></div>
           <div class="card-body" id="fb-status-detail"><div class="spin-wrap"><div class="spinner"></div></div></div>
         </div>
@@ -1149,13 +1576,13 @@ const db    = getDatabase(fbApp);
 const dbRef = (path) => ref(db, path);
 
 /* ── Local admin fallback ────────────────────────── */
-const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'Administrator',jabatan:'Kepala Desa',role:'admin',status:'aktif'};
+const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'};
 
 /* ── Store ───────────────────────────────────────── */
 const S = {kk:[],penduduk:[],sementara:[],kelahiran:[],kematian:[],mobilitas:[],users:[],activity:[]};
 
 const PEKERJAAN_LIST = [
-  'BELUM / TIDAK BEKERJA','MENGURUS RUMAH TANGGA','PELAJAR / MAHASISWA','PENSIUNAN','PEGAWAI NEGERI SIPIL','TENTARA NASIONAL INDONESIA','KEPOLISIAN RI','PERDAGANGAN','PETANI / PEKEBUN','PETERNAK','NELAYAN / PERIKANAN','INDUSTRI','KONSTRUKSI','TRANSPORTASI','KARYAWAN SWASTA','KARYAWAN BUMN','KARYAWAN BUMD','KARYAWAN HONORER','BURUH HARIAN LEPAS','BURUH TANI / PERKEBUNAN','BURUH NELAYAN / PERIKANAN','BURUH PETERNAKAN','PEMBANTU RUMAH TANGGA','TUKANG CUKUR','TUKANG LISTRIK','TUKANG BATU','TUKANG KAYU','TUKANG SOL SEPATU','TUKANG LAS / PANDAI BESI','TUKANG JAHIT','PENATA RAMBUT','PENATA RIAS','PENATA BUSANA','MEKANIK','TUKANG GIGI','SENIMAN','TABIB','PARAJI','PERANCANG BUSANA','PENTERJEMAH','IMAM MASJID','PENDETA','PASTUR','WARTAWAN','USTADZ / MUBALIGH','JURU MASAK','PROMOTOR ACARA','ANGGOTA DPR-RI','ANGGOTA DPD','ANGGOTA BPK','PRESIDEN','WAKIL PRESIDEN','ANGGOTA MAHKAMAH KONSTITUSI','ANGGOTA KABINET / KEMENTERIAN','DUTA BESAR','GUBERNUR','WAKIL GUBERNUR','BUPATI','WAKIL BUPATI','WALIKOTA','WAKIL WALIKOTA','ANGGOTA DPRD PROPINSI','ANGGOTA DPRD KABUPATEN / KOTA','DOSEN','GURU','PILOT','PENGACARA','NOTARIS','ARSITEK','AKUNTAN','KONSULTAN','DOKTER','BIDAN','PERAWAT','APOTEKER','PSIKIATER / PSIKOLOG','PENYIAR TELEVISI','PENYIAR RADIO','PELAUT','PENELITI','SOPIR','PIALANG','PARANORMAL','PEDAGANG','PERANGKAT DESA','KEPALA DESA','BIARAWATI','WIRASWASTA','ANGGOTA LEMBAGA TINGGI','ARTIS','ATLIT','CHEFF','MANAJER','TENAGA TATA USAHA','OPERATOR','PEKERJA PENGOLAHAN, KERAJINAN','TEKNISI','ASISTEN AHLI','LAINNYA'
+  'Belum / Tidak Bekerja','Mengurus Rumah Tangga','Pelajar / Mahasiswa','Pensiunan','Pegawai Negeri Sipil','Tentara Nasional Indonesia','Kepolisian RI','Perdagangan','Petani / Pekebun','Peternak','Nelayan / Perikanan','Industri','Konstruksi','Transportasi','Karyawan Swasta','Karyawan BUMN','Karyawan BUMD','Karyawan Honorer','Buruh Harian Lepas','Buruh Tani / Perkebunan','Buruh Nelayan / Perikanan','Buruh Peternakan','Pembantu Rumah Tangga','Tukang Cukur','Tukang Listrik','Tukang Batu','Tukang Kayu','Tukang Sol Sepatu','Tukang Las / Pandai Besi','Tukang Jahit','Penata Rambut','Penata Rias','Penata Busana','Mekanik','Tukang Gigi','Seniman','Tabib','Paraji','Perancang Busana','Penterjemah','Imam Masjid','Pendeta','Pastur','Wartawan','Ustadz / Mubaligh','Juru Masak','Promotor Acara','Anggota DPR-RI','Anggota DPD','Anggota BPK','Presiden','Wakil Presiden','Anggota Mahkamah Konstitusi','Anggota Kabinet / Kementerian','Duta Besar','Gubernur','Wakil Gubernur','Bupati','Wakil Bupati','Walikota','Wakil Walikota','Anggota DPRD Propinsi','Anggota DPRD Kabupaten / Kota','Dosen','Guru','Pilot','Pengacara','Notaris','Arsitek','Akuntan','Konsultan','Dokter','Bidan','Perawat','Apoteker','Psikiater / Psikolog','Penyiar Televisi','Penyiar Radio','Pelaut','Peneliti','Sopir','Pialang','Paranormal','Pedagang','Perangkat Desa','Kepala Desa','Biarawati','Wiraswasta','Anggota Lembaga Tinggi','Artis','Atlit','Cheff','Manajer','Tenaga Tata Usaha','Operator','Pekerja Pengolahan, Kerajinan','Teknisi','Asisten Ahli','Lainnya'
 ];
 const PEKERJAAN_SET = new Set(PEKERJAAN_LIST);
 
@@ -1188,6 +1615,11 @@ window.toggleDark = () => {
   document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
   document.getElementById('dark-btn').textContent = dark ? '🌙' : '☀️';
   try { localStorage.setItem('dn_theme', dark ? 'light' : 'dark'); } catch(e){}
+  // Re-render charts so donut inner color updates with new theme
+  const dashPage = document.getElementById('page-dashboard');
+  if(dashPage && dashPage.classList.contains('active')) {
+    setTimeout(() => renderDash(), 50);
+  }
 };
 (() => {
   try {
@@ -1197,12 +1629,36 @@ window.toggleDark = () => {
 })();
 
 /* ── Sidebar ─────────────────────────────────────── */
-window.toggleSB  = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sb-overlay').classList.toggle('open'); };
-window.closeSB   = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sb-overlay').classList.remove('open'); };
+window.toggleSB = () => {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sb-overlay');
+  const isOpen = sb.classList.contains('open');
+  if(isOpen) {
+    sb.classList.remove('open');
+    ov.classList.remove('open');
+    // Re-enable body scroll
+    document.body.style.overflow = '';
+  } else {
+    sb.classList.add('open');
+    ov.classList.add('open');
+    // Lock body scroll when sidebar open on mobile
+    if(window.innerWidth <= 768) document.body.style.overflow = 'hidden';
+  }
+};
+window.closeSB = () => {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
 
 /* ── Page navigation ─────────────────────────────── */
 const PAGE_NAMES = {dashboard:'Dashboard',kk:'Kartu Keluarga',penduduk:'Data Penduduk',sementara:'Penduduk Sementara',kelahiran:'Kelahiran',kematian:'Kematian',mobilitas:'Mobilitas Penduduk',laporan:'Laporan',users:'Manajemen Pengguna',backup:'Backup & Restore'};
 window.goPage = name => {
+  // Operator tidak bisa akses halaman Manajemen Pengguna
+  if(name === 'users' && CU && CU.role !== 'admin') {
+    toast('Akses ditolak. Hanya Admin yang dapat membuka halaman ini.', 'warn');
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(n => n.classList.toggle('active', n.dataset.page === name));
   document.getElementById('page-' + name).classList.add('active');
@@ -1218,7 +1674,7 @@ function fbStatus(ok) {
   dot.className = 'fb-dot ' + (ok ? 'on' : 'spin');
   txt.textContent = ok ? 'Database Terhubung' : 'Menghubungkan...';
   const h = document.getElementById('l-hint');
-  if(h) { h.textContent = ok ? '✅ Firebase terhubung' : '⚠️ Menghubungkan...'; h.style.color = ok ? 'rgba(52,199,89,.9)' : 'rgba(255,200,80,.9)'; }
+  if(h) { h.textContent = ok ? '✅ Database terhubung' : '⚠️ Menghubungkan...'; h.style.color = ok ? 'rgba(52,199,89,.9)' : 'rgba(255,200,80,.9)'; }
 }
 
 /* ════════════════════════════════
@@ -1269,8 +1725,8 @@ async function initApp() {
 
     // Seed admin user if empty
     if(S.users.length === 0) {
-      const uid = await fbPush('users', {username:'admin',password:'admin123',nama:'Administrator',jabatan:'Kepala Desa',role:'admin',status:'aktif'});
-      S.users.push({id:uid,username:'admin',password:'admin123',nama:'Administrator',jabatan:'Kepala Desa',role:'admin',status:'aktif'});
+      const uid = await fbPush('users', {username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'});
+      S.users.push({id:uid,username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'});
     }
 
     // Seed sample data if penduduk empty
@@ -1279,12 +1735,8 @@ async function initApp() {
     }
 
     fbStatus(true);
-    if(CU) {
-      const cur = document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard';
-      goPage(cur);
-    } else {
-      toast('Database terhubung & data dimuat','ok');
-    }
+    toast('Database terhubung & data dimuat','ok');
+    if(CU) renderDash();
 
   } catch(e) {
     console.error('Firebase init error:', e);
@@ -1292,10 +1744,6 @@ async function initApp() {
     toast('Firebase gagal terhubung. Login dengan akun lokal.','warn');
     const h = document.getElementById('l-hint');
     if(h) { h.textContent = '⚠️ Offline — login tetap bisa (akun lokal)'; h.style.color='rgba(255,200,80,.9)'; }
-    if(CU) {
-      const cur = document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard';
-      goPage(cur);
-    }
   }
 }
 
@@ -1344,8 +1792,26 @@ function loginSuccess(u) {
   document.getElementById('sb-name').textContent = u.nama;
   document.getElementById('sb-role').textContent = u.jabatan || u.role;
   document.getElementById('sb-ava').textContent = u.nama[0].toUpperCase();
+
+  // Role-based UI control
+  applyRoleUI(u.role);
+
   addAct(`Login: ${u.nama}`);
   goPage('dashboard');
+}
+
+function applyRoleUI(role) {
+  const isAdmin = role === 'admin';
+
+  // Sidebar: tampilkan/sembunyikan menu Manajemen Pengguna
+  const usersNavItem = document.querySelector('.sb-item[data-page="users"]');
+  if(usersNavItem) usersNavItem.style.display = isAdmin ? '' : 'none';
+
+  // Backup page: sembunyikan Import Data dan Status Firebase untuk operator
+  const importCard    = document.getElementById('backup-import-card');
+  const fbStatusCard  = document.getElementById('backup-fb-card');
+  if(importCard)   importCard.style.display   = isAdmin ? '' : 'none';
+  if(fbStatusCard) fbStatusCard.style.display = isAdmin ? '' : 'none';
 }
 
 window.doLogin = async () => {
@@ -1405,11 +1871,10 @@ window.renderDash = () => {
       <div class="stat-lbl">${s.lbl}</div>
     </div>`).join('');
 
-  const dCh = chartFastDraw() ? 0 : 100;
   // Gender donut (animated)
   setTimeout(() => {
     animDonut('c-gender', [lk, pr], ['#007aff','#ff3b30'], ['Laki-laki','Perempuan'], 'c-gender-leg', 'c-gender-total', tot);
-  }, dCh);
+  }, 100);
 
   // Usia bars (animated)
   const ages = aktif.map(p => p.tanggalLahir ? Math.floor((now - new Date(p.tanggalLahir)) / 31557600000) : null).filter(a => a !== null);
@@ -1433,7 +1898,7 @@ window.renderDash = () => {
   const kwC = ['#5ac8fa','#34c759','#ff9500','#ff3b30'];
   setTimeout(() => {
     animDonut('c-kawin', kwV, kwC, kw, 'c-kawin-leg', 'c-kawin-total', tot);
-  }, dCh ? 0 : 150);
+  }, 150);
 
   // KK donut
   const kkLk = S.kk.filter(k => { const p = S.penduduk.find(pd => pd.noKK===k.noKK && pd.hubKK==='Kepala Keluarga'); return p&&p.jenisKelamin==='L'; }).length;
@@ -1441,7 +1906,7 @@ window.renderDash = () => {
   const kkTd = S.kk.length - kkLk - kkPr;
   setTimeout(() => {
     animDonut('c-kk', [kkLk, kkPr, kkTd], ['#007aff','#ff3b30','#8e8e93'], ['KK Laki-laki','KK Perempuan','Tidak Diketahui'], 'c-kk-leg', 'c-kk-total', S.kk.length);
-  }, dCh ? 0 : 200);
+  }, 200);
 
   // Pendidikan
   const pendOrder = ['Tidak/Belum Sekolah','SD/Sederajat','SMP/Sederajat','SMA/Sederajat','D1/D2/D3','S1/D4','S2','S3'];
@@ -1471,80 +1936,117 @@ window.renderDash = () => {
 };
 
 /* ── ANIMATED CHART ENGINES ──────────────────────── */
-function chartFastDraw() {
-  try {
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
-    return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-  } catch(e) { return false; }
-}
 function animDonut(canvasId, values, colors, labels, legId, totalId, totalVal) {
-  const canvas = document.getElementById(canvasId); if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2, r = Math.min(W,H)/2 - 8, inner = r*0.52;
-  const tot = values.reduce((a,b)=>a+b,0) || 1;
-  const target = values.map(v => (v/tot)*2*Math.PI);
-  const fast = chartFastDraw();
-  let progress = fast ? 1 : 0; const duration = fast ? 1 : 900;
-  const start = performance.now();
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
 
-  function draw(t) {
-    if(!fast) {
-      const elapsed = t - start; progress = Math.min(elapsed/duration, 1);
-    }
-    const ease = 1 - Math.pow(1-progress, 3);
-    ctx.clearRect(0,0,W,H);
-    let angle = -Math.PI/2;
-    values.forEach((v,i) => {
+  /* Correct DPR pattern:
+     - Store logical size from HTML attributes
+     - Set canvas.width/height to PHYSICAL pixels (logical × dpr)
+     - CSS keeps it at logical size
+     - Draw at logical coords (ctx.scale handles the rest)
+     This makes the chart crisp at any browser zoom level.    */
+  const logW = parseInt(canvas.getAttribute('width'))  || 130;
+  const logH = parseInt(canvas.getAttribute('height')) || 130;
+  const dpr  = Math.min(window.devicePixelRatio || 1, 3);
+
+  canvas.width        = logW * dpr;
+  canvas.height       = logH * dpr;
+  canvas.style.width  = logW + 'px';
+  canvas.style.height = logH + 'px';
+
+  const ctx = canvas.getContext('2d', {alpha: true});
+  ctx.setTransform(1,0,0,1,0,0); // reset before scaling
+  ctx.scale(dpr, dpr);           // draw in logical pixels
+
+  const cx    = logW / 2;
+  const cy    = logH / 2;
+  const r     = Math.min(logW, logH) / 2 - 5;
+  const inner = r * 0.54;
+
+  const tot     = values.reduce((a,b)=>a+b,0) || 1;
+  const targets = values.map(v => (v / tot) * 2 * Math.PI);
+
+  const isDark  = document.documentElement.getAttribute('data-theme') === 'dark';
+  const bgColor = isDark ? '#2c2c2e' : '#ffffff';
+
+  const duration = 750;
+  const t0 = performance.now();
+
+  if(canvas._rafId) { cancelAnimationFrame(canvas._rafId); canvas._rafId = null; }
+
+  function draw(now) {
+    const elapsed  = now - t0;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease     = 1 - Math.pow(1 - progress, 3);
+
+    ctx.clearRect(0, 0, logW, logH);
+
+    let angle = -Math.PI / 2;
+    values.forEach((v, i) => {
       if(v === 0) return;
-      const slice = target[i] * ease;
-      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+slice); ctx.closePath();
-      ctx.fillStyle = colors[i]; ctx.fill();
+      const slice = targets[i] * ease;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, angle, angle + slice);
+      ctx.closePath();
+      ctx.fillStyle = colors[i];
+      ctx.fill();
       angle += slice;
     });
-    // Gap effect
-    ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+2*Math.PI*ease); ctx.strokeStyle='rgba(0,0,0,.04)'; ctx.lineWidth=2; ctx.stroke();
-    // Inner circle
-    ctx.beginPath(); ctx.arc(cx,cy,inner,0,2*Math.PI);
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#fff';
-    ctx.fill();
-    if(!fast && progress < 1) requestAnimationFrame(draw);
-  }
-  if(fast) draw(performance.now());
-  else requestAnimationFrame(draw);
 
-  if(totalId) document.getElementById(totalId).textContent = totalVal ?? tot;
+    // Donut hole
+    ctx.beginPath();
+    ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+    ctx.fillStyle = bgColor;
+    ctx.fill();
+
+    if(progress < 1) {
+      canvas._rafId = requestAnimationFrame(draw);
+    } else {
+      canvas._rafId = null;
+    }
+  }
+  canvas._rafId = requestAnimationFrame(draw);
+
+  if(totalId) {
+    const el = document.getElementById(totalId);
+    if(el) el.textContent = (totalVal !== undefined && totalVal !== null) ? totalVal : tot;
+  }
   if(legId) {
-    document.getElementById(legId).innerHTML = labels.map((l,i) =>
-      `<div class="donut-legend-item"><div class="donut-dot" style="background:${colors[i]}"></div>${l}: <strong>${values[i]}</strong></div>`
+    const el = document.getElementById(legId);
+    if(el) el.innerHTML = labels.map((l,i) =>
+      values[i] > 0
+        ? `<div class="donut-legend-item"><div class="donut-dot" style="background:${colors[i]}"></div>${l}: <strong>${values[i]}</strong></div>`
+        : ''
     ).join('');
   }
 }
 
 function animBar(containerId, items) {
   const el = document.getElementById(containerId); if(!el) return;
-  if(!items || items.length === 0) { el.innerHTML = '<div class="empty"><div class="empty-sub">Belum ada data</div></div>'; return; }
+  if(!items || items.length === 0) {
+    el.innerHTML = '<div class="empty" style="padding:16px"><div class="empty-sub">Belum ada data</div></div>';
+    return;
+  }
   const max = Math.max(...items.map(i=>i.val), 1);
-  const wPct = item => Math.round(item.val/max*100);
-  if(chartFastDraw()) {
-    el.innerHTML = items.map(item => `
+  el.innerHTML = items.map(item => `
     <div class="bar-row">
       <div class="bar-lbl" style="font-size:10px">${item.lbl}</div>
-      <div class="bar-track"><div class="bar-fill" style="background:${item.col};width:${wPct(item)}%"></div></div>
+      <div class="bar-track">
+        <div class="bar-fill" data-w="${Math.round(item.val/max*100)}" style="background:${item.col}"></div>
+      </div>
       <div class="bar-val">${item.val}</div>
     </div>`).join('');
-  } else {
-    el.innerHTML = items.map(item => `
-    <div class="bar-row">
-      <div class="bar-lbl" style="font-size:10px">${item.lbl}</div>
-      <div class="bar-track"><div class="bar-fill" data-w="${wPct(item)}" style="background:${item.col};width:0%"></div></div>
-      <div class="bar-val">${item.val}</div>
-    </div>`).join('');
+
+  // Double rAF ensures layout is done before triggering transition
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        el.querySelectorAll('.bar-fill').forEach(fill => { fill.style.width = fill.dataset.w + '%'; });
+      el.querySelectorAll('.bar-fill').forEach(fill => {
+        fill.style.width = fill.dataset.w + '%';
       });
     });
-  }
+  });
 }
 
 /* ════════════════════════════════
@@ -1566,6 +2068,7 @@ window.resetF = (type) => {
   if(type==='pddk') {
     document.getElementById('pddk-mob-box').style.display='none'; document.getElementById('md-pddk-t').textContent='Tambah Data Penduduk';
     const kd = document.getElementById('pddk-kerja-dd'); if(kd) { kd.innerHTML=''; kd.style.display='none'; }
+    // Jangan reset filter panel saat buka modal — filter tetap aktif
   }
   if(type==='user') { document.getElementById('md-user-t').textContent='Tambah Pengguna'; }
   if(type==='mati') {
@@ -1576,14 +2079,14 @@ window.resetF = (type) => {
 };
 
 window.renderKK = () => {
-  const q = gv('kk-q'); const dsn = gv('kk-dsn');
+  const q = gv('kk-q').toUpperCase(); const dsn = gv('kk-dsn');
   const dusuns = [...new Set(S.kk.map(k=>k.dusun).filter(Boolean))];
   const df = document.getElementById('kk-dsn');
   const prev = df.value;
   df.innerHTML = '<option value="">Semua Dusun</option>' + dusuns.map(d=>`<option value="${d}"${d===prev?' selected':''}>${d}</option>`).join('');
 
   const filtered = S.kk.filter(k =>
-    (!q || k.noKK?.includes(q) || k.kepalaKeluarga?.toLowerCase().includes(q.toLowerCase())) &&
+    (!q || k.noKK?.includes(q) || (k.kepalaKeluarga||'').toUpperCase().includes(q)) &&
     (!dsn || k.dusun === dsn)
   );
   const pages = Math.ceil(filtered.length / KK_PER);
@@ -1609,7 +2112,7 @@ window.pagGoto_kk = function(p) { window.KKP = KKP = p; renderKK(); };
 
 window.saveKK = async () => {
   const id = gv('kk-id');
-  const data = {noKK:gv('kk-nokk'),kepalaKeluarga:gv('kk-kepala'),dusun:gv('kk-dusun'),rt:gv('kk-rt'),rw:gv('kk-rw'),alamat:gv('kk-alamat'),status:gv('kk-status'),tanggalTerbit:gv('kk-tglterbit')};
+  const data = {noKK:gv('kk-nokk'),kepalaKeluarga:gvUp('kk-kepala'),dusun:gvUp('kk-dusun'),rt:gv('kk-rt'),rw:gv('kk-rw'),alamat:gvUp('kk-alamat'),status:gv('kk-status'),tanggalTerbit:gv('kk-tglterbit')};
   if(!data.noKK || !data.kepalaKeluarga) { toast('No. KK dan Kepala KK wajib diisi','warn'); return; }
   try {
     if(id) {
@@ -1631,42 +2134,299 @@ window.editKK = (id) => {
 };
 
 /* ════════════════════════════════
-   PENDUDUK
+   PENDUDUK — MULTI-FILTER ENGINE
 ════════════════════════════════ */
 let PP = 1; const PP_PER = 12;
 window.PP = 1;
 
+/* ── State objek terpusat untuk semua filter ────────
+   Semua filter disimpan di satu objek → mudah reset,
+   mudah count, mudah extend filter baru.              */
+const PDDK_F = {
+  q: '',
+  jk: '',
+  kawin: '',
+  agama: '',
+  pendidikan: '',
+  goldar: '',
+  pekerjaan: '',
+  usiaMin: null,
+  usiaMax: null,
+};
+
+/* ── Usia kalkulator (cached per render) ─────────── */
+const NOW_MS = Date.now();
+function calcAge(tglLahir) {
+  if(!tglLahir) return null;
+  const ms = NOW_MS - new Date(tglLahir).getTime();
+  if(isNaN(ms) || ms < 0) return null;
+  return Math.floor(ms / 31557600000); // ms per tahun rata-rata
+}
+
+/* ── Core filter predicate — pure function ──────────
+   Menerima satu objek penduduk dan state filter,
+   mengembalikan boolean. Mudah di-test secara terpisah. */
+function matchesPddkFilter(p, f) {
+  // Search: NIK atau Nama (uppercase-insensitive)
+  if(f.q) {
+    const qU = f.q.toUpperCase();
+    const nikMatch   = (p.nik||'').includes(qU);
+    const namaMatch  = (p.namaLengkap||'').toUpperCase().includes(qU);
+    if(!nikMatch && !namaMatch) return false;
+  }
+  // Dropdown filters — early exit pattern (paling cepat)
+  if(f.jk        && p.jenisKelamin  !== f.jk)        return false;
+  if(f.kawin     && p.statusKawin   !== f.kawin)     return false;
+  if(f.agama     && p.agama         !== f.agama)     return false;
+  if(f.pendidikan&& p.pendidikan    !== f.pendidikan) return false;
+  if(f.goldar    && p.golonganDarah !== f.goldar)    return false;
+  // Pekerjaan: partial match (user bisa ketik sebagian)
+  if(f.pekerjaan) {
+    const pk = (p.pekerjaan||'').toLowerCase();
+    if(!pk.includes(f.pekerjaan.toLowerCase())) return false;
+  }
+  // Usia range — dihitung on-the-fly, hanya jika filter aktif
+  if(f.usiaMin !== null || f.usiaMax !== null) {
+    const usia = calcAge(p.tanggalLahir);
+    if(usia === null) return false;
+    if(f.usiaMin !== null && usia < f.usiaMin) return false;
+    if(f.usiaMax !== null && usia > f.usiaMax) return false;
+  }
+  return true;
+}
+
+/* ── Count berapa filter yang aktif ─────────────── */
+function countActiveFilters() {
+  let n = 0;
+  if(PDDK_F.q)          n++;
+  if(PDDK_F.jk)         n++;
+  if(PDDK_F.kawin)      n++;
+  if(PDDK_F.agama)      n++;
+  if(PDDK_F.pendidikan) n++;
+  if(PDDK_F.goldar)     n++;
+  if(PDDK_F.pekerjaan)  n++;
+  if(PDDK_F.usiaMin !== null || PDDK_F.usiaMax !== null) n++;
+  return n;
+}
+
+/* ── Sync PDDK_F dari DOM ke state objek ─────────── */
+function syncPddkFilterState() {
+  PDDK_F.q          = (document.getElementById('pddk-q')?.value?.trim() || '');
+  PDDK_F.jk         = gv('pddk-f-jk');
+  PDDK_F.kawin      = gv('pddk-f-kawin');
+  PDDK_F.agama      = gv('pddk-f-agama');
+  PDDK_F.pendidikan = gv('pddk-f-pendidikan');
+  PDDK_F.goldar     = gv('pddk-f-goldar');
+  PDDK_F.pekerjaan  = (document.getElementById('pddk-f-pekerjaan')?.value?.trim() || '');
+  const mn = document.getElementById('pddk-f-usia-min')?.value;
+  const mx = document.getElementById('pddk-f-usia-max')?.value;
+  PDDK_F.usiaMin = (mn !== '' && mn !== undefined) ? parseInt(mn) : null;
+  PDDK_F.usiaMax = (mx !== '' && mx !== undefined) ? parseInt(mx) : null;
+}
+
+/* ── Update UI badge & reset button ─────────────── */
+function updateFilterUI() {
+  const n = countActiveFilters();
+  const badge = document.getElementById('pddk-active-count');
+  const resetBtn = document.getElementById('pddk-reset-btn');
+  if(badge)    { badge.textContent = n; badge.style.display = n > 0 ? 'inline-block' : 'none'; }
+  if(resetBtn) { resetBtn.style.display = n > 0 ? 'inline-flex' : 'none'; }
+
+  // Show/hide clear buttons for text inputs
+  ['pddk-q','pddk-f-pekerjaan'].forEach(id => {
+    const inp = document.getElementById(id);
+    const clr = document.getElementById(id === 'pddk-q' ? 'pddk-q-clear' : 'pddk-f-pek-clear');
+    if(inp && clr) clr.style.display = inp.value ? 'flex' : 'none';
+  });
+
+  // Active filter tags below panel
+  renderFilterTags();
+}
+
+/* ── Render tag pills showing active filters ─────── */
+function renderFilterTags() {
+  const panel = document.getElementById('pddk-filter-panel');
+  let tagsEl = document.getElementById('pddk-filter-tags');
+  if(!tagsEl) {
+    tagsEl = document.createElement('div');
+    tagsEl.id = 'pddk-filter-tags';
+    tagsEl.className = 'pddk-filter-tags';
+    panel.after(tagsEl);
+  }
+  const tags = [];
+  if(PDDK_F.q)          tags.push({key:'q',        label:`"${PDDK_F.q}"`});
+  if(PDDK_F.jk)         tags.push({key:'jk',       label:`JK: ${PDDK_F.jk==='L'?'Laki-laki':'Perempuan'}`});
+  if(PDDK_F.kawin)      tags.push({key:'kawin',    label:`Kawin: ${PDDK_F.kawin}`});
+  if(PDDK_F.agama)      tags.push({key:'agama',    label:`Agama: ${PDDK_F.agama}`});
+  if(PDDK_F.pendidikan) tags.push({key:'pendidikan',label:`Pend: ${PDDK_F.pendidikan}`});
+  if(PDDK_F.goldar)     tags.push({key:'goldar',   label:`Gol.Darah: ${PDDK_F.goldar}`});
+  if(PDDK_F.pekerjaan)  tags.push({key:'pekerjaan',label:`Kerja: ${PDDK_F.pekerjaan}`});
+  if(PDDK_F.usiaMin !== null || PDDK_F.usiaMax !== null) {
+    const mn = PDDK_F.usiaMin !== null ? PDDK_F.usiaMin : '0';
+    const mx = PDDK_F.usiaMax !== null ? PDDK_F.usiaMax : '∞';
+    tags.push({key:'usia', label:`Usia: ${mn}–${mx} th`});
+  }
+  tagsEl.innerHTML = tags.map(t => `
+    <div class="pddk-filter-tag">
+      ${escapeHtml(t.label)}
+      <button type="button" onclick="clearPddkFilterKey('${t.key}')" title="Hapus filter ini">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:10px;height:10px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+/* ── Main render function ────────────────────────── */
 window.renderPddk = () => {
-  const q = gv('pddk-q'); const jk = gv('pddk-jk'); const st = gv('pddk-st');
-  const filtered = S.penduduk.filter(p =>
-    (!q || p.nik?.includes(q) || p.namaLengkap?.toLowerCase().includes(q.toLowerCase())) &&
-    (!jk || p.jenisKelamin === jk) && (!st || p.statusKawin === st)
-  );
+  syncPddkFilterState();
+  updateFilterUI();
+
+  // Filter — single pass O(n) with early exit predicates
+  const filtered = S.penduduk.filter(p => matchesPddkFilter(p, PDDK_F));
+
+  // Update subtitle
+  const sub = document.getElementById('pddk-result-sub');
+  if(sub) {
+    const n = countActiveFilters();
+    sub.textContent = n > 0
+      ? `${filtered.length} dari ${S.penduduk.length} penduduk (${n} filter aktif)`
+      : `${S.penduduk.length} penduduk terdaftar`;
+  }
+
   const pages = Math.ceil(filtered.length / PP_PER);
+  if(PP > pages && pages > 0) PP = window.PP = pages;
   const slice = filtered.slice((PP-1)*PP_PER, PP*PP_PER);
+
   document.getElementById('pddk-tb').innerHTML = slice.length === 0
-    ? `<tr><td colspan="8"><div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Belum ada data penduduk</div></div></td></tr>`
-    : slice.map(p => `<tr>
-        <td><span style="font-family:'DM Mono',monospace;font-size:11px">${p.nik}</span></td>
-        <td><strong>${p.namaLengkap}</strong><div style="font-size:10px;color:var(--text3)">${ageStr(p.tanggalLahir)}</div></td>
-        <td><span class="badge ${p.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${p.jenisKelamin==='L'?'L':'P'}</span></td>
-        <td style="font-size:12px">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td>
-        <td><span class="chip">${p.hubKK||'-'}</span></td>
-        <td><span class="badge ${p.statusKawin==='Kawin'?'badge-green':p.statusKawin==='Belum Kawin'?'badge-blue':'badge-orange'}">${p.statusKawin||'-'}</span></td>
-        <td style="font-size:12px">${p.agama||'-'}</td>
-        <td><div style="display:flex;gap:3px">
-          <button type="button" class="btn btn-sm btn-secondary" onclick='detailPddk(${JSON.stringify(p.id)})'>Lihat</button>
-          <button type="button" class="btn btn-sm btn-secondary" onclick='editPddk(${JSON.stringify(p.id)})'>Edit</button>
-          <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("penduduk", ${JSON.stringify(p.id)}, ${JSON.stringify(p.namaLengkap)})'>Hapus</button>
-        </div></td>
-      </tr>`).join('');
+    ? `<tr><td colspan="9"><div class="empty">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">${countActiveFilters() > 0 ? 'Tidak ada data yang cocok' : 'Belum ada data penduduk'}</div>
+        <div class="empty-sub">${countActiveFilters() > 0 ? 'Coba ubah atau reset filter' : ''}</div>
+       </div></td></tr>`
+    : slice.map(p => {
+        const usia = calcAge(p.tanggalLahir);
+        const usiaStr = usia !== null ? `${usia} th` : '-';
+        return `<tr>
+          <td><span style="font-family:'DM Mono',monospace;font-size:11px">${p.nik}</span></td>
+          <td><strong>${p.namaLengkap}</strong><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
+          <td><span class="badge ${p.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${p.jenisKelamin==='L'?'L':'P'}</span></td>
+          <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):''}</div></td>
+          <td><span class="chip">${p.hubKK||'-'}</span></td>
+          <td><span class="badge ${p.statusKawin==='Kawin'?'badge-green':p.statusKawin==='Belum Kawin'?'badge-blue':'badge-orange'}">${p.statusKawin||'-'}</span></td>
+          <td style="font-size:12px">${p.agama||'-'}</td>
+          <td style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(p.pekerjaan||'-')}">${p.pekerjaan||'-'}</td>
+          <td><div style="display:flex;gap:3px">
+            <button type="button" class="btn btn-sm btn-secondary" onclick='detailPddk(${JSON.stringify(p.id)})'>Lihat</button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick='editPddk(${JSON.stringify(p.id)})'>Edit</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("penduduk", ${JSON.stringify(p.id)}, ${JSON.stringify(p.namaLengkap)})'>Hapus</button>
+          </div></td>
+        </tr>`;
+      }).join('');
+
   renderPag('pddk-pag', PP, pages, 'pagGoto_pddk');
 };
 window.pagGoto_pddk = function(p) { window.PP = PP = p; renderPddk(); };
 
+/* ── Debounce untuk input teks (performa data besar) */
+let _pddkDebTimer = null;
+window.debouncePddkFilter = () => {
+  clearTimeout(_pddkDebTimer);
+  _pddkDebTimer = setTimeout(() => { PP = window.PP = 1; renderPddk(); }, 200);
+};
+
+/* ── Trigger langsung untuk dropdown (no debounce) ─ */
+window.runPddkFilter = () => { PP = window.PP = 1; renderPddk(); };
+
+/* ── Reset semua filter sekaligus ───────────────── */
+window.resetPddkFilters = () => {
+  ['pddk-q','pddk-f-pekerjaan'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['pddk-f-jk','pddk-f-kawin','pddk-f-agama','pddk-f-pendidikan','pddk-f-goldar'].forEach(id => {
+    const el=document.getElementById(id); if(el) el.selectedIndex=0;
+  });
+  ['pddk-f-usia-min','pddk-f-usia-max'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  // Reset preset chip aktif
+  document.querySelectorAll('.pddk-preset-chip').forEach(c => c.classList.remove('active-preset'));
+  PP = window.PP = 1;
+  renderPddk();
+};
+
+/* ── Clear satu field dan re-filter ────────────── */
+window.clearPddkField = (id) => {
+  const el = document.getElementById(id); if(el) el.value='';
+  PP = window.PP = 1; renderPddk();
+};
+
+/* ── Clear filter berdasarkan key dari tag pill ─── */
+window.clearPddkFilterKey = (key) => {
+  const map = {
+    q: 'pddk-q', pekerjaan: 'pddk-f-pekerjaan',
+    jk: 'pddk-f-jk', kawin: 'pddk-f-kawin',
+    agama: 'pddk-f-agama', pendidikan: 'pddk-f-pendidikan', goldar: 'pddk-f-goldar',
+  };
+  if(key === 'usia') {
+    sv('pddk-f-usia-min',''); sv('pddk-f-usia-max','');
+    document.querySelectorAll('.pddk-preset-chip').forEach(c=>c.classList.remove('active-preset'));
+  } else if(map[key]) {
+    const el = document.getElementById(map[key]);
+    if(el) { el.tagName === 'SELECT' ? (el.selectedIndex=0) : (el.value=''); }
+  }
+  PP = window.PP = 1; renderPddk();
+};
+
+/* ── Preset usia quick-pick ─────────────────────── */
+window.setUsiaPreset = (min, max) => {
+  const mnEl = document.getElementById('pddk-f-usia-min');
+  const mxEl = document.getElementById('pddk-f-usia-max');
+  if(!mnEl || !mxEl) return;
+  // Toggle: jika preset sama, clear
+  const sameMin = parseInt(mnEl.value) === min;
+  const sameMax = parseInt(mxEl.value) === max;
+  if(sameMin && sameMax) {
+    mnEl.value = ''; mxEl.value = '';
+    document.querySelectorAll('.pddk-preset-chip').forEach(c=>c.classList.remove('active-preset'));
+  } else {
+    mnEl.value = min; mxEl.value = max === 150 ? '' : max;
+    document.querySelectorAll('.pddk-preset-chip').forEach(c => {
+      c.classList.toggle('active-preset',
+        parseInt(c.getAttribute('onclick').match(/setUsiaPreset\((\d+)/)?.[1]) === min);
+    });
+  }
+  PP = window.PP = 1; renderPddk();
+};
+
+/* ── Toggle collapse panel filter ──────────────── */
+window.toggleFilterPanel = () => {
+  const body = document.getElementById('pddk-filter-body');
+  const chevron = document.getElementById('pddk-filter-chevron');
+  if(!body) return;
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? 'block' : 'none';
+  if(chevron) chevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+};
+
+/* ── Pekerjaan autocomplete dalam filter panel ─── */
+window.showPddkPekFilter = () => {
+  const inp = document.getElementById('pddk-f-pekerjaan');
+  const box = document.getElementById('pddk-f-pek-dd');
+  if(!inp || !box) return;
+  const q = inp.value.trim().toLowerCase();
+  // Ambil daftar pekerjaan unik dari data aktual + PEKERJAAN_LIST
+  const existing = [...new Set(S.penduduk.map(p=>p.pekerjaan).filter(Boolean))];
+  const combined = [...new Set([...PEKERJAAN_LIST, ...existing])];
+  let list = !q ? combined.slice(0,20) : combined.filter(x=>x.toLowerCase().includes(q)).slice(0,30);
+  if(list.length === 0) { box.innerHTML=''; box.style.display='none'; return; }
+  box.innerHTML = list.map(t=>`<button type="button" class="mati-sug-btn" onclick='pickPddkPekFilter(${JSON.stringify(t)})'>${escapeHtml(t)}</button>`).join('');
+  box.style.display = 'block';
+};
+window.pickPddkPekFilter = (t) => {
+  sv('pddk-f-pekerjaan', t);
+  const box = document.getElementById('pddk-f-pek-dd');
+  if(box) box.style.display = 'none';
+  PP = window.PP = 1; renderPddk();
+};
+
 window.savePddk = async () => {
   const id = gv('pddk-id');
-  const data = {nik:gv('pddk-nik'),namaLengkap:gv('pddk-nama'),noKK:gv('pddk-nokk'),hubKK:gv('pddk-hubkk'),jenisKelamin:gv('pddk-jk2'),tempatLahir:gv('pddk-tmplahir'),tanggalLahir:gv('pddk-tgllahir'),agama:gv('pddk-agama'),statusKawin:gv('pddk-kawin'),pendidikan:gv('pddk-pendidikan'),pekerjaan:gv('pddk-pekerjaan'),golonganDarah:gv('pddk-goldar'),statusPenduduk:gv('pddk-sts'),asalDaerah:gv('pddk-asal')};
+  const data = {nik:gv('pddk-nik'),namaLengkap:gvUp('pddk-nama'),noKK:gv('pddk-nokk'),hubKK:gv('pddk-hubkk'),jenisKelamin:gv('pddk-jk2'),tempatLahir:gvUp('pddk-tmplahir'),tanggalLahir:gv('pddk-tgllahir'),agama:gv('pddk-agama'),statusKawin:gv('pddk-kawin'),pendidikan:gv('pddk-pendidikan'),pekerjaan:gv('pddk-pekerjaan'),golonganDarah:gv('pddk-goldar'),statusPenduduk:gv('pddk-sts'),asalDaerah:gvUp('pddk-asal')};
   if(!data.nik || !data.namaLengkap) { toast('NIK dan Nama wajib diisi','warn'); return; }
   if(data.pekerjaan && !PEKERJAAN_SET.has(data.pekerjaan)) { toast('Pekerjaan harus dipilih dari daftar (ketik untuk mencari lalu klik salah satu)','warn'); return; }
   try {
@@ -1745,7 +2505,7 @@ window.renderSem = () => {
 
 window.saveSem = async () => {
   const id = gv('sem-id');
-  const data = {nik:gv('sem-nik'),nama:gv('sem-nama'),jenisKelamin:gv('sem-jk'),asalDaerah:gv('sem-asal'),tujuan:gv('sem-tujuan'),tanggalMasuk:gv('sem-masuk'),tanggalKeluar:gv('sem-keluar'),telepon:gv('sem-telp'),alamatDesa:gv('sem-alamat')};
+  const data = {nik:gv('sem-nik'),nama:gvUp('sem-nama'),jenisKelamin:gv('sem-jk'),asalDaerah:gvUp('sem-asal'),tujuan:gvUp('sem-tujuan'),tanggalMasuk:gv('sem-masuk'),tanggalKeluar:gv('sem-keluar'),telepon:gv('sem-telp'),alamatDesa:gvUp('sem-alamat')};
   if(!data.nik || !data.nama) { toast('NIK dan Nama wajib','warn'); return; }
   try {
     if(id) { await fbUpdate(`sementara/${id}`,data); ups('sementara',{id,...data}); addAct(`Update sementara ${data.nama}`); }
@@ -1788,7 +2548,7 @@ window.renderLahir = () => {
 };
 
 window.saveLahir = async () => {
-  const data = {namaBayi:gv('lahir-nama'),jenisKelamin:gv('lahir-jk'),tanggalLahir:gv('lahir-tgl'),tempatLahir:gv('lahir-tmpat'),namaIbu:gv('lahir-ibu'),namaAyah:gv('lahir-ayah'),noKK:gv('lahir-nokk'),penolong:gv('lahir-penolong'),beratLahir:gv('lahir-berat'),panjangLahir:gv('lahir-pjg')};
+  const data = {namaBayi:gvUp('lahir-nama'),jenisKelamin:gv('lahir-jk'),tanggalLahir:gv('lahir-tgl'),tempatLahir:gvUp('lahir-tmpat'),namaIbu:gvUp('lahir-ibu'),namaAyah:gvUp('lahir-ayah'),noKK:gv('lahir-nokk'),penolong:gv('lahir-penolong'),beratLahir:gv('lahir-berat'),panjangLahir:gv('lahir-pjg')};
   if(!data.namaBayi || !data.tanggalLahir || !data.namaIbu) { toast('Nama bayi, tanggal, ibu wajib','warn'); return; }
   let nikBayi = gv('lahir-nik').replace(/\D/g,'');
   if(nikBayi) {
@@ -1927,7 +2687,7 @@ window.saveMati = async () => {
   window.updMatiUsia();
   const data = {
     nik:p.nik||'', nama:p.namaLengkap||'', jenisKelamin:p.jenisKelamin||'L', tanggalMeninggal,
-    tempatMeninggal:gv('mati-tmpat'), sebabKematian:gv('mati-sebab'), noKK:p.noKK||'',
+    tempatMeninggal:gvUp('mati-tmpat'), sebabKematian:gvUp('mati-sebab'), noKK:p.noKK||'',
     usia:gv('mati-usia'), sumberPendudukId:p.id
   };
   try {
@@ -2004,12 +2764,12 @@ window.renderMob = () => {
 window.saveMob = async () => {
   const jenis = gv('mob-jenis');
   const data = {
-    jenis,nik:gv('mob-nik'),nama:gv('mob-nama'),jenisKelamin:gv('mob-jk'),
-    asalTujuan:gv('mob-asal'),tanggalPindah:gv('mob-tgl'),noKKLama:gv('mob-nokk-lama'),
+    jenis,nik:gv('mob-nik'),nama:gvUp('mob-nama'),jenisKelamin:gv('mob-jk'),
+    asalTujuan:gvUp('mob-asal'),tanggalPindah:gv('mob-tgl'),noKKLama:gv('mob-nokk-lama'),
     alasanMasuk:jenis==='masuk'?gv('mob-alasan-m'):'',
     kkTarget:jenis==='masuk'?gv('mob-kk-target'):'',
-    alasanKeluar:jenis==='keluar'?gv('mob-alasan-k'):'',
-    tujuanDaerah:jenis==='keluar'?gv('mob-tujuan'):'',
+    alasanKeluar:jenis==='keluar'?gvUp('mob-alasan-k'):'',
+    tujuanDaerah:jenis==='keluar'?gvUp('mob-tujuan'):'',
   };
   if(!data.nik || !data.nama || !data.tanggalPindah) { toast('NIK, Nama, Tanggal wajib','warn'); return; }
   try {
@@ -2145,7 +2905,7 @@ window.renderUsers = () => {
 
 window.saveUser = async () => {
   const id = gv('user-id');
-  const data = {username:gv('user-uname'),nama:gv('user-nama'),jabatan:gv('user-jabatan'),role:gv('user-role'),status:gv('user-sts')};
+  const data = {username:gv('user-uname'),nama:gvUp('user-nama'),jabatan:gvUp('user-jabatan'),role:gv('user-role'),status:gv('user-sts')};
   const pw = gv('user-pass'); if(pw || !id) data.password = pw;
   if(!data.username || !data.nama) { toast('Username dan Nama wajib','warn'); return; }
   if(!id && !pw) { toast('Password wajib untuk pengguna baru','warn'); return; }
@@ -2237,7 +2997,9 @@ window.delRec = async (col, id) => {
 ════════════════════════════════ */
 window.gSearch = (q) => {
   if(!q) return;
-  sv('pddk-q',q); goPage('penduduk'); window.PP = PP = 1; renderPddk();
+  const el = document.getElementById('pddk-q');
+  if(el) el.value = q.toUpperCase();
+  goPage('penduduk'); PP = window.PP = 1; renderPddk();
 };
 
 /* ════════════════════════════════
@@ -2259,10 +3021,13 @@ function renderPag(elId, current, total, handlerName) {
 /* ════════════════════════════════
    UTILS
 ════════════════════════════════ */
-const gv  = id => document.getElementById(id)?.value?.trim() || '';
-const sv  = (id, v) => { const el=document.getElementById(id); if(el) el.value=v; };
-const selv= (id, v) => { const el=document.getElementById(id); if(el&&v) el.value=v; };
-const ups = (col, item) => { const i=S[col].findIndex(x=>x.id===item.id); if(i>=0) S[col][i]=item; else S[col].push(item); };
+const gv   = id => document.getElementById(id)?.value?.trim() || '';
+// gvUp: ambil nilai input lalu jadikan HURUF KAPITAL — untuk data teks nama, alamat, dll.
+// CSS text-transform hanya mengubah tampilan, bukan nilai .value.
+const gvUp = id => (document.getElementById(id)?.value?.trim() || '').toUpperCase();
+const sv   = (id, v) => { const el=document.getElementById(id); if(el) el.value=v; };
+const selv = (id, v) => { const el=document.getElementById(id); if(el&&v) el.value=v; };
+const ups  = (col, item) => { const i=S[col].findIndex(x=>x.id===item.id); if(i>=0) S[col][i]=item; else S[col].push(item); };
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const ageStr = tgl => tgl ? Math.floor((new Date()-new Date(tgl))/31557600000)+' th' : '-';
 const escapeHtml = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -2298,7 +3063,7 @@ const usiaSaatMatiThn = (tglLahir, tglMati) => {
 // Set laporan year
 document.getElementById('lap-thn').value = new Date().getFullYear();
 
-// Check session — restore login immediately if available (render halaman setelah data Firebase siap di initApp, hindari kedip ganda)
+// Check session — restore login immediately if available
 const sess = loadSession();
 if(sess) {
   CU = sess;
@@ -2306,7 +3071,9 @@ if(sess) {
   document.getElementById('sb-name').textContent = sess.nama;
   document.getElementById('sb-role').textContent = sess.jabatan || sess.role;
   document.getElementById('sb-ava').textContent = sess.nama[0].toUpperCase();
+  applyRoleUI(sess.role);
   addAct('Sesi dipulihkan');
+  goPage('dashboard');
 }
 
 // Load Firebase in background
