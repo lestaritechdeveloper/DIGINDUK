@@ -532,14 +532,55 @@ input[type=password].fc { text-transform:none }
 }
 .bar-val{font-size:11px;font-weight:800;color:var(--text3);width:30px;flex-shrink:0}
 
-.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
-.donut-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center}
+.donut-wrap{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:14px}
+.donut-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .donut-center{position:absolute;text-align:center;pointer-events:none}
-.donut-center-val{font-size:20px;font-weight:900;color:var(--text);line-height:1}
-.donut-center-lbl{font-size:10px;font-weight:700;color:var(--text3);margin-top:1px}
-.donut-legend{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center}
-.donut-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2)}
-.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.donut-center-val{font-size:24px;font-weight:900;color:var(--text);line-height:1}
+.donut-center-lbl{font-size:12px;font-weight:700;color:var(--text3);margin-top:1px}
+.donut-legend{display:flex;flex-direction:column;gap:8px;align-items:flex-start;min-width:150px}
+.donut-legend-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;color:var(--text2);
+  white-space:nowrap;
+}
+.donut-dot{
+  width:10px;height:10px;border-radius:999px;flex-shrink:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.22);
+}
+.donut-pill{
+  font-size:11px;font-weight:900;letter-spacing:.02em;
+  padding:3px 9px;border-radius:8px;
+  background:var(--bg3);color:var(--text2);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.donut-pct{font-size:13px;font-weight:900;color:var(--text)}
+.donut-val{font-size:11px;font-weight:700;color:var(--text3)}
+
+/* Subtle modern shadows for infographics */
+.donut-canvas-wrap{
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.donut-canvas-wrap canvas{
+  display:block;
+  border-radius:50%;
+  filter:drop-shadow(0 7px 14px rgba(15,23,42,.16)) drop-shadow(0 2px 5px rgba(15,23,42,.08));
+}
+.bar-track{
+  box-shadow:inset 0 1px 2px rgba(15,23,42,.08), 0 1px 3px rgba(15,23,42,.05);
+}
+[data-theme=dark] .donut-canvas-wrap{
+  background:transparent;
+  box-shadow:none;
+}
+[data-theme=dark] .donut-canvas-wrap canvas{
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.45)) drop-shadow(0 2px 5px rgba(0,0,0,.28));
+}
+[data-theme=dark] .bar-track{
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.5), 0 1px 2px rgba(255,255,255,.06);
+}
 
 /* DETAIL */
 .drow{display:flex;padding:7px 0;border-bottom:1px solid var(--bg3);gap:10px}
@@ -591,6 +632,17 @@ input[type=password].fc { text-transform:none }
 
 /* CHIP */
 .chip{display:inline-flex;align-items:center;padding:2px 8px;background:var(--bg3);border-radius:99px;font-size:11px;font-weight:700;color:var(--text2)}
+.chip-kepala{background:#111;color:#fff}
+[data-theme=dark] .chip-kepala{background:#f5f5f7;color:#111}
+.confirm-danger{
+  border:2px solid #ff3b30;
+  background:rgba(255,59,48,.12);
+  border-radius:12px;
+}
+[data-theme=dark] .confirm-danger{
+  border-color:#ff6961;
+  background:rgba(255,105,97,.18);
+}
 
 /* TABS */
 .tabs{display:flex;gap:3px;padding:3px;background:var(--bg3);border-radius:var(--rx);width:fit-content;max-width:100%;overflow-x:auto}
@@ -667,6 +719,10 @@ input[type=password].fc { text-transform:none }
 
 /* RESPONSIVE */
 @media(max-width:900px){.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){
+  .donut-wrap{flex-direction:column;align-items:center}
+  .donut-legend{align-items:center;min-width:0}
+}
 
 @media(max-width:768px){
   /* Sidebar as drawer */
@@ -734,9 +790,47 @@ input[type=password].fc { text-transform:none }
 }
 
 @media print{
-  #sidebar,#topbar,#toast-box,.no-print{display:none!important}
-  #app{display:block}#main{overflow:visible}#content{padding:0;overflow:visible}
-  .page{display:block!important}body{background:#fff}.card{box-shadow:none}
+  @page{size:auto;margin:12mm}
+  #sidebar,#topbar,#toast-box,.no-print,
+  #pddk-filter-panel,#pddk-filter-tags{display:none!important}
+  html,body{height:auto!important;overflow:visible!important}
+  #app{
+    display:block;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  #main{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  #content{
+    padding:0;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  /* Sembunyikan semua halaman kecuali laporan saat cetak */
+  .page{display:none!important}
+  #page-laporan{display:block!important}
+  /* Bersihkan background agar tinta hemat */
+  body{background:#fff}
+  .card{box-shadow:none;border:1px solid #ddd}
+  .report-area{border:none;padding:0}
+  /* Pastikan lap-out penuh terlihat */
+  #lap-out{
+    display:block!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  /* Biarkan browser otomatis menambah halaman saat konten memanjang */
+  .report-area{break-inside:auto;page-break-inside:auto}
+  .rsec{break-inside:avoid-page;page-break-inside:avoid}
+  .rsec-title{break-after:avoid-page;page-break-after:avoid}
+  table{break-inside:auto;page-break-inside:auto}
+  tr,td,th{break-inside:avoid-page;page-break-inside:avoid}
 }
 /* ── Multi-filter panel ─────────────────────────── */
 #pddk-filter-body { transition:none }
@@ -1058,21 +1152,22 @@ input[type=password].fc { text-transform:none }
             </div>
           </div>
           <div id="pddk-filter-body" style="padding:14px 16px">
-            <!-- Row 1: Search + JK -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" class="pddk-filter-row">
-              <div>
-                <div class="fl">NIK / Nama</div>
-                <div style="position:relative">
-                  <input class="fc" id="pddk-q" placeholder="Cari NIK atau nama..."
-                    oninput="debouncePddkFilter()"
-                    style="padding-right:32px;text-transform:none"/>
-                  <button type="button" id="pddk-q-clear"
-                    onclick="clearPddkField('pddk-q')"
-                    style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;line-height:1">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
+            <!-- Row 1: NIK/Nama full width (permanen) -->
+            <div style="margin-bottom:10px">
+              <div class="fl">NIK / Nama</div>
+              <div style="position:relative">
+                <input class="fc" id="pddk-q" placeholder="Cari NIK atau nama..."
+                  oninput="debouncePddkFilter()"
+                  style="padding-right:32px;text-transform:none"/>
+                <button type="button" id="pddk-q-clear"
+                  onclick="clearPddkField('pddk-q')"
+                  style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;line-height:1">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
               </div>
+            </div>
+            <!-- Row 2: filter ringkas (otomatis bersanding/wrap) -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px" class="pddk-filter-row">
               <div>
                 <div class="fl">Jenis Kelamin</div>
                 <select class="fc" id="pddk-f-jk" onchange="runPddkFilter()">
@@ -1081,9 +1176,14 @@ input[type=password].fc { text-transform:none }
                   <option value="P">Perempuan</option>
                 </select>
               </div>
-            </div>
-            <!-- Row 2: Status Kawin + Agama -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" class="pddk-filter-row">
+              <div>
+                <div class="fl">RT</div>
+                <input class="fc" id="pddk-f-rt" maxlength="3" inputmode="numeric" placeholder="001" oninput="debouncePddkFilter()"/>
+              </div>
+              <div>
+                <div class="fl">RW</div>
+                <input class="fc" id="pddk-f-rw" maxlength="3" inputmode="numeric" placeholder="001" oninput="debouncePddkFilter()"/>
+              </div>
               <div>
                 <div class="fl">Status Perkawinan</div>
                 <select class="fc" id="pddk-f-kawin" onchange="runPddkFilter()">
@@ -1106,9 +1206,6 @@ input[type=password].fc { text-transform:none }
                   <option value="Konghucu">Konghucu</option>
                 </select>
               </div>
-            </div>
-            <!-- Row 3: Pendidikan + Golongan Darah -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" class="pddk-filter-row">
               <div>
                 <div class="fl">Pendidikan Terakhir</div>
                 <select class="fc" id="pddk-f-pendidikan" onchange="runPddkFilter()">
@@ -1425,12 +1522,15 @@ input[type=password].fc { text-transform:none }
       <input type="hidden" id="pddk-id"/>
       <div id="pddk-mob-box" class="infobox" style="display:none">Data dari catatan pindah masuk. Lengkapi kolom di bawah.</div>
       <div class="fr"><div class="fg"><label class="fl">NIK *</label><input class="fc" id="pddk-nik" placeholder="16 digit" maxlength="16"/></div><div class="fg"><label class="fl">Nama Lengkap *</label><input class="fc" id="pddk-nama" placeholder="Sesuai KTP"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">No. KK</label><input class="fc" id="pddk-nokk" placeholder="No. KK"/></div><div class="fg"><label class="fl">Hubungan KK</label><select class="fc" id="pddk-hubkk"><option value="Kepala Keluarga">Kepala Keluarga</option><option value="Istri">Istri</option><option value="Anak">Anak</option><option value="Orang Tua">Orang Tua</option><option value="Mertua">Mertua</option><option value="Cucu">Cucu</option><option value="Lainnya">Lainnya</option></select></div></div>
+      <div class="fr"><div class="fg"><label class="fl">No. KK *</label><input class="fc" id="pddk-nokk" placeholder="No. KK" oninput="syncPddkByKK()"/></div><div class="fg"><label class="fl">Hubungan KK</label><select class="fc" id="pddk-hubkk"></select></div></div>
+      <div class="fr"><div class="fg"><label class="fl">RT (otomatis dari KK)</label><input class="fc" id="pddk-rt" maxlength="3" placeholder="Terisi otomatis" readonly style="background:var(--bg3)"/></div><div class="fg"><label class="fl">RW (otomatis dari KK)</label><input class="fc" id="pddk-rw" maxlength="3" placeholder="Terisi otomatis" readonly style="background:var(--bg3)"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Alamat Lengkap (otomatis dari KK)</label><input class="fc" id="pddk-alamat" placeholder="Terisi otomatis dari Kartu Keluarga" readonly style="background:var(--bg3)"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Jenis Kelamin *</label><select class="fc" id="pddk-jk2"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="pddk-tmplahir" placeholder="Kota/Kabupaten"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="pddk-tgllahir"/></div><div class="fg"><label class="fl">Agama *</label><select class="fc" id="pddk-agama"><option value="Islam">Islam</option><option value="Kristen">Kristen</option><option value="Katolik">Katolik</option><option value="Hindu">Hindu</option><option value="Buddha">Buddha</option><option value="Konghucu">Konghucu</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Status Perkawinan</label><select class="fc" id="pddk-kawin"><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div><div class="fg"><label class="fl">Pendidikan Terakhir</label><select class="fc" id="pddk-pendidikan"><option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option><option value="SD/Sederajat">SD/Sederajat</option><option value="SMP/Sederajat">SMP/Sederajat</option><option value="SMA/Sederajat">SMA/Sederajat</option><option value="D1/D2/D3">D1/D2/D3</option><option value="S1/D4">S1/D4</option><option value="S2">S2</option><option value="S3">S3</option></select></div></div>
       <div class="fr"><div class="fg" style="position:relative;z-index:40"><label class="fl">Pekerjaan</label><input class="fc" id="pddk-pekerjaan" placeholder="Ketik untuk mencari, lalu pilih dari daftar" autocomplete="off" oninput="updPddkKerjaSearch()" onfocus="updPddkKerjaSearch()" onblur="setTimeout(()=>{const x=document.getElementById('pddk-kerja-dd');if(x)x.style.display='none'},180)"/><div id="pddk-kerja-dd" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div></div><div class="fg"><label class="fl">Golongan Darah</label><select class="fc" id="pddk-goldar"><option value="-">Tidak Tahu</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Asal Daerah (jika pindah)</label><input class="fc" id="pddk-asal" placeholder="Dari daerah mana"/></div><div class="fg"><label class="fl">Status Penduduk</label><select class="fc" id="pddk-sts"><option value="Aktif">Aktif</option><option value="Meninggal">Meninggal</option><option value="Pindah">Pindah</option></select></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Nama Ayah <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="pddk-ayah" placeholder="Nama ayah kandung"/></div><div class="fg"><label class="fl">Nama Ibu <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="pddk-ibu" placeholder="Nama ibu kandung"/></div></div>
     </div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-pddk')">Batal</button><button class="btn btn-primary" onclick="savePddk()">Simpan</button></div>
   </div>
@@ -1459,9 +1559,9 @@ input[type=password].fc { text-transform:none }
     <div class="md-body">
       <input type="hidden" id="lahir-id"/>
       <div class="fr"><div class="fg"><label class="fl">Nama Bayi *</label><input class="fc" id="lahir-nama"/></div><div class="fg"><label class="fl">Jenis Kelamin *</label><select class="fc" id="lahir-jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="lahir-tgl"/></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="lahir-tmpat" placeholder="RS/Puskesmas/Rumah"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="lahir-tgl"/></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="lahir-tmpat" placeholder="Kabupaten/Kota"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Nama Ibu *</label><input class="fc" id="lahir-ibu"/></div><div class="fg"><label class="fl">Nama Ayah <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="lahir-ayah" placeholder="Opsional"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">NIK Bayi <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="lahir-nik" maxlength="16" placeholder="Kosongkan = NIK sementara otomatis"/></div><div class="fg"><label class="fl">No. KK Orang Tua</label><input class="fc" id="lahir-nokk" placeholder="Anggota KK bertambah 1 jiwa"/></div></div>
+      <div class="fr"><div class="fg"><label class="fl">NIK Bayi <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="lahir-nik" maxlength="16" placeholder="Kosongkan = NIK sementara otomatis"/></div><div class="fg"><label class="fl">No. KK Orang Tua</label><input class="fc" id="lahir-nokk" placeholder="Anggota KK bertambah 1 jiwa" oninput="syncLahirOrtuByKK()"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Penolong</label><select class="fc" id="lahir-penolong"><option value="Dokter">Dokter</option><option value="Bidan">Bidan</option><option value="Dukun Bayi">Dukun Bayi</option><option value="Lainnya">Lainnya</option></select></div><div class="fg"><label class="fl">Berat (gram)</label><input class="fc" type="number" id="lahir-berat" placeholder="3200"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Panjang (cm)</label><input class="fc" type="number" id="lahir-pjg" placeholder="50"/></div></div>
     </div>
@@ -1487,6 +1587,7 @@ input[type=password].fc { text-transform:none }
       <input type="hidden" id="mati-jk"/>
       <input type="hidden" id="mati-nokk"/>
       <input type="hidden" id="mati-usia"/>
+      <input type="hidden" id="mati-edit-id"/>
       <div id="mati-preview" class="infobox" style="display:none;margin-top:0;background:var(--bg2);border-color:var(--bg3);color:var(--text);font-weight:600"></div>
       <div class="fr"><div class="fg"><label class="fl">Tanggal meninggal *</label><input class="fc" type="date" id="mati-tgl" onchange="updMatiUsia()"/></div><div class="fg"><label class="fl">Usia saat meninggal</label><input class="fc" id="mati-usia-ro" readonly tabindex="-1" style="background:var(--bg3);cursor:default;color:var(--text)" placeholder="Terisi otomatis"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Tempat meninggal</label><input class="fc" id="mati-tmpat" placeholder="RS/Rumah/dll"/></div><div class="fg"><label class="fl">Sebab</label><input class="fc" id="mati-sebab" placeholder="Sakit/Kecelakaan/dll"/></div></div>
@@ -1497,22 +1598,59 @@ input[type=password].fc { text-transform:none }
 
 <!-- MOBILITAS -->
 <div class="mo" id="md-mob">
-  <div class="md" style="max-width:580px">
+  <div class="md" style="max-width:720px">
     <div class="md-head"><div class="md-title" id="md-mob-t">Pindah Masuk</div><button class="md-x" onclick="closeMd('md-mob')">✕</button></div>
     <div class="md-body">
       <input type="hidden" id="mob-id"/>
       <input type="hidden" id="mob-jenis" value="masuk"/>
-      <div id="mob-masuk-box" class="infobox">Setelah simpan, gunakan tombol "+ Penduduk" di tabel untuk mendaftarkan orang ini ke Data Penduduk.</div>
+      <div id="mob-masuk-box" class="infobox">Setelah simpan, data pindah masuk otomatis dibuat ke Data Penduduk.</div>
       <div id="mob-alasan-masuk-wrap">
         <div class="fg"><label class="fl">Alasan Pindah Masuk *</label><select class="fc" id="mob-alasan-m" onchange="updMobInfo()"><option value="Menumpang KK">Menumpang KK (ikut keluarga)</option><option value="Pembuatan KK Baru">Pembuatan KK Baru (surat pindah)</option><option value="Lainnya">Lainnya</option></select></div>
-        <div id="mob-kk-target-wrap" class="fg"><label class="fl" id="mob-kk-lbl">No. KK yang Ditumpangi</label><input class="fc" id="mob-kk-target" placeholder="No. KK tujuan"/></div>
       </div>
-      <div class="fr"><div class="fg"><label class="fl">NIK *</label><input class="fc" id="mob-nik" maxlength="16"/></div><div class="fg"><label class="fl">Nama *</label><input class="fc" id="mob-nama"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Jenis Kelamin</label><select class="fc" id="mob-jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl" id="mob-asal-lbl">Asal Daerah *</label><input class="fc" id="mob-asal"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Tanggal Pindah *</label><input class="fc" type="date" id="mob-tgl"/></div><div class="fg"><label class="fl">No. KK Asal</label><input class="fc" id="mob-nokk-lama"/></div></div>
+      <!-- Pindah masuk: form biasa (Menumpang / Lainnya) -->
+      <div id="mob-masuk-normal">
+        <div id="mob-kk-cari-wrap" class="fg" style="display:none;position:relative;z-index:40">
+          <label class="fl">Cari Nama/No. KK yang Ditumpangi</label>
+          <input class="fc" id="mob-kk-cari" placeholder="Ketik nama kepala keluarga / no. KK" autocomplete="off" oninput="updMobKkSearch()"/>
+          <div id="mob-kk-suggest" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div>
+        </div>
+        <div class="fr" id="mob-ident-wrap"><div class="fg"><label class="fl">NIK *</label><input class="fc" id="mob-nik" maxlength="16"/></div><div class="fg"><label class="fl">Nama *</label><input class="fc" id="mob-nama"/></div></div>
+        <div class="fr" id="mob-jk-wrap"><div class="fg"><label class="fl">Jenis Kelamin</label><select class="fc" id="mob-jk"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl" id="mob-asal-lbl">Asal Daerah *</label><input class="fc" id="mob-asal"/></div></div>
+        <div class="fr" id="mob-rtrw-wrap"><div class="fg"><label class="fl">RT</label><input class="fc" id="mob-rt" maxlength="3" placeholder="001"/></div><div class="fg"><label class="fl">RW</label><input class="fc" id="mob-rw" maxlength="3" placeholder="001"/></div></div>
+        <div class="fr" id="mob-nokk-wrap"><div class="fg"><label class="fl">No. KK Asal</label><input class="fc" id="mob-nokk-lama"/></div></div>
+      </div>
+      <!-- Pindah masuk: Pembuatan KK Baru — data KK sekali + tabel anggota -->
+      <div id="mob-masuk-batch" style="display:none">
+        <div class="infobox" style="margin-bottom:12px">Isi data KK <strong>sekali</strong> di bawah, lalu tambahkan semua anggota keluarga di tabel.</div>
+        <div class="fg"><label class="fl" id="mob-kk-lbl">No. KK Baru (akan dibuat) *</label><input class="fc" id="mob-kk-target" placeholder="16 digit"/></div>
+        <div class="fr"><div class="fg"><label class="fl">Asal Daerah *</label><input class="fc" id="mob-b-asal" placeholder="Kab/Kota asal"/></div><div class="fg"><label class="fl">Tanggal Pindah *</label><input class="fc" type="date" id="mob-b-tgl"/></div></div>
+        <div class="fr"><div class="fg"><label class="fl">RT *</label><input class="fc" id="mob-b-rt" maxlength="3" placeholder="001"/></div><div class="fg"><label class="fl">RW *</label><input class="fc" id="mob-b-rw" maxlength="3" placeholder="001"/></div></div>
+        <div class="fg"><label class="fl">Alamat Lengkap (domisili di desa) *</label><input class="fc" id="mob-b-alamat" placeholder="Alamat lengkap sesuai KK baru"/></div>
+        <div class="fg"><label class="fl">No. KK Asal</label><input class="fc" id="mob-b-nokk-lama" placeholder="Di wilayah asal"/></div>
+        <div style="overflow-x:auto;margin-top:12px;border:1px solid var(--bg3);border-radius:var(--rx)">
+          <table class="mob-batch-tbl" style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead><tr style="background:var(--bg3)">
+              <th style="padding:8px;text-align:left;font-size:10px;font-weight:800">NIK *</th>
+              <th style="padding:8px;text-align:left;font-size:10px;font-weight:800">Nama *</th>
+              <th style="padding:8px;text-align:left;font-size:10px;font-weight:800">Tgl. Lahir *</th>
+              <th style="padding:8px;text-align:left;font-size:10px;font-weight:800">JK</th>
+              <th style="padding:8px;text-align:left;font-size:10px;font-weight:800">Hub. KK *</th>
+              <th style="padding:8px;width:36px"></th>
+            </tr></thead>
+            <tbody id="mob-batch-tbody"></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-secondary" style="margin-top:8px" onclick="addMobBatchRow()">+ Tambah baris anggota</button>
+      </div>
+      <div class="fr" id="mob-tgl-wrap"><div class="fg"><label class="fl">Tanggal Pindah *</label><input class="fc" type="date" id="mob-tgl"/></div></div>
+      <div id="mob-keluar-search-wrap" class="fg" style="display:none;position:relative;z-index:40">
+        <label class="fl">Cari NIK atau nama *</label>
+        <input class="fc" id="mob-keluar-cari" placeholder="Minimal 2 huruf (nama) atau 4 digit (NIK)" autocomplete="off" oninput="updMobKeluarSearch()"/>
+        <div id="mob-keluar-suggest" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div>
+      </div>
       <div id="mob-keluar-wrap" style="display:none">
         <div class="fg"><label class="fl">Alasan Pindah Keluar</label><input class="fc" id="mob-alasan-k" placeholder="Pekerjaan/Ikut keluarga/dll"/></div>
-        <div class="fg"><label class="fl">Tujuan Daerah</label><input class="fc" id="mob-tujuan" placeholder="Pindah ke mana"/></div>
+        <div class="fg"><label class="fl">Alamat/Daerah Tujuan</label><input class="fc" id="mob-tujuan" placeholder="Pindah ke mana"/></div>
       </div>
     </div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-mob')">Batal</button><button class="btn btn-primary" onclick="saveMob()">Simpan</button></div>
@@ -1533,10 +1671,10 @@ input[type=password].fc { text-transform:none }
   </div>
 </div>
 
-<!-- DETAIL PENDUDUK -->
+<!-- DETAIL MODAL (Penduduk / Kelahiran / Kematian / Sementara / Mobilitas) -->
 <div class="mo" id="md-detail">
   <div class="md" style="max-width:460px">
-    <div class="md-head"><div class="md-title">Detail Penduduk</div><button class="md-x" onclick="closeMd('md-detail')">✕</button></div>
+    <div class="md-head"><div class="md-title" id="md-detail-title">Detail</div><button class="md-x" onclick="closeMd('md-detail')">✕</button></div>
     <div class="md-body" id="md-detail-body"></div>
   </div>
 </div>
@@ -1545,7 +1683,7 @@ input[type=password].fc { text-transform:none }
 <div class="mo" id="md-confirm">
   <div class="md" style="max-width:320px">
     <div class="md-head"><div class="md-title">Konfirmasi Hapus</div><button class="md-x" onclick="closeMd('md-confirm')">✕</button></div>
-    <div class="md-body"><p style="font-size:14px;color:var(--text2)" id="confirm-msg"></p></div>
+    <div class="md-body" id="confirm-body"><p style="font-size:14px;color:var(--text2)" id="confirm-msg"></p></div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-confirm')">Batal</button><button class="btn btn-danger" id="confirm-ok">Hapus</button></div>
   </div>
 </div>
@@ -1946,8 +2084,11 @@ function animDonut(canvasId, values, colors, labels, legId, totalId, totalVal) {
      - CSS keeps it at logical size
      - Draw at logical coords (ctx.scale handles the rest)
      This makes the chart crisp at any browser zoom level.    */
-  const logW = parseInt(canvas.getAttribute('width'))  || 130;
-  const logH = parseInt(canvas.getAttribute('height')) || 130;
+  // Keep original logical size stable; avoid compounding DPR resize on re-render.
+  if(!canvas.dataset.baseW) canvas.dataset.baseW = String(parseInt(canvas.getAttribute('width')) || 130);
+  if(!canvas.dataset.baseH) canvas.dataset.baseH = String(parseInt(canvas.getAttribute('height')) || 130);
+  const logW = parseInt(canvas.dataset.baseW) || 130;
+  const logH = parseInt(canvas.dataset.baseH) || 130;
   const dpr  = Math.min(window.devicePixelRatio || 1, 3);
 
   canvas.width        = logW * dpr;
@@ -2015,11 +2156,15 @@ function animDonut(canvasId, values, colors, labels, legId, totalId, totalVal) {
   }
   if(legId) {
     const el = document.getElementById(legId);
-    if(el) el.innerHTML = labels.map((l,i) =>
-      values[i] > 0
-        ? `<div class="donut-legend-item"><div class="donut-dot" style="background:${colors[i]}"></div>${l}: <strong>${values[i]}</strong></div>`
-        : ''
-    ).join('');
+    if(el) el.innerHTML = labels.map((l,i) => {
+      if(values[i] <= 0) return '';
+      const pct = ((values[i] / tot) * 100).toFixed(1);
+      return `<div class="donut-legend-item">
+        <div class="donut-dot" style="background:${colors[i]}"></div>
+        <span class="donut-pill">${escapeHtml(l)} <span class="donut-val">${values[i]}</span></span>
+        <span class="donut-pct">${pct}%</span>
+      </div>`;
+    }).join('');
   }
 }
 
@@ -2057,10 +2202,10 @@ window.KKP = 1;
 window.resetF = (type) => {
   const maps = {
     kk: ['kk-id','kk-nokk','kk-kepala','kk-dusun','kk-rt','kk-rw','kk-alamat','kk-tglterbit'],
-    pddk: ['pddk-id','pddk-nik','pddk-nama','pddk-nokk','pddk-tmplahir','pddk-tgllahir','pddk-pekerjaan','pddk-asal'],
+    pddk: ['pddk-id','pddk-nik','pddk-nama','pddk-nokk','pddk-rt','pddk-rw','pddk-alamat','pddk-tmplahir','pddk-tgllahir','pddk-pekerjaan','pddk-asal','pddk-ayah','pddk-ibu'],
     sem: ['sem-id','sem-nik','sem-nama','sem-asal','sem-tujuan','sem-masuk','sem-keluar','sem-telp','sem-alamat'],
     lahir: ['lahir-id','lahir-nama','lahir-nik','lahir-tgl','lahir-tmpat','lahir-ibu','lahir-ayah','lahir-nokk','lahir-berat','lahir-pjg'],
-    mati: ['mati-cari','mati-pddk-id','mati-tgllahir','mati-nik','mati-nama','mati-jk','mati-nokk','mati-usia','mati-tgl','mati-tmpat','mati-sebab'],
+    mati: ['mati-cari','mati-pddk-id','mati-tgllahir','mati-nik','mati-nama','mati-jk','mati-nokk','mati-usia','mati-tgl','mati-tmpat','mati-sebab','mati-edit-id'],
     user: ['user-id','user-uname','user-pass','user-nama','user-jabatan'],
   };
   (maps[type]||[]).forEach(id => sv(id,''));
@@ -2075,6 +2220,8 @@ window.resetF = (type) => {
     const sb = document.getElementById('mati-suggest'); if(sb) { sb.innerHTML=''; sb.style.display='none'; }
     const pv = document.getElementById('mati-preview'); if(pv) { pv.innerHTML=''; pv.style.display='none'; }
     const ro = document.getElementById('mati-usia-ro'); if(ro) ro.value='';
+    const t = document.querySelector('#md-mati .md-title'); if(t) t.textContent='Catat Kematian';
+    const h = document.getElementById('mati-hint'); if(h) h.style.display='';
   }
 };
 
@@ -2102,6 +2249,7 @@ window.renderKK = () => {
         <td><span class="badge badge-blue">${angg(k.noKK)} Jiwa</span></td>
         <td><span class="badge ${k.status==='Aktif'?'badge-green':'badge-gray'}">${k.status}</span></td>
         <td><div style="display:flex;gap:4px">
+          <button type="button" class="btn btn-sm btn-secondary" onclick='detailKK(${JSON.stringify(k.id)})'>Lihat</button>
           <button type="button" class="btn btn-sm btn-secondary" onclick='editKK(${JSON.stringify(k.id)})'>Edit</button>
           <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kk", ${JSON.stringify(k.id)}, ${JSON.stringify('KK ' + (k.noKK || ''))})'>Hapus</button>
         </div></td>
@@ -2110,10 +2258,60 @@ window.renderKK = () => {
 };
 window.pagGoto_kk = function(p) { window.KKP = KKP = p; renderKK(); };
 
+window.detailKK = (id) => {
+  const k = S.kk.find(x => x.id === id); if(!k) return;
+  const anggota = S.penduduk
+    .filter(p => p.noKK === k.noKK)
+    .sort((a,b) => (a.hubKK === 'Kepala Keluarga' ? -1 : b.hubKK === 'Kepala Keluarga' ? 1 : (a.namaLengkap||'').localeCompare(b.namaLengkap||'')));
+  const anggotaHtml = anggota.length === 0
+    ? `<div style="padding:10px;border:1px dashed var(--bg3);border-radius:8px;font-size:12px;color:var(--text3)">Belum ada anggota terdaftar pada KK ini.</div>`
+    : `<div style="overflow:auto;border:1px solid var(--bg3);border-radius:8px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:var(--bg3)">
+              <th style="text-align:left;padding:8px">NIK</th>
+              <th style="text-align:left;padding:8px">Nama</th>
+              <th style="text-align:left;padding:8px">Hub. KK</th>
+              <th style="text-align:left;padding:8px">JK</th>
+              <th style="text-align:left;padding:8px">Tgl. Lahir</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${anggota.map(p => `<tr>
+              <td style="padding:8px;font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.nik||'-')}</td>
+              <td style="padding:8px">${escapeHtml(p.namaLengkap||'-')}</td>
+              <td style="padding:8px">${escapeHtml(p.hubKK||'-')}</td>
+              <td style="padding:8px">${p.jenisKelamin==='L'?'L':'P'}</td>
+              <td style="padding:8px">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  document.getElementById('md-detail-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--indigo-xs);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 8px">🏠</div>
+      <div style="font-size:16px;font-weight:900">${escapeHtml(k.kepalaKeluarga||'-')}</div>
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${escapeHtml(k.noKK||'-')}</div>
+    </div>
+    ${dr('Status', `<span class="badge ${k.status==='Aktif'?'badge-green':'badge-gray'}">${k.status||'-'}</span>`)}
+    ${dr('Alamat', escapeHtml(k.alamat||'-'))}
+    ${dr('Dusun / RT RW', `${escapeHtml(k.dusun||'-')} / ${escapeHtml(k.rt||'-')} / ${escapeHtml(k.rw||'-')}`)}
+    ${dr('Jumlah Anggota', `<span class="badge badge-blue">${anggota.length} Jiwa</span>`)}
+    <div style="margin-top:10px;padding-top:10px;border-top:2px solid var(--bg3)">
+      <div style="font-size:10px;font-weight:900;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Anggota Keluarga</div>
+      ${anggotaHtml}
+    </div>`;
+  document.getElementById('md-detail-title').textContent = 'Detail Kartu Keluarga';
+  openMd('md-detail');
+};
+
 window.saveKK = async () => {
   const id = gv('kk-id');
-  const data = {noKK:gv('kk-nokk'),kepalaKeluarga:gvUp('kk-kepala'),dusun:gvUp('kk-dusun'),rt:gv('kk-rt'),rw:gv('kk-rw'),alamat:gvUp('kk-alamat'),status:gv('kk-status'),tanggalTerbit:gv('kk-tglterbit')};
+  const rt = normRtRw(gv('kk-rt'), true);
+  const rw = normRtRw(gv('kk-rw'), true);
+  const data = {noKK:gv('kk-nokk'),kepalaKeluarga:gvUp('kk-kepala'),dusun:gvUp('kk-dusun'),rt, rw, alamat:gvUp('kk-alamat'),status:gv('kk-status'),tanggalTerbit:gv('kk-tglterbit')};
   if(!data.noKK || !data.kepalaKeluarga) { toast('No. KK dan Kepala KK wajib diisi','warn'); return; }
+  if(!data.rt || !data.rw || data.rt.length !== 3 || data.rw.length !== 3) { toast('RT dan RW wajib 3 digit (contoh: 001, 010, 016)','warn'); return; }
   try {
     if(id) {
       await fbUpdate(`kk/${id}`, data); ups('kk',{id,...data}); addAct(`Update KK ${data.noKK}`);
@@ -2149,6 +2347,8 @@ const PDDK_F = {
   agama: '',
   pendidikan: '',
   goldar: '',
+  rt: '',
+  rw: '',
   pekerjaan: '',
   usiaMin: null,
   usiaMax: null,
@@ -2180,6 +2380,8 @@ function matchesPddkFilter(p, f) {
   if(f.agama     && p.agama         !== f.agama)     return false;
   if(f.pendidikan&& p.pendidikan    !== f.pendidikan) return false;
   if(f.goldar    && p.golonganDarah !== f.goldar)    return false;
+  if(f.rt        && (p.rt||'')      !== f.rt)        return false;
+  if(f.rw        && (p.rw||'')      !== f.rw)        return false;
   // Pekerjaan: partial match (user bisa ketik sebagian)
   if(f.pekerjaan) {
     const pk = (p.pekerjaan||'').toLowerCase();
@@ -2204,6 +2406,8 @@ function countActiveFilters() {
   if(PDDK_F.agama)      n++;
   if(PDDK_F.pendidikan) n++;
   if(PDDK_F.goldar)     n++;
+  if(PDDK_F.rt)         n++;
+  if(PDDK_F.rw)         n++;
   if(PDDK_F.pekerjaan)  n++;
   if(PDDK_F.usiaMin !== null || PDDK_F.usiaMax !== null) n++;
   return n;
@@ -2217,6 +2421,8 @@ function syncPddkFilterState() {
   PDDK_F.agama      = gv('pddk-f-agama');
   PDDK_F.pendidikan = gv('pddk-f-pendidikan');
   PDDK_F.goldar     = gv('pddk-f-goldar');
+  PDDK_F.rt         = normRtRw(gv('pddk-f-rt'), false);
+  PDDK_F.rw         = normRtRw(gv('pddk-f-rw'), false);
   PDDK_F.pekerjaan  = (document.getElementById('pddk-f-pekerjaan')?.value?.trim() || '');
   const mn = document.getElementById('pddk-f-usia-min')?.value;
   const mx = document.getElementById('pddk-f-usia-max')?.value;
@@ -2260,6 +2466,8 @@ function renderFilterTags() {
   if(PDDK_F.agama)      tags.push({key:'agama',    label:`Agama: ${PDDK_F.agama}`});
   if(PDDK_F.pendidikan) tags.push({key:'pendidikan',label:`Pend: ${PDDK_F.pendidikan}`});
   if(PDDK_F.goldar)     tags.push({key:'goldar',   label:`Gol.Darah: ${PDDK_F.goldar}`});
+  if(PDDK_F.rt)         tags.push({key:'rt',       label:`RT: ${PDDK_F.rt}`});
+  if(PDDK_F.rw)         tags.push({key:'rw',       label:`RW: ${PDDK_F.rw}`});
   if(PDDK_F.pekerjaan)  tags.push({key:'pekerjaan',label:`Kerja: ${PDDK_F.pekerjaan}`});
   if(PDDK_F.usiaMin !== null || PDDK_F.usiaMax !== null) {
     const mn = PDDK_F.usiaMin !== null ? PDDK_F.usiaMin : '0';
@@ -2307,10 +2515,10 @@ window.renderPddk = () => {
         const usiaStr = usia !== null ? `${usia} th` : '-';
         return `<tr>
           <td><span style="font-family:'DM Mono',monospace;font-size:11px">${p.nik}</span></td>
-          <td><strong>${p.namaLengkap}</strong><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
+          <td><strong>${p.namaLengkap}</strong></td>
           <td><span class="badge ${p.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${p.jenisKelamin==='L'?'L':'P'}</span></td>
-          <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):''}</div></td>
-          <td><span class="chip">${p.hubKK||'-'}</span></td>
+          <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):''}</div><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
+          <td><span class="chip ${p.hubKK==='Kepala Keluarga'?'chip-kepala':''}">${p.hubKK||'-'}</span></td>
           <td><span class="badge ${p.statusKawin==='Kawin'?'badge-green':p.statusKawin==='Belum Kawin'?'badge-blue':'badge-orange'}">${p.statusKawin||'-'}</span></td>
           <td style="font-size:12px">${p.agama||'-'}</td>
           <td style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(p.pekerjaan||'-')}">${p.pekerjaan||'-'}</td>
@@ -2338,7 +2546,7 @@ window.runPddkFilter = () => { PP = window.PP = 1; renderPddk(); };
 
 /* ── Reset semua filter sekaligus ───────────────── */
 window.resetPddkFilters = () => {
-  ['pddk-q','pddk-f-pekerjaan'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['pddk-q','pddk-f-pekerjaan','pddk-f-rt','pddk-f-rw'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   ['pddk-f-jk','pddk-f-kawin','pddk-f-agama','pddk-f-pendidikan','pddk-f-goldar'].forEach(id => {
     const el=document.getElementById(id); if(el) el.selectedIndex=0;
   });
@@ -2361,6 +2569,7 @@ window.clearPddkFilterKey = (key) => {
     q: 'pddk-q', pekerjaan: 'pddk-f-pekerjaan',
     jk: 'pddk-f-jk', kawin: 'pddk-f-kawin',
     agama: 'pddk-f-agama', pendidikan: 'pddk-f-pendidikan', goldar: 'pddk-f-goldar',
+    rt: 'pddk-f-rt', rw: 'pddk-f-rw',
   };
   if(key === 'usia') {
     sv('pddk-f-usia-min',''); sv('pddk-f-usia-max','');
@@ -2426,8 +2635,13 @@ window.pickPddkPekFilter = (t) => {
 
 window.savePddk = async () => {
   const id = gv('pddk-id');
-  const data = {nik:gv('pddk-nik'),namaLengkap:gvUp('pddk-nama'),noKK:gv('pddk-nokk'),hubKK:gv('pddk-hubkk'),jenisKelamin:gv('pddk-jk2'),tempatLahir:gvUp('pddk-tmplahir'),tanggalLahir:gv('pddk-tgllahir'),agama:gv('pddk-agama'),statusKawin:gv('pddk-kawin'),pendidikan:gv('pddk-pendidikan'),pekerjaan:gv('pddk-pekerjaan'),golonganDarah:gv('pddk-goldar'),statusPenduduk:gv('pddk-sts'),asalDaerah:gvUp('pddk-asal')};
-  if(!data.nik || !data.namaLengkap) { toast('NIK dan Nama wajib diisi','warn'); return; }
+  const data = {nik:gv('pddk-nik'),namaLengkap:gvUp('pddk-nama'),noKK:gv('pddk-nokk'),rt:gv('pddk-rt'),rw:gv('pddk-rw'),alamat:gvUp('pddk-alamat'),hubKK:gv('pddk-hubkk'),jenisKelamin:gv('pddk-jk2'),tempatLahir:gvUp('pddk-tmplahir'),tanggalLahir:gv('pddk-tgllahir'),agama:gv('pddk-agama'),statusKawin:gv('pddk-kawin'),pendidikan:gv('pddk-pendidikan'),pekerjaan:gv('pddk-pekerjaan'),golonganDarah:gv('pddk-goldar'),statusPenduduk:gv('pddk-sts'),asalDaerah:gvUp('pddk-asal'),namaAyah:gvUp('pddk-ayah'),namaIbu:gvUp('pddk-ibu')};
+  if(!data.nik || !data.namaLengkap || !data.noKK) { toast('NIK, Nama, dan No. KK wajib diisi','warn'); return; }
+  const kkRef = S.kk.find(k => k.noKK === data.noKK);
+  if(!kkRef) { toast('No. KK belum terdaftar di halaman Kartu Keluarga','warn'); return; }
+  data.rt = kkRef.rt || '';
+  data.rw = kkRef.rw || '';
+  data.alamat = kkRef.alamat || '';
   if(data.pekerjaan && !PEKERJAAN_SET.has(data.pekerjaan)) { toast('Pekerjaan harus dipilih dari daftar (ketik untuk mencari lalu klik salah satu)','warn'); return; }
   try {
     if(id) {
@@ -2442,13 +2656,57 @@ window.savePddk = async () => {
 window.editPddk = (id) => {
   const p = S.penduduk.find(x=>x.id===id); if(!p) return;
   sv('pddk-id',id); sv('pddk-nik',p.nik); sv('pddk-nama',p.namaLengkap); sv('pddk-nokk',p.noKK||'');
-  selv('pddk-hubkk',p.hubKK); selv('pddk-jk2',p.jenisKelamin); sv('pddk-tmplahir',p.tempatLahir||'');
+  sv('pddk-rt',p.rt||''); sv('pddk-rw',p.rw||'');
+  sv('pddk-alamat',p.alamat||'');
+  refreshHubKkOptions();
+  selv('pddk-hubkk',p.hubKK);
+  selv('pddk-jk2',p.jenisKelamin); sv('pddk-tmplahir',p.tempatLahir||'');
   sv('pddk-tgllahir',p.tanggalLahir||''); selv('pddk-agama',p.agama); selv('pddk-kawin',p.statusKawin);
   selv('pddk-pendidikan',p.pendidikan); sv('pddk-pekerjaan',p.pekerjaan||''); selv('pddk-goldar',p.golonganDarah);
   selv('pddk-sts',p.statusPenduduk); sv('pddk-asal',p.asalDaerah||'');
+  sv('pddk-ayah',p.namaAyah||''); sv('pddk-ibu',p.namaIbu||'');
   document.getElementById('pddk-mob-box').style.display='none';
   document.getElementById('md-pddk-t').textContent='Edit Data Penduduk';
+  window.syncPddkByKK();
   openMd('md-pddk');
+};
+
+window.syncPddkByKK = () => {
+  const noKK = gv('pddk-nokk');
+  const kk = S.kk.find(k => k.noKK === noKK);
+  if(!kk) {
+    sv('pddk-rt',''); sv('pddk-rw',''); sv('pddk-alamat','');
+    refreshHubKkOptions();
+    return;
+  }
+  sv('pddk-rt', kk.rt || '');
+  sv('pddk-rw', kk.rw || '');
+  sv('pddk-alamat', kk.alamat || '');
+  refreshHubKkOptions();
+};
+
+window.refreshHubKkOptions = () => {
+  const sel = document.getElementById('pddk-hubkk');
+  if(!sel) return;
+  const current = sel.value;
+  const noKK = gv('pddk-nokk');
+  const editingId = gv('pddk-id');
+  const anggotaKK = noKK ? S.penduduk.filter(p => p.noKK === noKK) : [];
+  const hasKepala = anggotaKK.some(p => p.hubKK === 'Kepala Keluarga' && p.id !== editingId);
+  const hasIstri  = anggotaKK.some(p => p.hubKK === 'Istri' && p.id !== editingId);
+  const base = [
+    {v:'Kepala Keluarga', lbl:'Kepala Keluarga', hide:hasKepala},
+    {v:'Istri', lbl:'Istri', hide:hasIstri},
+    {v:'Anak', lbl:'Anak'},
+    {v:'Orang Tua', lbl:'Orang Tua'},
+    {v:'Mertua', lbl:'Mertua'},
+    {v:'Cucu', lbl:'Cucu'},
+    {v:'Lainnya', lbl:'Lainnya'},
+  ];
+  sel.innerHTML = base.filter(o => !o.hide).map(o => `<option value="${o.v}">${o.lbl}</option>`).join('');
+  if(current && Array.from(sel.options).some(o => o.value === current)) {
+    sel.value = current;
+  }
 };
 
 window.detailPddk = (id) => {
@@ -2467,7 +2725,9 @@ window.detailPddk = (id) => {
     ${dr('Pekerjaan',p.pekerjaan||'-')}${dr('Gol. Darah',p.golonganDarah||'-')}
     ${dr('No. KK',p.noKK||'-')}${dr('Hub. KK',p.hubKK||'-')}
     ${p.asalDaerah?dr('Asal Daerah',p.asalDaerah):''}
-    ${dr('Status',`<span class="badge ${p.statusPenduduk==='Aktif'?'badge-green':'badge-red'}">${p.statusPenduduk||'Aktif'}</span>`)}`;
+    ${dr('Status',`<span class="badge ${p.statusPenduduk==='Aktif'?'badge-green':'badge-red'}">${p.statusPenduduk||'Aktif'}</span>`)}
+    ${(p.namaAyah||p.namaIbu)?`<div style="margin-top:10px;padding-top:10px;border-top:2px solid var(--bg3)"><div style="font-size:10px;font-weight:900;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Silsilah Pendek</div>${p.namaAyah?dr('Nama Ayah',p.namaAyah):''}${p.namaIbu?dr('Nama Ibu',p.namaIbu):''}</div>`:''}`;
+  document.getElementById('md-detail-title').textContent='Detail Penduduk';
   openMd('md-detail');
 };
 const dr = (k,v) => `<div class="drow"><div class="dkey">${k}</div><div class="dval">${v}</div></div>`;
@@ -2496,6 +2756,7 @@ window.renderSem = () => {
           <td style="font-size:12px">${s.tanggalKeluar?new Date(s.tanggalKeluar).toLocaleDateString('id-ID'):'-'}</td>
           <td><span class="badge ${exp?'badge-red':'badge-green'}">${exp?'Berakhir':'Aktif'}</span></td>
           <td><div style="display:flex;gap:4px">
+            <button type="button" class="btn btn-sm btn-secondary" onclick='detailSem(${JSON.stringify(s.id)})'>Lihat</button>
             <button type="button" class="btn btn-sm btn-secondary" onclick='editSem(${JSON.stringify(s.id)})'>Edit</button>
             <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("sementara", ${JSON.stringify(s.id)}, ${JSON.stringify(s.nama)})'>Hapus</button>
           </div></td>
@@ -2522,6 +2783,28 @@ window.editSem = (id) => {
   openMd('md-sem');
 };
 
+window.detailSem = (id) => {
+  const s = S.sementara.find(x=>x.id===id); if(!s) return;
+  const today = new Date();
+  const exp = s.tanggalKeluar && new Date(s.tanggalKeluar) < today;
+  document.getElementById('md-detail-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--orange-xs);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px">${s.jenisKelamin==='L'?'👨':'👩'}</div>
+      <div style="font-size:16px;font-weight:900">${escapeHtml(s.nama)}</div>
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${s.nik||'-'}</div>
+      <div style="margin-top:6px"><span class="badge ${exp?'badge-red':'badge-green'}">${exp?'Berakhir':'Aktif'}</span></div>
+    </div>
+    ${dr('Jenis Kelamin',s.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
+    ${dr('Asal Daerah',s.asalDaerah||'-')}
+    ${dr('Tujuan Domisili',s.tujuan||'-')}
+    ${dr('Tgl. Masuk',s.tanggalMasuk?new Date(s.tanggalMasuk).toLocaleDateString('id-ID'):'-')}
+    ${dr('Tgl. Keluar (Est.)',s.tanggalKeluar?new Date(s.tanggalKeluar).toLocaleDateString('id-ID'):'-')}
+    ${dr('No. Telepon',s.telepon||'-')}
+    ${dr('Alamat di Desa',s.alamatDesa||'-')}`;
+  document.getElementById('md-detail-title').textContent='Detail Penduduk Sementara';
+  openMd('md-detail');
+};
+
 /* ════════════════════════════════
    KELAHIRAN
 ════════════════════════════════ */
@@ -2543,13 +2826,55 @@ window.renderLahir = () => {
         <td style="color:var(--text3)">${k.namaAyah||'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
         <td>${k.penolong||'-'}</td>
-        <td><button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kelahiran", ${JSON.stringify(k.id)}, ${JSON.stringify(k.namaBayi)})'>Hapus</button></td>
+        <td><div style="display:flex;gap:3px">
+          <button type="button" class="btn btn-sm btn-secondary" onclick='detailLahir(${JSON.stringify(k.id)})'>Lihat</button>
+          <button type="button" class="btn btn-sm btn-secondary" onclick='editLahir(${JSON.stringify(k.id)})'>Edit</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kelahiran", ${JSON.stringify(k.id)}, ${JSON.stringify(k.namaBayi)})'>Hapus</button>
+        </div></td>
       </tr>`).join('');
 };
 
 window.saveLahir = async () => {
+  window.syncLahirOrtuByKK();
+  const id = gv('lahir-id');
   const data = {namaBayi:gvUp('lahir-nama'),jenisKelamin:gv('lahir-jk'),tanggalLahir:gv('lahir-tgl'),tempatLahir:gvUp('lahir-tmpat'),namaIbu:gvUp('lahir-ibu'),namaAyah:gvUp('lahir-ayah'),noKK:gv('lahir-nokk'),penolong:gv('lahir-penolong'),beratLahir:gv('lahir-berat'),panjangLahir:gv('lahir-pjg')};
   if(!data.namaBayi || !data.tanggalLahir || !data.namaIbu) { toast('Nama bayi, tanggal, ibu wajib','warn'); return; }
+  if(!data.noKK) { toast('No. KK orang tua wajib diisi','warn'); return; }
+  const kkOrtu = S.kk.find(k => k.noKK === data.noKK);
+  if(!kkOrtu) { toast('No. KK orang tua tidak ditemukan di data Kartu Keluarga','warn'); return; }
+  const anggotaKkOrtu = S.penduduk.filter(p => (p.noKK||'') === data.noKK);
+  const ibuKandung = anggotaKkOrtu.find(p => p.hubKK === 'Istri') || null;
+  const agamaBayi = ibuKandung?.agama || 'Islam';
+  const rtOrtu = kkOrtu.rt || '';
+  const rwOrtu = kkOrtu.rw || '';
+  const alamatOrtu = kkOrtu.alamat || '';
+
+  // MODE EDIT — hanya update data kelahiran, TIDAK buat penduduk baru
+  if(id) {
+    try {
+      await fbUpdate(`kelahiran/${id}`, data); ups('kelahiran',{id,...data});
+      // Update nama bayi di data penduduk jika ada referensi
+      const rec = S.kelahiran.find(x=>x.id===id);
+      if(rec?.pendudukId) {
+        const pRec = S.penduduk.find(x=>x.id===rec.pendudukId);
+        if(pRec) {
+          const updPddk = {
+            namaLengkap:data.namaBayi,tanggalLahir:data.tanggalLahir,tempatLahir:data.tempatLahir,jenisKelamin:data.jenisKelamin,
+            noKK:data.noKK, rt:rtOrtu, rw:rwOrtu, alamat:alamatOrtu, hubKK:'Anak',
+            agama:agamaBayi, statusKawin:'Belum Kawin', pendidikan:'Tidak/Belum Sekolah', pekerjaan:'Belum / Tidak Bekerja',
+            namaAyah:data.namaAyah||'', namaIbu:data.namaIbu||''
+          };
+          await fbUpdate(`penduduk/${rec.pendudukId}`, updPddk);
+          Object.assign(pRec, updPddk);
+        }
+      }
+      addAct(`Edit kelahiran: ${data.namaBayi}`);
+      closeMd('md-lahir'); renderLahir(); toast('Data kelahiran diperbarui');
+    } catch(e) { toast('Gagal: '+e.message,'err'); }
+    return;
+  }
+
+  // MODE TAMBAH BARU — buat penduduk otomatis
   let nikBayi = gv('lahir-nik').replace(/\D/g,'');
   if(nikBayi) {
     if(nikBayi.length !== 16) { toast('NIK bayi harus 16 digit','warn'); return; }
@@ -2568,18 +2893,67 @@ window.saveLahir = async () => {
     const kelRec = {id:nid,...data};
     S.kelahiran.push(kelRec);
     const pddkData = {
-      nik:nikBayi,namaLengkap:data.namaBayi,noKK:data.noKK||'',hubKK:'Anak',jenisKelamin:data.jenisKelamin,
-      tempatLahir:data.tempatLahir||'',tanggalLahir:data.tanggalLahir,agama:'Islam',statusKawin:'Belum Kawin',
-      pendidikan:'Tidak/Belum Sekolah',pekerjaan:'',golonganDarah:'-',statusPenduduk:'Aktif',asalDaerah:''
+      nik:nikBayi,namaLengkap:data.namaBayi,noKK:data.noKK,rt:rtOrtu,rw:rwOrtu,alamat:alamatOrtu,hubKK:'Anak',jenisKelamin:data.jenisKelamin,
+      tempatLahir:data.tempatLahir||'',tanggalLahir:data.tanggalLahir,agama:agamaBayi,statusKawin:'Belum Kawin',
+      pendidikan:'Tidak/Belum Sekolah',pekerjaan:'Belum / Tidak Bekerja',golonganDarah:'-',statusPenduduk:'Aktif',asalDaerah:'',
+      namaAyah:data.namaAyah||'',namaIbu:data.namaIbu||''
     };
     const pid = await fbPush('penduduk', pddkData);
-    await fbUpdate(`kelahiran/${nid}`, {pendudukId:pid});
+    await fbUpdate(`kelahiran/${nid}`, {pendudukId:pid, nikBayi, snapshotPenduduk:{...pddkData}});
     kelRec.pendudukId = pid;
+    kelRec.nikBayi = nikBayi;
+    kelRec.snapshotPenduduk = {...pddkData};
     S.penduduk.push({id:pid,...pddkData});
     addAct(`Kelahiran: ${data.namaBayi} → Data Penduduk`);
     closeMd('md-lahir'); renderLahir(); renderPddk(); renderDash();
-    toast('Kelahiran tersimpan; bayi otomatis masuk Data Penduduk (register kelahiran tetap ada)');
+    toast('Kelahiran tersimpan; bayi otomatis masuk Data Penduduk');
   } catch(e) { toast('Gagal: '+e.message,'err'); }
+};
+
+window.syncLahirOrtuByKK = () => {
+  const noKK = gv('lahir-nokk');
+  if(!noKK) return;
+  const kkDigits = noKK.replace(/\D/g,'');
+  const anggota = S.penduduk.filter(p => ((p.noKK||'').replace(/\D/g,'')) === kkDigits);
+  const ayah = anggota.find(p => p.hubKK === 'Kepala Keluarga');
+  const ibu = anggota.find(p => p.hubKK === 'Istri');
+  if(ayah && ibu) {
+    sv('lahir-ayah', ayah.namaLengkap || '');
+    sv('lahir-ibu', ibu.namaLengkap || '');
+  }
+};
+
+window.editLahir = (id) => {
+  const k = S.kelahiran.find(x=>x.id===id); if(!k) return;
+  sv('lahir-id',id); sv('lahir-nama',k.namaBayi); selv('lahir-jk',k.jenisKelamin);
+  sv('lahir-tgl',k.tanggalLahir||''); sv('lahir-tmpat',k.tempatLahir||'');
+  sv('lahir-ibu',k.namaIbu||''); sv('lahir-ayah',k.namaAyah||'');
+  sv('lahir-nik',''); sv('lahir-nokk',k.noKK||''); selv('lahir-penolong',k.penolong||'Dokter');
+  window.syncLahirOrtuByKK();
+  sv('lahir-berat',k.beratLahir||''); sv('lahir-pjg',k.panjangLahir||'');
+  document.querySelector('#md-lahir .md-title').textContent = 'Edit Data Kelahiran';
+  openMd('md-lahir');
+};
+
+window.detailLahir = (id) => {
+  const k = S.kelahiran.find(x=>x.id===id); if(!k) return;
+  document.getElementById('md-detail-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="width:52px;height:52px;border-radius:50%;background:${k.jenisKelamin==='L'?'var(--blue-xs)':'var(--purple-xs)'};display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px">👶</div>
+      <div style="font-size:16px;font-weight:900">${k.namaBayi}</div>
+      <div style="font-size:11px;color:var(--text3)">${k.jenisKelamin==='L'?'Laki-laki':'Perempuan'}</div>
+    </div>
+    ${dr('Tgl. Lahir',k.tanggalLahir?new Date(k.tanggalLahir).toLocaleDateString('id-ID'):'-')}
+    ${dr('Tempat Lahir',k.tempatLahir||'-')}
+    ${dr('Nama Ibu',k.namaIbu||'-')}
+    ${dr('Nama Ayah',k.namaAyah||'-')}
+    ${dr('No. KK',k.noKK||'-')}
+    ${dr('Penolong',k.penolong||'-')}
+    ${k.beratLahir?dr('Berat Lahir',k.beratLahir+' gram'):''}
+    ${k.panjangLahir?dr('Panjang Lahir',k.panjangLahir+' cm'):''}
+    ${k.pendudukId?dr('Ref. Penduduk','<span class="badge badge-green">Terdaftar</span>'):''}`;
+  document.getElementById('md-detail-title').textContent='Detail Kelahiran';
+  openMd('md-detail');
 };
 
 /* ════════════════════════════════
@@ -2673,11 +3047,34 @@ window.renderMati = () => {
         <td style="font-size:12px">${k.usia!==undefined&&k.usia!==''?`${k.usia} th`:'-'}</td>
         <td>${k.tempatMeninggal||'-'}</td><td>${k.sebabKematian||'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
-        <td><button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kematian", ${JSON.stringify(k.id)}, ${JSON.stringify(k.nama)})'>Hapus</button></td>
+        <td><div style="display:flex;gap:3px">
+          <button type="button" class="btn btn-sm btn-secondary" onclick='detailMati(${JSON.stringify(k.id)})'>Lihat</button>
+          <button type="button" class="btn btn-sm btn-secondary" onclick='editMati(${JSON.stringify(k.id)})'>Edit</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("kematian", ${JSON.stringify(k.id)}, ${JSON.stringify(k.nama)})'>Hapus</button>
+        </div></td>
       </tr>`).join('');
 };
 
 window.saveMati = async () => {
+  const editId = gv('mati-edit-id');
+
+  // MODE EDIT — hanya update tempat, sebab (NIK/nama sudah diarsip)
+  if(editId) {
+    const data = {tempatMeninggal:gvUp('mati-tmpat'), sebabKematian:gvUp('mati-sebab')};
+    try {
+      await fbUpdate(`kematian/${editId}`, data);
+      ups('kematian', {id:editId, ...S.kematian.find(x=>x.id===editId), ...data});
+      // Reset title dan hint
+      const t = document.querySelector('#md-mati .md-title'); if(t) t.textContent='Catat Kematian';
+      const h = document.getElementById('mati-hint'); if(h) h.style.display='';
+      sv('mati-edit-id','');
+      addAct(`Edit kematian: ${S.kematian.find(x=>x.id===editId)?.nama||''}`);
+      closeMd('md-mati'); renderMati(); toast('Data kematian diperbarui');
+    } catch(e) { toast('Gagal: '+e.message,'err'); }
+    return;
+  }
+
+  // MODE TAMBAH BARU
   const pid = gv('mati-pddk-id');
   const p = S.penduduk.find(x => x.id === pid);
   if(!p) { toast('Pilih warga dari Data Penduduk (cari NIK atau nama)','warn'); return; }
@@ -2688,7 +3085,7 @@ window.saveMati = async () => {
   const data = {
     nik:p.nik||'', nama:p.namaLengkap||'', jenisKelamin:p.jenisKelamin||'L', tanggalMeninggal,
     tempatMeninggal:gvUp('mati-tmpat'), sebabKematian:gvUp('mati-sebab'), noKK:p.noKK||'',
-    usia:gv('mati-usia'), sumberPendudukId:p.id
+    usia:gv('mati-usia'), sumberPendudukId:p.id, snapshotPenduduk:{...p}
   };
   try {
     const nid = await fbPush('kematian', data); S.kematian.push({id:nid,...data});
@@ -2699,29 +3096,239 @@ window.saveMati = async () => {
   } catch(e) { toast('Gagal: '+e.message,'err'); }
 };
 
+window.editMati = (id) => {
+  const k = S.kematian.find(x=>x.id===id); if(!k) return;
+  // Buka modal kematian dengan data yang sudah ada (edit mode)
+  resetF('mati');
+  // Set hidden fields langsung karena penduduk sudah tidak ada di S.penduduk
+  sv('mati-pddk-id', k.sumberPendudukId||'__archived__');
+  sv('mati-nik', k.nik||''); sv('mati-nama', k.nama||'');
+  sv('mati-jk', k.jenisKelamin||'L'); sv('mati-nokk', k.noKK||'');
+  sv('mati-tgl', k.tanggalMeninggal||''); sv('mati-usia', k.usia||'');
+  sv('mati-tgllahir',''); // tidak diketahui dari arsip
+  // Isi field yang bisa diedit
+  sv('mati-tmpat', k.tempatMeninggal||''); sv('mati-sebab', k.sebabKematian||'');
+  // Tampilkan preview data lama
+  const cari = document.getElementById('mati-cari');
+  if(cari) cari.value = `${k.nik||''} — ${k.nama||''}`;
+  const prev = document.getElementById('mati-preview');
+  if(prev) {
+    prev.innerHTML = `<div style="font-size:11px;font-weight:900;margin-bottom:8px;letter-spacing:.03em;text-transform:uppercase;color:var(--text3)">Data kematian (arsip)</div>
+      ${dr('NIK',`<span style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(k.nik||'')}</span>`)}
+      ${dr('Nama',escapeHtml(k.nama||''))}
+      ${dr('JK',k.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
+      ${dr('No. KK',escapeHtml(k.noKK||'—'))}`;
+    prev.style.display='block';
+  }
+  const ro = document.getElementById('mati-usia-ro');
+  if(ro) ro.value = k.usia ? `${k.usia} tahun` : '—';
+  // Override save untuk mode edit
+  document.querySelector('#md-mati .md-title').textContent = 'Edit Data Kematian';
+  // Simpan id kematian untuk di-update
+  sv('mati-edit-id', id);
+  // Sembunyikan hint cari
+  const hint = document.getElementById('mati-hint');
+  if(hint) hint.style.display='none';
+  openMd('md-mati');
+};
+
+window.detailMati = (id) => {
+  const k = S.kematian.find(x=>x.id===id); if(!k) return;
+  document.getElementById('md-detail-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px">🕊️</div>
+      <div style="font-size:16px;font-weight:900">${escapeHtml(k.nama)}</div>
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${k.nik||'-'}</div>
+    </div>
+    ${dr('Jenis Kelamin',k.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
+    ${dr('Tgl. Meninggal',k.tanggalMeninggal?new Date(k.tanggalMeninggal).toLocaleDateString('id-ID'):'-')}
+    ${dr('Usia saat Meninggal',k.usia?k.usia+' tahun':'-')}
+    ${dr('Tempat Meninggal',k.tempatMeninggal||'-')}
+    ${dr('Sebab Kematian',k.sebabKematian||'-')}
+    ${dr('No. KK',k.noKK||'-')}`;
+  document.getElementById('md-detail-title').textContent='Detail Kematian';
+  openMd('md-detail');
+};
+
 /* ════════════════════════════════
    MOBILITAS
 ════════════════════════════════ */
+const MOB_HUB_OPTS = ['Kepala Keluarga','Istri','Anak','Orang Tua','Mertua','Cucu','Lainnya'];
+window.hubOptsHtmlMob = (sel) => MOB_HUB_OPTS.map(o => `<option value="${o}"${o===sel?' selected':''}>${o}</option>`).join('');
+window.initMobBatchTable = () => {
+  const tb = document.getElementById('mob-batch-tbody');
+  if(!tb) return;
+  tb.innerHTML = '';
+  window.addMobBatchRow();
+  window.addMobBatchRow();
+};
+window.addMobBatchRow = () => {
+  const tb = document.getElementById('mob-batch-tbody');
+  if(!tb) return;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td style="padding:4px"><input class="fc mob-b-inp" style="min-width:118px;font-size:12px" data-mob-b-nik maxlength="16" placeholder="NIK"/></td>
+    <td style="padding:4px"><input class="fc mob-b-inp" style="min-width:130px;font-size:12px" data-mob-b-nama placeholder="Nama"/></td>
+    <td style="padding:4px"><input class="fc mob-b-inp" style="min-width:140px;font-size:12px" data-mob-b-tgllahir type="date"/></td>
+    <td style="padding:4px"><select class="fc mob-b-inp" style="font-size:12px;min-width:52px" data-mob-b-jk><option value="L">L</option><option value="P">P</option></select></td>
+    <td style="padding:4px"><select class="fc mob-b-inp" style="font-size:12px;min-width:120px" data-mob-b-hub>${window.hubOptsHtmlMob('Anak')}</select></td>
+    <td style="padding:4px;vertical-align:middle"><button type="button" class="btn btn-sm btn-danger" onclick="removeMobBatchRow(this)">×</button></td>`;
+  tb.appendChild(tr);
+};
+window.removeMobBatchRow = (btn) => {
+  const tb = document.getElementById('mob-batch-tbody');
+  if(!tb || tb.rows.length <= 1) { toast('Minimal satu baris anggota','warn'); return; }
+  btn.closest('tr')?.remove();
+};
+window.collectMobBatchRows = () => {
+  const tb = document.getElementById('mob-batch-tbody');
+  if(!tb) return [];
+  return [...tb.querySelectorAll('tr')].map(tr => ({
+    nik: (tr.querySelector('[data-mob-b-nik]')?.value||'').replace(/\D/g,''),
+    nama: (tr.querySelector('[data-mob-b-nama]')?.value||'').trim().toUpperCase(),
+    tanggalLahir: tr.querySelector('[data-mob-b-tgllahir]')?.value || '',
+    jk: tr.querySelector('[data-mob-b-jk]')?.value || 'L',
+    hub: tr.querySelector('[data-mob-b-hub]')?.value || 'Anak'
+  })).filter(r => r.nik || r.nama || r.tanggalLahir);
+};
+
 window.openMob = (jenis) => {
   sv('mob-id',''); sv('mob-jenis',jenis);
   sv('mob-nik',''); sv('mob-nama',''); sv('mob-asal',''); sv('mob-tgl',''); sv('mob-nokk-lama','');
-  sv('mob-kk-target',''); sv('mob-alasan-k',''); sv('mob-tujuan','');
+  sv('mob-kk-target',''); sv('mob-alasan-k',''); sv('mob-tujuan',''); sv('mob-keluar-cari',''); sv('mob-kk-cari',''); sv('mob-rt',''); sv('mob-rw','');
+  sv('mob-b-asal',''); sv('mob-b-tgl',''); sv('mob-b-rt',''); sv('mob-b-rw',''); sv('mob-b-alamat',''); sv('mob-b-nokk-lama','');
+  const sb = document.getElementById('mob-keluar-suggest'); if(sb) { sb.innerHTML=''; sb.style.display='none'; }
+  const sb2 = document.getElementById('mob-kk-suggest'); if(sb2) { sb2.innerHTML=''; sb2.style.display='none'; }
   document.getElementById('md-mob-t').textContent = jenis==='masuk' ? 'Pindah Masuk' : 'Pindah Keluar';
   document.getElementById('mob-asal-lbl').textContent = jenis==='masuk' ? 'Asal Daerah *' : 'Tujuan Daerah *';
-  document.getElementById('mob-masuk-box').style.display = jenis==='masuk'?'block':'none';
-  document.getElementById('mob-alasan-masuk-wrap').style.display = jenis==='masuk'?'block':'none';
-  document.getElementById('mob-keluar-wrap').style.display = jenis==='keluar'?'block':'none';
-  updMobInfo();
+  if(jenis === 'keluar') {
+    document.getElementById('mob-masuk-box').style.display = 'none';
+    document.getElementById('mob-alasan-masuk-wrap').style.display = 'none';
+    document.getElementById('mob-masuk-normal').style.display = 'none';
+    document.getElementById('mob-masuk-batch').style.display = 'none';
+    document.getElementById('mob-keluar-search-wrap').style.display = 'block';
+    document.getElementById('mob-keluar-wrap').style.display = 'block';
+    document.getElementById('mob-tgl-wrap').style.display = 'flex';
+  } else {
+    document.getElementById('mob-masuk-box').style.display = 'block';
+    document.getElementById('mob-alasan-masuk-wrap').style.display = 'block';
+    document.getElementById('mob-keluar-search-wrap').style.display = 'none';
+    document.getElementById('mob-keluar-wrap').style.display = 'none';
+    selv('mob-alasan-m','Menumpang KK');
+    window.initMobBatchTable();
+    window.updMobInfo();
+  }
   openMd('md-mob');
 };
 
+window.updMobKeluarSearch = () => {
+  const cariEl = document.getElementById('mob-keluar-cari');
+  const box = document.getElementById('mob-keluar-suggest');
+  if(!cariEl || !box || gv('mob-jenis')!=='keluar') return;
+  const raw = cariEl.value.trim();
+  const currentNik = gv('mob-nik');
+  if(currentNik) {
+    const p0 = S.penduduk.find(x => (x.nik||'') === currentNik);
+    const expect = p0 ? `${p0.nik||''} — ${p0.namaLengkap||''}`.trim() : '';
+    if(p0 && raw === expect) { box.style.display='none'; return; }
+    sv('mob-nik',''); sv('mob-nama',''); sv('mob-jk','L'); sv('mob-nokk-lama','');
+  }
+  const q = raw.toLowerCase();
+  const digits = raw.replace(/\D/g,'');
+  if(digits.length < 4 && q.replace(/\s/g,'').length < 2) { box.style.display='none'; box.innerHTML=''; return; }
+  const eligible = S.penduduk.filter(p => p.statusPenduduk !== 'Meninggal' && p.statusPenduduk !== 'Pindah');
+  const list = eligible.filter(p => {
+    const nik = (p.nik||'').replace(/\D/g,'');
+    const nama = (p.namaLengkap||'').toLowerCase();
+    const byNik = digits.length >= 4 && nik.includes(digits);
+    const byNama = q.replace(/\s/g,'').length >= 2 && nama.includes(q);
+    return byNik || byNama;
+  }).slice(0, 15);
+  if(list.length === 0) {
+    box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text3);font-weight:600">Tidak ada penduduk aktif yang cocok.</div>';
+    box.style.display='block';
+    return;
+  }
+  box.innerHTML = list.map(p => `<button type="button" class="mati-sug-btn" onclick='pickMobKeluarPddk(${JSON.stringify(p.id)})'><strong>${escapeHtml(p.namaLengkap||'')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(p.nik||'')}</div></button>`).join('');
+  box.style.display='block';
+};
+
+window.pickMobKeluarPddk = (id) => {
+  const p = S.penduduk.find(x => x.id === id); if(!p) return;
+  sv('mob-nik', p.nik||'');
+  sv('mob-nama', p.namaLengkap||'');
+  selv('mob-jk', p.jenisKelamin||'L');
+  sv('mob-nokk-lama', p.noKK||'');
+  const cari = document.getElementById('mob-keluar-cari');
+  if(cari) cari.value = `${p.nik||''} — ${p.namaLengkap||''}`.trim();
+  const box = document.getElementById('mob-keluar-suggest');
+  if(box) { box.style.display='none'; box.innerHTML=''; }
+};
+
 window.updMobInfo = () => {
+  if(gv('mob-jenis') !== 'masuk') return;
   const al = gv('mob-alasan-m');
-  const wrap = document.getElementById('mob-kk-target-wrap');
-  const lbl = document.getElementById('mob-kk-lbl');
-  if(al === 'Menumpang KK') { wrap.style.display='block'; lbl.textContent='No. KK yang Ditumpangi'; }
-  else if(al === 'Pembuatan KK Baru') { wrap.style.display='block'; lbl.textContent='No. KK Baru (akan dibuat)'; }
-  else { wrap.style.display='none'; }
+  const normal = document.getElementById('mob-masuk-normal');
+  const batch = document.getElementById('mob-masuk-batch');
+  const tglWrap = document.getElementById('mob-tgl-wrap');
+  const cariWrap = document.getElementById('mob-kk-cari-wrap');
+  const cariBox = document.getElementById('mob-kk-suggest');
+  if(al === 'Pembuatan KK Baru') {
+    if(batch) batch.style.display = 'block';
+    if(normal) normal.style.display = 'none';
+    if(tglWrap) tglWrap.style.display = 'none';
+    if(cariBox) { cariBox.innerHTML=''; cariBox.style.display='none'; }
+  } else {
+    if(batch) batch.style.display = 'none';
+    if(normal) normal.style.display = 'block';
+    if(tglWrap) tglWrap.style.display = 'flex';
+    if(al === 'Menumpang KK') {
+      if(cariWrap) cariWrap.style.display = 'block';
+      const rtEl = document.getElementById('mob-rt');
+      const rwEl = document.getElementById('mob-rw');
+      if(rtEl) rtEl.readOnly = true;
+      if(rwEl) rwEl.readOnly = true;
+    } else {
+      if(cariWrap) cariWrap.style.display = 'none';
+      const rtEl = document.getElementById('mob-rt');
+      const rwEl = document.getElementById('mob-rw');
+      if(rtEl) rtEl.readOnly = false;
+      if(rwEl) rwEl.readOnly = false;
+      if(cariBox) { cariBox.innerHTML=''; cariBox.style.display='none'; }
+    }
+  }
+};
+
+window.updMobKkSearch = () => {
+  if(gv('mob-jenis') !== 'masuk' || gv('mob-alasan-m') !== 'Menumpang KK') return;
+  const inp = document.getElementById('mob-kk-cari');
+  const box = document.getElementById('mob-kk-suggest');
+  if(!inp || !box) return;
+  const raw = inp.value.trim();
+  const q = raw.toUpperCase();
+  const d = raw.replace(/\D/g,'');
+  if(d.length < 4 && q.replace(/\s/g,'').length < 2) { box.style.display='none'; box.innerHTML=''; return; }
+  const list = S.kk.filter(k =>
+    (d.length >= 4 && (k.noKK||'').replace(/\D/g,'').includes(d)) ||
+    (q.replace(/\s/g,'').length >= 2 && (k.kepalaKeluarga||'').toUpperCase().includes(q))
+  ).slice(0, 15);
+  if(list.length === 0) {
+    box.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text3);font-weight:600">KK tidak ditemukan.</div>';
+    box.style.display='block';
+    return;
+  }
+  box.innerHTML = list.map(k => `<button type="button" class="mati-sug-btn" onclick='pickMobKkTarget(${JSON.stringify(k.id)})'><strong>${escapeHtml(k.kepalaKeluarga||'-')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(k.noKK||'')}</div></button>`).join('');
+  box.style.display='block';
+};
+
+window.pickMobKkTarget = (id) => {
+  const k = S.kk.find(x => x.id === id); if(!k) return;
+  sv('mob-kk-target', k.noKK||'');
+  sv('mob-rt', k.rt||'');
+  sv('mob-rw', k.rw||'');
+  const inp = document.getElementById('mob-kk-cari');
+  if(inp) inp.value = `${k.noKK||''} — ${k.kepalaKeluarga||''}`.trim();
+  const box = document.getElementById('mob-kk-suggest');
+  if(box) { box.style.display='none'; box.innerHTML=''; }
 };
 
 window.switchMobTab = (tab) => {
@@ -2755,7 +3362,7 @@ window.renderMob = () => {
         <td style="font-size:12px">${m.tanggalPindah?new Date(m.tanggalPindah).toLocaleDateString('id-ID'):'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${m.noKKLama||'-'}</td>
         <td><div style="display:flex;gap:3px">
-          ${m.jenis==='masuk'?`<button type="button" class="btn btn-sm btn-success" onclick='mobToPddk(${JSON.stringify(m.id)})'>+ Penduduk</button>`:''}
+          <button type="button" class="btn btn-sm btn-secondary" onclick='detailMob(${JSON.stringify(m.id)})'>Lihat</button>
           <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("mobilitas", ${JSON.stringify(m.id)}, ${JSON.stringify(m.nama)})'>Hapus</button>
         </div></td>
       </tr>`).join('');
@@ -2763,35 +3370,226 @@ window.renderMob = () => {
 
 window.saveMob = async () => {
   const jenis = gv('mob-jenis');
+
+  /* Pindah masuk — Pembuatan KK Baru: data KK sekali + tabel anggota */
+  if(jenis === 'masuk' && gv('mob-alasan-m') === 'Pembuatan KK Baru') {
+    const kkNew = gv('mob-kk-target').replace(/\D/g,'');
+    const asal = gvUp('mob-b-asal');
+    const tgl = gv('mob-b-tgl');
+    const rt = normRtRw(gv('mob-b-rt'), true);
+    const rw = normRtRw(gv('mob-b-rw'), true);
+    const alamat = gvUp('mob-b-alamat');
+    const nokkLama = gv('mob-b-nokk-lama');
+    const rows = window.collectMobBatchRows().map(r => ({...r, nik:(r.nik||'').replace(/\D/g,'')}));
+    if(!kkNew || kkNew.length !== 16) { toast('No. KK Baru wajib 16 digit','warn'); return; }
+    if(!asal || !tgl || !rt || !rw || !alamat) { toast('Asal Daerah, Tanggal Pindah, RT, RW, dan Alamat Lengkap wajib diisi','warn'); return; }
+    if(rt.length !== 3 || rw.length !== 3) { toast('RT dan RW wajib 3 digit (contoh: 001, 010, 016)','warn'); return; }
+    if(rows.length === 0) { toast('Isi minimal satu anggota di tabel','warn'); return; }
+    let nKep = 0, nIst = 0;
+    const nikSeen = new Set();
+    for(const r of rows) {
+      if(!r.nik || r.nik.length !== 16) { toast('Setiap anggota wajib NIK 16 digit','warn'); return; }
+      if(!r.nama) { toast('Setiap anggota wajib nama','warn'); return; }
+      if(!r.tanggalLahir) { toast('Setiap anggota wajib mengisi tanggal lahir','warn'); return; }
+      if(nikSeen.has(r.nik)) { toast('NIK duplikat di tabel','warn'); return; }
+      nikSeen.add(r.nik);
+      if(S.penduduk.some(p => p.nik === r.nik)) { toast(`NIK sudah terdaftar di Data Penduduk`,'warn'); return; }
+      if(r.hub === 'Kepala Keluarga') nKep++;
+      if(r.hub === 'Istri') nIst++;
+    }
+    if(nKep !== 1) { toast('Harus tepat satu baris dengan Hub. KK = Kepala Keluarga','warn'); return; }
+    if(nIst > 1) { toast('Maksimal satu Istri dalam satu KK','warn'); return; }
+    const kepNama = rows.find(r => r.hub === 'Kepala Keluarga').nama;
+
+    try {
+      let autoCreatedKKId = '';
+      const kkExist = S.kk.find(k => k.noKK === kkNew);
+      if(!kkExist) {
+        const kkBaru = { noKK: kkNew, kepalaKeluarga: kepNama, dusun: '', rt, rw, alamat, status: 'Aktif', tanggalTerbit: tgl || '' };
+        autoCreatedKKId = await fbPush('kk', kkBaru);
+        S.kk.push({id:autoCreatedKKId, ...kkBaru});
+      } else {
+        await fbUpdate(`kk/${kkExist.id}`, { rt, rw, alamat, kepalaKeluarga: kepNama, tanggalTerbit: tgl || kkExist.tanggalTerbit || '' });
+        Object.assign(kkExist, { rt, rw, alamat, kepalaKeluarga: kepNama });
+      }
+
+      let batchLeaderId = '';
+      for(let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        const mobRec = {
+          jenis:'masuk', nik:r.nik, nama:r.nama, jenisKelamin:r.jk,
+          asalTujuan:asal, tanggalPindah:tgl, noKKLama:nokkLama,
+          rt, rw, alamatLengkap:alamat, hubAnggota:r.hub,
+          alasanMasuk:'Pembuatan KK Baru', kkTarget:kkNew,
+          kelompokMasukId:'', autoCreatedKKId:autoCreatedKKId||''
+        };
+        if(batchLeaderId) mobRec.kelompokMasukId = batchLeaderId;
+        const nid = await fbPush('mobilitas', mobRec);
+        const rec = {id:nid, ...mobRec};
+        S.mobilitas.push(rec);
+        if(!batchLeaderId) {
+          batchLeaderId = nid;
+          await fbUpdate(`mobilitas/${nid}`, { kelompokMasukId:nid, autoCreatedKKId:rec.autoCreatedKKId||'' });
+          rec.kelompokMasukId = nid;
+        } else {
+          await fbUpdate(`mobilitas/${nid}`, { kelompokMasukId:batchLeaderId, autoCreatedKKId:rec.autoCreatedKKId||'' });
+          rec.kelompokMasukId = batchLeaderId;
+        }
+
+        const pddkData = {
+          nik:r.nik, namaLengkap:r.nama, noKK:kkNew, rt, rw, alamat,
+          hubKK:r.hub, jenisKelamin:r.jk,
+          tempatLahir:'', tanggalLahir:r.tanggalLahir, agama:'Islam',
+          statusKawin:'Belum Kawin', pendidikan:'Tidak/Belum Sekolah',
+          pekerjaan:'', golonganDarah:'-',
+          statusPenduduk:'Aktif', asalDaerah:asal,
+          sumberData:'Pindah Masuk', sumberMobilitasId:nid, kelompokMasukId:batchLeaderId,
+          namaAyah:'', namaIbu:''
+        };
+        const pid = await fbPush('penduduk', pddkData);
+        S.penduduk.push({id:pid, ...pddkData});
+        await fbUpdate(`mobilitas/${nid}`, { pendudukId:pid });
+        const ix = S.mobilitas.findIndex(x => x.id === nid);
+        if(ix >= 0) S.mobilitas[ix].pendudukId = pid;
+      }
+      addAct(`Pindah masuk KK baru: ${kkNew} (${rows.length} jiwa)`);
+      toast(`Pindah masuk tersimpan — ${rows.length} anggota masuk Data Penduduk`);
+      closeMd('md-mob'); renderMob(); renderPddk(); renderKK(); renderDash();
+    } catch(e) { toast('Gagal: '+e.message,'err'); }
+    return;
+  }
+
   const data = {
     jenis,nik:gv('mob-nik'),nama:gvUp('mob-nama'),jenisKelamin:gv('mob-jk'),
     asalTujuan:gvUp('mob-asal'),tanggalPindah:gv('mob-tgl'),noKKLama:gv('mob-nokk-lama'),
+    rt:normRtRw(gv('mob-rt'), true), rw:normRtRw(gv('mob-rw'), true),
     alasanMasuk:jenis==='masuk'?gv('mob-alasan-m'):'',
     kkTarget:jenis==='masuk'?gv('mob-kk-target'):'',
     alasanKeluar:jenis==='keluar'?gvUp('mob-alasan-k'):'',
     tujuanDaerah:jenis==='keluar'?gvUp('mob-tujuan'):'',
   };
   if(!data.nik || !data.nama || !data.tanggalPindah) { toast('NIK, Nama, Tanggal wajib','warn'); return; }
+  if((data.rt && data.rt.length !== 3) || (data.rw && data.rw.length !== 3)) { toast('RT/RW harus 3 digit (contoh: 001)','warn'); return; }
+  if(jenis === 'masuk' && data.alasanMasuk === 'Menumpang KK' && !data.kkTarget) {
+    toast('Pilih KK tujuan melalui pencarian nama/no. KK','warn'); return;
+  }
+  const pKeluar = jenis === 'keluar' ? S.penduduk.find(pd => pd.nik === data.nik) : null;
+  if(jenis === 'keluar' && !pKeluar) {
+    toast('Pindah keluar harus mengambil warga yang masih aktif di Data Penduduk (cek NIK).','warn'); return;
+  }
+  if(jenis === 'keluar' && pKeluar) {
+    // Data sumber pindah keluar harus mengikuti Data Penduduk.
+    data.nama = pKeluar.namaLengkap || data.nama;
+    data.jenisKelamin = pKeluar.jenisKelamin || data.jenisKelamin;
+    data.noKKLama = pKeluar.noKK || data.noKKLama;
+    data.asalTujuan = data.asalTujuan || '-';
+    data.tujuanDaerah = '';
+    data.sumberMobilitasMasukId = pKeluar.kelompokMasukId || pKeluar.sumberMobilitasId || '';
+  }
+
   try {
-    const nid = await fbPush('mobilitas', data); S.mobilitas.push({id:nid,...data});
-    if(jenis==='keluar') {
-      const p = S.penduduk.find(pd=>pd.nik===data.nik);
-      if(p) { await fbUpdate(`penduduk/${p.id}`,{statusPenduduk:'Pindah'}); p.statusPenduduk='Pindah'; }
+    const nid = await fbPush('mobilitas', data);
+    S.mobilitas.push({id:nid,...data});
+
+    if(jenis === 'keluar') {
+      /* ── PINDAH KELUAR: wajib ambil dari Data Penduduk, lalu arsipkan ── */
+      const p = pKeluar;
+      await fbRemove(`penduduk/${p.id}`);
+      S.penduduk = S.penduduk.filter(x => x.id !== p.id);
+      // Simpan snapshot + referensi sumber untuk rollback jika catatan dihapus
+      await fbUpdate(`mobilitas/${nid}`, {snapshotPenduduk:{...p}, sumberPendudukId:p.id});
+      Object.assign(S.mobilitas[S.mobilitas.length-1], {snapshotPenduduk:{...p}, sumberPendudukId:p.id});
+      addAct(`Pindah keluar: ${data.nama} — dihapus dari Data Penduduk`);
+      toast('Pindah keluar disimpan. Data penduduk dihapus, arsip tetap ada di Mobilitas.');
+
+    } else {
+      /* ── PINDAH MASUK: langsung buat Data Penduduk otomatis ── */
+      const nikBaru = data.nik;
+      // Cek apakah NIK sudah ada di penduduk
+      if(S.penduduk.find(p => p.nik === nikBaru)) {
+        toast('NIK sudah ada di Data Penduduk. Catatan mobilitas tersimpan, data penduduk tidak digandakan.','warn');
+      } else {
+        let kkTargetFinal = data.kkTarget || '';
+
+        if(data.alasanMasuk === 'Menumpang KK' && kkTargetFinal) {
+          const kkTargetRec = S.kk.find(k => k.noKK === kkTargetFinal);
+          if(kkTargetRec) {
+            data.rt = kkTargetRec.rt || data.rt;
+            data.rw = kkTargetRec.rw || data.rw;
+            data.alamatKK = kkTargetRec.alamat || '';
+          }
+        }
+
+        const pddkData = {
+          nik:nikBaru, namaLengkap:data.nama, noKK:kkTargetFinal,
+          rt:data.rt||'', rw:data.rw||'', alamat:data.alamatKK||'',
+          hubKK:'Lainnya', jenisKelamin:data.jenisKelamin,
+          tempatLahir:'', tanggalLahir:'', agama:'Islam',
+          statusKawin:'Belum Kawin', pendidikan:'Tidak/Belum Sekolah',
+          pekerjaan:'', golonganDarah:'-',
+          statusPenduduk:'Aktif', asalDaerah:data.asalTujuan||'',
+          sumberData:'Pindah Masuk', sumberMobilitasId:nid,
+          namaAyah:'', namaIbu:''
+        };
+        const pid = await fbPush('penduduk', pddkData);
+        S.penduduk.push({id:pid,...pddkData});
+        // Simpan referensi ke catatan mobilitas
+        await fbUpdate(`mobilitas/${nid}`, {pendudukId:pid});
+        S.mobilitas[S.mobilitas.length-1].pendudukId = pid;
+        toast('Pindah masuk disimpan. Data Penduduk otomatis ditambahkan — lengkapi data lainnya.');
+      }
+      addAct(`Pindah masuk: ${data.nama} → Data Penduduk`);
     }
-    addAct(`${jenis==='masuk'?'Pindah masuk':'Pindah keluar'}: ${data.nama}`);
-    closeMd('md-mob'); renderMob(); toast('Data mobilitas tersimpan');
+
+    closeMd('md-mob'); renderMob(); renderPddk(); renderDash();
   } catch(e) { toast('Gagal: '+e.message,'err'); }
 };
 
 window.mobToPddk = (mobId) => {
   const m = S.mobilitas.find(x=>x.id===mobId); if(!m) return;
-  if(S.penduduk.find(p=>p.nik===m.nik)) { toast('NIK sudah ada di data penduduk','warn'); return; }
+  const existing = S.penduduk.find(p=>p.nik===m.nik);
+  if(existing) {
+    // Sudah ada (otomatis dibuat saat simpan) — buka mode edit untuk lengkapi
+    editPddk(existing.id);
+    toast('Data penduduk sudah otomatis dibuat — lengkapi data di bawah.');
+    return;
+  }
+  // Fallback: buka form tambah jika belum ada
   resetF('pddk');
   sv('pddk-nik',m.nik); sv('pddk-nama',m.nama); selv('pddk-jk2',m.jenisKelamin);
   sv('pddk-nokk',m.kkTarget||''); sv('pddk-asal',m.asalTujuan||'');
   document.getElementById('pddk-mob-box').style.display='block';
   document.getElementById('md-pddk-t').textContent='Tambah Penduduk (dari Pindah Masuk)';
   openMd('md-pddk');
+};
+
+window.detailMob = (id) => {
+  const m = S.mobilitas.find(x=>x.id===id); if(!m) return;
+  const isM = m.jenis === 'masuk';
+  const sp = m.snapshotPenduduk;
+  document.getElementById('md-detail-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="width:52px;height:52px;border-radius:50%;background:${isM?'var(--accent-xs)':'var(--red-xs)'};display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 8px">${isM?'📥':'📤'}</div>
+      <div style="font-size:16px;font-weight:900">${escapeHtml(m.nama)}</div>
+      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${m.nik||'-'}</div>
+      <div style="margin-top:6px"><span class="badge ${isM?'badge-green':'badge-red'}">${isM?'Pindah Masuk':'Pindah Keluar'}</span></div>
+    </div>
+    ${dr('Jenis Kelamin',m.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
+    ${dr(isM?'Asal Daerah':'Tujuan Daerah',m.asalTujuan||'-')}
+    ${dr('Tanggal Pindah',m.tanggalPindah?new Date(m.tanggalPindah).toLocaleDateString('id-ID'):'-')}
+    ${dr('No. KK Asal',m.noKKLama||'-')}
+    ${isM?dr('Alasan Masuk',m.alasanMasuk||'-'):''}
+    ${isM&&m.kkTarget?dr('KK Tujuan',m.kkTarget):''}
+    ${isM&&m.alamatLengkap?dr('Alamat',m.alamatLengkap):''}
+    ${isM&&(m.rt||m.rw)?dr('RT / RW',`${m.rt||'—'} / ${m.rw||'—'}`):''}
+    ${isM&&m.hubAnggota?dr('Hub. KK',m.hubAnggota):''}
+    ${isM&&m.kelompokMasukId&&m.kelompokMasukId===m.id?dr('Kelompok','<span class="badge badge-blue">Induk (satu KK)</span>'):''}
+    ${!isM?dr('Alasan Pindah',m.alasanKeluar||'-'):''}
+    ${!isM&&m.tujuanDaerah?dr('Tujuan',m.tujuanDaerah):''}
+    ${m.pendudukId?dr('Ref. Penduduk','<span class="badge badge-green">Terdaftar</span>'):''}
+    ${sp?`<div style="margin-top:10px;padding-top:10px;border-top:2px solid var(--bg3)"><div style="font-size:10px;font-weight:900;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Snapshot Data Sebelum Pindah</div>${dr('Agama',sp.agama||'-')}${dr('Pendidikan',sp.pendidikan||'-')}${dr('Pekerjaan',sp.pekerjaan||'-')}${dr('Status Kawin',sp.statusKawin||'-')}</div>`:''}`;
+  document.getElementById('md-detail-title').textContent='Detail Mobilitas';
+  openMd('md-detail');
 };
 
 /* ════════════════════════════════
@@ -2968,21 +3766,133 @@ window.importData = async (e) => {
    DELETE
 ════════════════════════════════ */
 window.confirmDel = (col, id, label) => {
-  document.getElementById('confirm-msg').textContent = `Hapus "${label}"?`;
+  const body = document.getElementById('confirm-body');
+  const msg = document.getElementById('confirm-msg');
+  if(body) body.classList.remove('confirm-danger');
+  if(col === 'kelahiran' || col === 'kematian' || col === 'mobilitas') {
+    if(body) body.classList.add('confirm-danger');
+    msg.innerHTML = `<strong style="font-size:15px;color:#d70015">PERINGATAN KERAS</strong><br><br>Hapus "${escapeHtml(label)}"?<br><span style="color:#d70015;font-weight:800">Tindakan ini akan mempengaruhi Data Penduduk secara otomatis.</span>`;
+  } else {
+    msg.textContent = `Hapus "${label}"?`;
+  }
   document.getElementById('confirm-ok').onclick = () => delRec(col, id);
   openMd('md-confirm');
 };
 window.delRec = async (col, id) => {
+  let skipMainRemove = false;
   try {
     if(col === 'kelahiran') {
       const rec = S.kelahiran.find(x => x.id === id);
+      let removedPenduduk = null;
       if(rec?.pendudukId) {
+        const pById = S.penduduk.find(x => x.id === rec.pendudukId);
+        if(pById) removedPenduduk = pById;
         try { await fbRemove(`penduduk/${rec.pendudukId}`); } catch(_) {}
         S.penduduk = S.penduduk.filter(x => x.id !== rec.pendudukId);
       }
+      // Fallback: jika pendudukId sudah berubah/hilang (mis. sempat mati lalu restore), cari berdasarkan identitas bayi.
+      const byNik = rec?.nikBayi ? S.penduduk.find(x => x.nik === rec.nikBayi) : null;
+      const bySig = S.penduduk.find(x =>
+        (x.namaLengkap||'') === (rec?.namaBayi||'') &&
+        (x.tanggalLahir||'') === (rec?.tanggalLahir||'') &&
+        (x.noKK||'') === (rec?.noKK||'')
+      );
+      const target = byNik || bySig;
+      if(target) {
+        removedPenduduk = target;
+        try { await fbRemove(`penduduk/${target.id}`); } catch(_) {}
+        S.penduduk = S.penduduk.filter(x => x.id !== target.id);
+      }
+      // Karena kematian bersumber dari Data Penduduk, jika kelahiran sumber dihapus maka kematian terkait juga harus terhapus.
+      const nikSet = new Set([
+        rec?.nikBayi || '',
+        rec?.snapshotPenduduk?.nik || '',
+        removedPenduduk?.nik || ''
+      ].filter(Boolean));
+      const sumberIdSet = new Set([
+        rec?.pendudukId || '',
+        removedPenduduk?.id || ''
+      ].filter(Boolean));
+      const kematianTerkait = S.kematian.filter(k =>
+        (k.sumberPendudukId && sumberIdSet.has(k.sumberPendudukId)) ||
+        (k.nik && nikSet.has(k.nik))
+      );
+      for(const km of kematianTerkait) {
+        try { await fbRemove(`kematian/${km.id}`); } catch(_) {}
+      }
+      if(kematianTerkait.length) {
+        const delIds = new Set(kematianTerkait.map(k => k.id));
+        S.kematian = S.kematian.filter(k => !delIds.has(k.id));
+      }
     }
-    await fbRemove(`${col}/${id}`);
-    S[col] = S[col].filter(x => x.id !== id);
+    if(col === 'kematian') {
+      const rec = S.kematian.find(x => x.id === id);
+      const snap = rec?.snapshotPenduduk;
+      if(snap?.nik && !S.penduduk.some(x => x.nik === snap.nik)) {
+        const {id:_sid, ...pRest} = snap;
+        const pid = await fbPush('penduduk', pRest);
+        S.penduduk.push({id:pid, ...pRest});
+      }
+    }
+    if(col === 'mobilitas') {
+      const rec = S.mobilitas.find(x => x.id === id);
+      if(rec?.jenis === 'masuk') {
+        const lid = rec.kelompokMasukId || rec.id;
+        const group = S.mobilitas.filter(m => m.jenis==='masuk' && (m.kelompokMasukId === lid || m.id === lid));
+        const groupIds = new Set(group.map(g => g.id));
+        const nikSet = new Set(group.map(g => g.nik).filter(Boolean));
+        const kkT = group[0]?.kkTarget || rec.kkTarget || '';
+        const removedPendudukIds = new Set();
+        const pendToDel = S.penduduk.filter(p =>
+          (p.kelompokMasukId && p.kelompokMasukId === lid) ||
+          (p.sumberMobilitasId && groupIds.has(p.sumberMobilitasId)) ||
+          (nikSet.has(p.nik) && (p.sumberData === 'Pindah Masuk' || p.sumberMobilitasId) && (!kkT || (p.noKK||'') === kkT))
+        );
+        for(const p of pendToDel) {
+          removedPendudukIds.add(p.id);
+          try { await fbRemove(`penduduk/${p.id}`); } catch(_) {}
+        }
+        S.penduduk = S.penduduk.filter(p => !removedPendudukIds.has(p.id));
+        const keluarTurunan = S.mobilitas.filter(m =>
+          m.jenis === 'keluar' && (
+            (m.sumberMobilitasMasukId && (m.sumberMobilitasMasukId === lid || groupIds.has(m.sumberMobilitasMasukId))) ||
+            (m.sumberPendudukId && removedPendudukIds.has(m.sumberPendudukId)) ||
+            (m.nik && nikSet.has(m.nik))
+          )
+        );
+        for(const mk of keluarTurunan) {
+          try { await fbRemove(`mobilitas/${mk.id}`); } catch(_) {}
+        }
+        if(keluarTurunan.length) {
+          const delMobIds = new Set(keluarTurunan.map(m => m.id));
+          S.mobilitas = S.mobilitas.filter(m => !delMobIds.has(m.id));
+        }
+        const autoKk = group.find(g => g.autoCreatedKKId)?.autoCreatedKKId || rec.autoCreatedKKId;
+        for(const g of group) {
+          try { await fbRemove(`mobilitas/${g.id}`); } catch(_) {}
+        }
+        S.mobilitas = S.mobilitas.filter(m => !groupIds.has(m.id));
+        if(autoKk && kkT) {
+          const hasMember = S.penduduk.some(x => (x.noKK||'') === kkT);
+          if(!hasMember) {
+            try { await fbRemove(`kk/${autoKk}`); } catch(_) {}
+            S.kk = S.kk.filter(x => x.id !== autoKk);
+          }
+        }
+        skipMainRemove = true;
+      } else if(rec?.jenis === 'keluar') {
+        const snap = rec.snapshotPenduduk;
+        if(snap?.nik && !S.penduduk.some(x => x.nik === snap.nik)) {
+          const {id:_sid, ...pRest} = snap;
+          const pid = await fbPush('penduduk', pRest);
+          S.penduduk.push({id:pid, ...pRest});
+        }
+      }
+    }
+    if(!skipMainRemove) {
+      await fbRemove(`${col}/${id}`);
+      S[col] = S[col].filter(x => x.id !== id);
+    }
     addAct(`Hapus data`); closeMd('md-confirm'); toast('Dihapus');
     const pg = document.querySelector('.page.active')?.id?.replace('page-','');
     const fn = {kk:renderKK,penduduk:renderPddk,sementara:renderSem,kelahiran:renderLahir,kematian:renderMati,mobilitas:renderMob,users:renderUsers,dashboard:renderDash};
@@ -3031,6 +3941,27 @@ const ups  = (col, item) => { const i=S[col].findIndex(x=>x.id===item.id); if(i>
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const ageStr = tgl => tgl ? Math.floor((new Date()-new Date(tgl))/31557600000)+' th' : '-';
 const escapeHtml = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const normRtRw = (v, pad = true) => {
+  const d = String(v||'').replace(/\D/g,'').slice(0,3);
+  if(!d) return '';
+  return pad ? d.padStart(3,'0') : (d.length === 3 ? d : d.padStart(3,'0'));
+};
+const bindRtRw3Digit = (ids) => {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.setAttribute('inputmode','numeric');
+    el.setAttribute('maxlength','3');
+    el.addEventListener('input', () => {
+      const d = (el.value||'').replace(/\D/g,'').slice(0,3);
+      el.value = d;
+    });
+    el.addEventListener('blur', () => {
+      const v = normRtRw(el.value, true);
+      el.value = v;
+    });
+  });
+};
 window.updPddkKerjaSearch = () => {
   const inp = document.getElementById('pddk-pekerjaan');
   const box = document.getElementById('pddk-kerja-dd');
@@ -3062,6 +3993,13 @@ const usiaSaatMatiThn = (tglLahir, tglMati) => {
 ════════════════════════════════ */
 // Set laporan year
 document.getElementById('lap-thn').value = new Date().getFullYear();
+
+// Enforce RT/RW 3-digit formatting across forms & filters
+bindRtRw3Digit([
+  'kk-rt','kk-rw',
+  'mob-rt','mob-rw','mob-b-rt','mob-b-rw',
+  'pddk-f-rt','pddk-f-rw',
+]);
 
 // Check session — restore login immediately if available
 const sess = loadSession();
