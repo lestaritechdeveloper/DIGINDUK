@@ -1713,8 +1713,7 @@ const fbApp = initializeApp(FB_CFG);
 const db    = getDatabase(fbApp);
 const dbRef = (path) => ref(db, path);
 
-/* ── Local admin fallback ────────────────────────── */
-const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'};
+
 
 /* ── Store ───────────────────────────────────────── */
 const S = {kk:[],penduduk:[],sementara:[],kelahiran:[],kematian:[],mobilitas:[],users:[],activity:[]};
