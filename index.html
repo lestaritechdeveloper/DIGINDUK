@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <title>DigiNduk</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 /* ===== ICON SYSTEM: 3 colors only =====
    --blue   #007aff  → primary/action
@@ -37,6 +37,7 @@
 }
 [data-theme=dark]{
   --bg:#1c1c1e; --bg2:#2c2c2e; --bg3:#3a3a3c; --bg4:#48484a;
+  --ink:#f2f2f7;
   --sidebar-bg:rgba(28,28,30,.92);
   --glass:rgba(44,44,46,.8); --glass-b:rgba(84,84,88,.5);
   --text:#f2f2f7; --text2:#e5e5ea; --text3:#8e8e93; --text4:#636366;
@@ -58,7 +59,7 @@ html{
   text-size-adjust:100%;-webkit-text-size-adjust:100%;
 }
 body{
-  font-family:'Nunito',sans-serif;
+  font-family:'Figtree',sans-serif;
   background:var(--bg);color:var(--text);
   overflow-x:hidden;
   /* Only transition color, not background to reduce paint */
@@ -135,7 +136,7 @@ body{
 .l-inp{
   width:100%;padding:13px 16px;margin-bottom:14px;
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);
-  border-radius:12px;font-family:'Nunito',sans-serif;
+  border-radius:12px;font-family:'Figtree',sans-serif;
   /* 16px prevents Android auto-zoom on focus */
   font-size:16px;font-weight:500;
   color:#fff;outline:none;
@@ -148,7 +149,7 @@ body{
 .l-btn{
   width:100%;padding:14px;margin-top:2px;border:none;border-radius:12px;cursor:pointer;
   background:linear-gradient(135deg,#007aff,#5856d6);color:#fff;
-  font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;
+  font-family:'Figtree',sans-serif;font-size:16px;font-weight:800;
   box-shadow:0 4px 18px rgba(0,122,255,.4);
   /* No transform on hover — hover doesn't work well on touch anyway */
   transition:opacity .15s ease,box-shadow .15s ease;
@@ -247,7 +248,7 @@ body{
 @keyframes fbpulse{to{opacity:.3}}
 .sb-logout{
   width:100%;padding:10px;border:none;border-radius:var(--rx);cursor:pointer;
-  background:var(--red-xs);color:var(--red);font-family:'Nunito',sans-serif;
+  background:var(--red-xs);color:var(--red);font-family:'Figtree',sans-serif;
   font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;
   min-height:42px;
   transition:background .12s ease;
@@ -290,7 +291,7 @@ body{
 .tb-search:focus-within{border-color:var(--blue);background:var(--bg2);box-shadow:0 0 0 3px var(--blue-xs)}
 .tb-search svg{width:14px;height:14px;color:var(--text3);flex-shrink:0}
 .tb-search input{
-  border:none;background:none;font-family:'Nunito',sans-serif;
+  border:none;background:none;font-family:'Figtree',sans-serif;
   font-size:16px;font-weight:600;color:var(--text);outline:none;width:100%;
   /* 16px prevents Android zoom */
 }
@@ -352,7 +353,7 @@ body{
 @media(hover:hover){.stat-card:hover{box-shadow:var(--sh1)}}
 .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
 .stat-icon svg{width:18px;height:18px}
-.stat-val{font-size:28px;font-weight:900;line-height:1;color:var(--text)}
+.stat-val{font-size:36px;font-weight:900;line-height:1;color:var(--ink)}
 .stat-lbl{font-size:11px;font-weight:700;color:var(--text3);margin-top:4px}
 
 /* GRIDS */
@@ -390,7 +391,7 @@ tbody tr:last-child td{border-bottom:none}
   padding:10px 14px;
   /* Min 44px height for touch accessibility */
   min-height:40px;
-  border-radius:var(--rx);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;
+  border-radius:var(--rx);font-family:'Figtree',sans-serif;font-size:13px;font-weight:800;
   border:none;cursor:pointer;white-space:nowrap;
   transition:opacity .12s ease,background .12s ease;
   touch-action:manipulation;
@@ -413,7 +414,7 @@ tbody tr:last-child td{border-bottom:none}
 .fl{display:block;font-size:11px;font-weight:800;color:var(--text3);margin-bottom:4px;letter-spacing:.02em}
 .fc{
   width:100%;padding:11px 12px;border:1.5px solid var(--bg3);border-radius:var(--rx);
-  font-family:'Nunito',sans-serif;
+  font-family:'Figtree',sans-serif;
   /* 16px critical: prevents Android Chrome from zooming on focus */
   font-size:16px;font-weight:600;
   color:var(--text);background:var(--bg);outline:none;
@@ -601,7 +602,7 @@ input[type=password].fc { text-transform:none }
 .pg{
   padding:6px 10px;min-width:34px;min-height:34px;
   border:1px solid var(--bg3);background:var(--bg2);border-radius:7px;
-  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  font-family:'Figtree',sans-serif;font-size:12px;font-weight:800;
   cursor:pointer;color:var(--text2);
   transition:background .12s ease,color .12s ease,border-color .12s ease;
   touch-action:manipulation;
@@ -617,7 +618,7 @@ input[type=password].fc { text-transform:none }
 .fsel{
   padding:8px 10px;min-height:40px;
   border:1.5px solid var(--bg3);border-radius:var(--rx);
-  font-family:'Nunito',sans-serif;
+  font-family:'Figtree',sans-serif;
   /* 16px prevents zoom on Android */
   font-size:16px;font-weight:700;
   background:var(--bg2);color:var(--text2);cursor:pointer;outline:none;
@@ -650,7 +651,7 @@ input[type=password].fc { text-transform:none }
   padding:8px 14px;min-height:36px;
   border-radius:7px;font-size:13px;font-weight:800;cursor:pointer;
   color:var(--text3);border:none;background:none;
-  font-family:'Nunito',sans-serif;
+  font-family:'Figtree',sans-serif;
   transition:background .12s ease,color .12s ease,box-shadow .12s ease;
   touch-action:manipulation;white-space:nowrap;
 }
@@ -845,7 +846,7 @@ input[type=password].fc { text-transform:none }
   border:1.5px solid var(--bg3);
   background:var(--bg2);
   border-radius:99px;
-  font-family:'Nunito',sans-serif;
+  font-family:'Figtree',sans-serif;
   font-size:11px;font-weight:800;
   color:var(--text3);cursor:pointer;
   transition:all .12s ease;
@@ -2054,7 +2055,7 @@ window.renderDash = () => {
   document.getElementById('stat-cards').innerHTML = stats.map(s => `
     <div class="stat-card">
       <div class="stat-icon" style="background:${s.bg};color:${s.col}">${s.icon}</div>
-      <div class="stat-val" style="color:${s.col}">${s.val}</div>
+      <div class="stat-val">${s.val}</div>
       <div class="stat-lbl">${s.lbl}</div>
     </div>`).join('');
 
@@ -2354,7 +2355,7 @@ window.detailKK = (id) => {
           </thead>
           <tbody>
             ${anggota.map(p => `<tr>
-              <td style="padding:8px;font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.nik||'-')}</td>
+              <td style="padding:8px;font-family:'DM Mono',monospace;font-weight: 500;font-size:11px">${escapeHtml(p.nik||'-')}</td>
               <td style="padding:8px">${escapeHtml(p.namaLengkap||'-')}</td>
               <td style="padding:8px">${escapeHtml(p.hubKK||'-')}</td>
               <td style="padding:8px">${p.jenisKelamin==='L'?'L':'P'}</td>
@@ -2367,7 +2368,7 @@ window.detailKK = (id) => {
     <div style="text-align:center;margin-bottom:14px">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--indigo-xs);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 8px">🏠</div>
       <div style="font-size:16px;font-weight:900">${escapeHtml(k.kepalaKeluarga||'-')}</div>
-      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${escapeHtml(k.noKK||'-')}</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text3);font-family:'DM Mono',monospace">${escapeHtml(k.noKK||'-')}</div>
     </div>
     ${dr('Status', `<span class="badge ${k.status==='Aktif'?'badge-green':'badge-gray'}">${k.status||'-'}</span>`)}
     ${dr('Alamat', escapeHtml(k.alamat||'-'))}
@@ -2607,7 +2608,7 @@ window.renderPddk = () => {
         const usia = calcAge(p.tanggalLahir);
         const usiaStr = usia !== null ? `${usia} th` : '-';
         return `<tr>
-          <td><span style="font-family:'DM Mono',monospace;font-size:11px">${p.nik}</span></td>
+          <td><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${p.nik}</span></td>
           <td><strong>${p.namaLengkap}</strong></td>
           <td><span class="badge ${p.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${p.jenisKelamin==='L'?'L':'P'}</span></td>
           <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?fmtTgl(p.tanggalLahir):''}</div><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
@@ -2833,7 +2834,7 @@ window.detailPddk = (id) => {
     <div style="text-align:center;margin-bottom:14px">
       <div style="width:52px;height:52px;border-radius:50%;background:${p.jenisKelamin==='L'?'var(--blue-xs)':'var(--purple-xs)'};display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 8px">${p.jenisKelamin==='L'?'👨':'👩'}</div>
       <div style="font-size:16px;font-weight:900">${p.namaLengkap}</div>
-      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${p.nik}</div>
+      <div style="font-size:11px;font-weight: 500;color:var(--text3);font-family:'DM Mono',monospace">${p.nik}</div>
     </div>
     ${dr('Jenis Kelamin',p.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
     ${dr('Tgl. Lahir',(p.tanggalLahir?fmtTgl(p.tanggalLahir):'-')+` (${a} tahun)`)}
@@ -2866,7 +2867,7 @@ window.renderSem = () => {
     : list.map(s => {
         const exp = s.tanggalKeluar && new Date(s.tanggalKeluar) < today;
         return `<tr>
-          <td style="font-family:'DM Mono',monospace;font-size:11px">${s.nik}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${s.nik}</td>
           <td><strong>${s.nama}</strong></td>
           <td>${s.asalDaerah||'-'}</td><td>${s.tujuan||'-'}</td>
           <td style="font-size:12px">${s.tanggalMasuk?fmtTgl(s.tanggalMasuk):'-'}</td>
@@ -2908,7 +2909,7 @@ window.detailSem = (id) => {
     <div style="text-align:center;margin-bottom:14px">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--orange-xs);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px">${s.jenisKelamin==='L'?'👨':'👩'}</div>
       <div style="font-size:16px;font-weight:900">${escapeHtml(s.nama)}</div>
-      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${s.nik||'-'}</div>
+      <div style="font-size:11px;font-weight: 500;color:var(--text3);font-family:'DM Mono',monospace">${s.nik||'-'}</div>
       <div style="margin-top:6px"><span class="badge ${exp?'badge-red':'badge-green'}">${exp?'Berakhir':'Aktif'}</span></div>
     </div>
     ${dr('Jenis Kelamin',s.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
@@ -2941,7 +2942,7 @@ window.renderLahir = () => {
         <td style="font-size:12px">${k.tanggalLahir?fmtTgl(k.tanggalLahir):'-'}</td>
         <td>${k.tempatLahir||'-'}</td><td>${k.namaIbu||'-'}</td>
         <td style="color:var(--text3)">${k.namaAyah||'-'}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${k.noKK||'-'}</td>
         <td>${k.penolong||'-'}</td>
         <td><div style="display:flex;gap:3px">
           <button type="button" class="btn btn-sm btn-secondary" onclick='detailLahir(${JSON.stringify(k.id)})'>Lihat</button>
@@ -3110,7 +3111,7 @@ window.updMatiSearch = () => {
     box.style.display='block';
     return;
   }
-  box.innerHTML = list.map(p => `<button type="button" class="mati-sug-btn" onclick='pickMatiPddk(${JSON.stringify(p.id)})'><strong>${escapeHtml(p.namaLengkap||'')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(p.nik||'')}</div></button>`).join('');
+  box.innerHTML = list.map(p => `<button type="button" class="mati-sug-btn" onclick='pickMatiPddk(${JSON.stringify(p.id)})'><strong>${escapeHtml(p.namaLengkap||'')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;font-weight: 500;opacity:.8;margin-top:2px">${escapeHtml(p.nik||'')}</div></button>`).join('');
   box.style.display='block';
 };
 window.pickMatiPddk = (id) => {
@@ -3129,11 +3130,11 @@ window.pickMatiPddk = (id) => {
   const tl = p.tanggalLahir ? fmtTgl(p.tanggalLahir) : '—';
   const jk = p.jenisKelamin==='L' ? 'Laki-laki' : 'Perempuan';
   prev.innerHTML = `<div style="font-size:11px;font-weight:900;margin-bottom:8px;letter-spacing:.03em;text-transform:uppercase;color:var(--text3)">Data penduduk</div>
-    <div class="drow"><div class="dkey">NIK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.nik||'')}</div></div>
+    <div class="drow"><div class="dkey">NIK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${escapeHtml(p.nik||'')}</div></div>
     <div class="drow"><div class="dkey">Nama</div><div class="dval">${escapeHtml(p.namaLengkap||'')}</div></div>
     <div class="drow"><div class="dkey">JK</div><div class="dval">${jk}</div></div>
     <div class="drow"><div class="dkey">Tgl. lahir</div><div class="dval">${tl}</div></div>
-    <div class="drow"><div class="dkey">No. KK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.noKK||'—')}</div></div>`;
+    <div class="drow"><div class="dkey">No. KK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${escapeHtml(p.noKK||'—')}</div></div>`;
   prev.style.display='block';
   window.updMatiUsia();
 };
@@ -3157,13 +3158,13 @@ window.renderMati = () => {
   document.getElementById('mati-tb').innerHTML = list.length === 0
     ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🕊️</div><div class="empty-title">${S.kematian.length===0?'Belum ada data kematian':'Tidak ada data yang cocok dengan pencarian'}</div></div></td></tr>`
     : list.map(k => `<tr>
-        <td style="font-family:'DM Mono',monospace;font-size:11px">${k.nik}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${k.nik}</td>
         <td><strong>${k.nama}</strong></td>
         <td><span class="badge ${k.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${k.jenisKelamin==='L'?'L':'P'}</span></td>
         <td style="font-size:12px">${k.tanggalMeninggal?fmtTgl(k.tanggalMeninggal):'-'}</td>
         <td style="font-size:12px">${k.usia!==undefined&&k.usia!==''?`${k.usia} th`:'-'}</td>
         <td>${k.tempatMeninggal||'-'}</td><td>${k.sebabKematian||'-'}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${k.noKK||'-'}</td>
         <td><div style="display:flex;gap:3px">
           <button type="button" class="btn btn-sm btn-secondary" onclick='detailMati(${JSON.stringify(k.id)})'>Lihat</button>
           <button type="button" class="btn btn-sm btn-secondary" onclick='editMati(${JSON.stringify(k.id)})'>Edit</button>
@@ -3231,7 +3232,7 @@ window.editMati = (id) => {
   const prev = document.getElementById('mati-preview');
   if(prev) {
     prev.innerHTML = `<div style="font-size:11px;font-weight:900;margin-bottom:8px;letter-spacing:.03em;text-transform:uppercase;color:var(--text3)">Data kematian (arsip)</div>
-      ${dr('NIK',`<span style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(k.nik||'')}</span>`)}
+      ${dr('NIK',`<span style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${escapeHtml(k.nik||'')}</span>`)}
       ${dr('Nama',escapeHtml(k.nama||''))}
       ${dr('JK',k.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
       ${dr('No. KK',escapeHtml(k.noKK||'—'))}`;
@@ -3255,7 +3256,7 @@ window.detailMati = (id) => {
     <div style="text-align:center;margin-bottom:14px">
       <div style="width:52px;height:52px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px">🕊️</div>
       <div style="font-size:16px;font-weight:900">${escapeHtml(k.nama)}</div>
-      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${k.nik||'-'}</div>
+      <div style="font-size:11px;font-weight: 500;color:var(--text3);font-family:'DM Mono',monospace">${k.nik||'-'}</div>
     </div>
     ${dr('Jenis Kelamin',k.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
     ${dr('Tgl. Meninggal',k.tanggalMeninggal?fmtTgl(k.tanggalMeninggal):'-')}
@@ -3365,7 +3366,7 @@ window.updMobKeluarSearch = () => {
     box.style.display='block';
     return;
   }
-  box.innerHTML = list.map(p => `<button type="button" class="mati-sug-btn" onclick='pickMobKeluarPddk(${JSON.stringify(p.id)})'><strong>${escapeHtml(p.namaLengkap||'')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(p.nik||'')}</div></button>`).join('');
+  box.innerHTML = list.map(p => `<button type="button" class="mati-sug-btn" onclick='pickMobKeluarPddk(${JSON.stringify(p.id)})'><strong>${escapeHtml(p.namaLengkap||'')}</strong><div style="font-size:10px;font-weight: 500;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(p.nik||'')}</div></button>`).join('');
   box.style.display='block';
 };
 
@@ -3433,7 +3434,7 @@ window.updMobKkSearch = () => {
     box.style.display='block';
     return;
   }
-  box.innerHTML = list.map(k => `<button type="button" class="mati-sug-btn" onclick='pickMobKkTarget(${JSON.stringify(k.id)})'><strong>${escapeHtml(k.kepalaKeluarga||'-')}</strong><div style="font-size:10px;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(k.noKK||'')}</div></button>`).join('');
+  box.innerHTML = list.map(k => `<button type="button" class="mati-sug-btn" onclick='pickMobKkTarget(${JSON.stringify(k.id)})'><strong>${escapeHtml(k.kepalaKeluarga||'-')}</strong><div style="font-size:10px;font-weight: 500;font-family:'DM Mono',monospace;opacity:.8;margin-top:2px">${escapeHtml(k.noKK||'')}</div></button>`).join('');
   box.style.display='block';
 };
 
@@ -3471,13 +3472,13 @@ window.renderMob = () => {
     ? `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🚚</div><div class="empty-title">${mobEmpty}</div></div></td></tr>`
     : data.map(m => `<tr>
         <td><span class="badge ${m.jenis==='masuk'?'badge-green':'badge-red'}">${m.jenis==='masuk'?'Masuk':'Keluar'}</span></td>
-        <td style="font-family:'DM Mono',monospace;font-size:11px">${m.nik}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${m.nik}</td>
         <td><strong>${m.nama}</strong></td>
         <td><span class="badge ${m.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${m.jenisKelamin==='L'?'L':'P'}</span></td>
         <td>${m.asalTujuan||'-'}</td>
         <td style="font-size:11px">${m.alasanMasuk||m.alasanKeluar||'-'}</td>
         <td style="font-size:12px">${m.tanggalPindah?fmtTgl(m.tanggalPindah):'-'}</td>
-        <td style="font-family:'DM Mono',monospace;font-size:11px">${m.noKKLama||'-'}</td>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${m.noKKLama||'-'}</td>
         <td><div style="display:flex;gap:3px">
           <button type="button" class="btn btn-sm btn-secondary" onclick='detailMob(${JSON.stringify(m.id)})'>Lihat</button>
           <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("mobilitas", ${JSON.stringify(m.id)}, ${JSON.stringify(m.nama)})'>Hapus</button>
@@ -3688,7 +3689,7 @@ window.detailMob = (id) => {
     <div style="text-align:center;margin-bottom:14px">
       <div style="width:52px;height:52px;border-radius:50%;background:${isM?'var(--accent-xs)':'var(--red-xs)'};display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 8px">${isM?'📥':'📤'}</div>
       <div style="font-size:16px;font-weight:900">${escapeHtml(m.nama)}</div>
-      <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${m.nik||'-'}</div>
+      <div style="font-size:11px;font-weight: 500;color:var(--text3);font-family:'DM Mono',monospace">${m.nik||'-'}</div>
       <div style="margin-top:6px"><span class="badge ${isM?'badge-green':'badge-red'}">${isM?'Pindah Masuk':'Pindah Keluar'}</span></div>
     </div>
     ${dr('Jenis Kelamin',m.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
