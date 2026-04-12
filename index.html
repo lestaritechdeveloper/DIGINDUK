@@ -2350,17 +2350,20 @@ window.detailKK = (id) => {
               <th style="text-align:left;padding:8px">Nama</th>
               <th style="text-align:left;padding:8px">Hub. KK</th>
               <th style="text-align:left;padding:8px">JK</th>
-              <th style="text-align:left;padding:8px">Tgl. Lahir</th>
+              <th style="text-align:left;padding:8px">Usia</th>
             </tr>
           </thead>
           <tbody>
-            ${anggota.map(p => `<tr>
+            ${anggota.map(p => {
+              const usia = p.tanggalLahir ? Math.floor((Date.now() - new Date(p.tanggalLahir)) / 31557600000) : null;
+              const usiaStr = usia !== null ? `${usia} th` : '-';
+              return `<tr>
               <td style="padding:8px;font-family:'DM Mono',monospace;font-weight: 500;font-size:11px">${escapeHtml(p.nik||'-')}</td>
               <td style="padding:8px">${escapeHtml(p.namaLengkap||'-')}</td>
               <td style="padding:8px">${escapeHtml(p.hubKK||'-')}</td>
               <td style="padding:8px">${p.jenisKelamin==='L'?'L':'P'}</td>
-              <td style="padding:8px">${p.tanggalLahir?fmtTgl(p.tanggalLahir):'-'}</td>
-            </tr>`).join('')}
+              <td style="padding:8px">${usiaStr}</td>
+            </tr>`;}).join('')}
           </tbody>
         </table>
       </div>`;
