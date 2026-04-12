@@ -906,8 +906,8 @@ input[type=password].fc { text-transform:none }
       <div class="l-title">DigiNduk</div>
       <div class="l-sub">Sistem Informasi Kependudukan Desa</div>
     </div>
-    <label class="l-label">Username</label>
-    <input class="l-inp" id="l-user" type="text" placeholder="Masukkan username" autocomplete="username"/>
+    <label class="l-label">Email</label>
+    <input class="l-inp" id="l-user" type="email" placeholder="Masukkan email" autocomplete="email"/>
     <label class="l-label">Password</label>
     <input class="l-inp" id="l-pass" type="password" placeholder="Masukkan password" autocomplete="current-password"/>
     <button class="l-btn" id="l-btn" onclick="doLogin()">Masuk</button>
@@ -1113,6 +1113,17 @@ input[type=password].fc { text-transform:none }
             <div class="filters">
               <input class="fc" style="width:200px" placeholder="Cari No.KK / Kepala KK..." oninput="KKP=1;renderKK()" id="kk-q"/>
               <select class="fsel" onchange="KKP=1;renderKK()" id="kk-dsn"><option value="">Semua Dusun</option></select>
+              <select class="fsel" onchange="KKP=1;renderKK()" id="kk-rt-f"><option value="">Semua RT</option></select>
+              <select class="fsel" onchange="KKP=1;renderKK()" id="kk-rw-f"><option value="">Semua RW</option></select>
+              <select class="fsel" onchange="KKP=1;renderKK()" id="kk-jiwa-f">
+                <option value="">Semua Jumlah Jiwa</option>
+                <option value="1">1 Jiwa</option>
+                <option value="2">2 Jiwa</option>
+                <option value="3">3 Jiwa</option>
+                <option value="4">4 Jiwa</option>
+                <option value="5">5 Jiwa</option>
+                <option value="6+">6+ Jiwa</option>
+              </select>
             </div>
           </div>
           <div class="tbl-wrap">
@@ -1521,8 +1532,8 @@ input[type=password].fc { text-transform:none }
     <div class="md-body">
       <input type="hidden" id="pddk-id"/>
       <div id="pddk-mob-box" class="infobox" style="display:none">Data dari catatan pindah masuk. Lengkapi kolom di bawah.</div>
+      <div class="fr"><div class="fg"><label class="fl">No. KK *</label><input class="fc" id="pddk-nokk" placeholder="No. KK" oninput="syncPddkByKK()"/></div><div class="fg"><label class="fl">Hubungan KK</label><select class="fc" id="pddk-hubkk" onchange="autoJkByHub()"></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">NIK *</label><input class="fc" id="pddk-nik" placeholder="16 digit" maxlength="16"/></div><div class="fg"><label class="fl">Nama Lengkap *</label><input class="fc" id="pddk-nama" placeholder="Sesuai KTP"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">No. KK *</label><input class="fc" id="pddk-nokk" placeholder="No. KK" oninput="syncPddkByKK()"/></div><div class="fg"><label class="fl">Hubungan KK</label><select class="fc" id="pddk-hubkk"></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">RT (otomatis dari KK)</label><input class="fc" id="pddk-rt" maxlength="3" placeholder="Terisi otomatis" readonly style="background:var(--bg3)"/></div><div class="fg"><label class="fl">RW (otomatis dari KK)</label><input class="fc" id="pddk-rw" maxlength="3" placeholder="Terisi otomatis" readonly style="background:var(--bg3)"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Alamat Lengkap (otomatis dari KK)</label><input class="fc" id="pddk-alamat" placeholder="Terisi otomatis dari Kartu Keluarga" readonly style="background:var(--bg3)"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Jenis Kelamin *</label><select class="fc" id="pddk-jk2"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="pddk-tmplahir" placeholder="Kota/Kabupaten"/></div></div>
@@ -1698,6 +1709,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/fireba
 import {
   getDatabase, ref, push, set, update, remove, get, child, onValue, off
 } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
 /* ── Firebase config ─────────────────────────────── */
 const FB_CFG = {
@@ -1712,9 +1726,7 @@ const FB_CFG = {
 const fbApp = initializeApp(FB_CFG);
 const db    = getDatabase(fbApp);
 const dbRef = (path) => ref(db, path);
-
-/* ── Local admin fallback ────────────────────────── */
-const LOCAL_ADMIN = {id:'__local__',username:'admin',password:'admin123',nama:'Administrator',jabatan:'Developer Sistem',role:'admin',status:'aktif'};
+const auth  = getAuth(fbApp);
 
 /* ── Store ───────────────────────────────────────── */
 const S = {kk:[],penduduk:[],sementara:[],kelahiran:[],kematian:[],mobilitas:[],users:[],activity:[]};
@@ -1935,6 +1947,10 @@ function loginSuccess(u) {
   applyRoleUI(u.role);
 
   addAct(`Login: ${u.nama}`);
+
+  // Load data SETELAH login — Firebase Auth sudah aktif, rules auth != null terpenuhi
+  initApp();
+
   goPage('dashboard');
 }
 
@@ -1953,21 +1969,54 @@ function applyRoleUI(role) {
 }
 
 window.doLogin = async () => {
-  const u = gv('l-user'); const p = gv('l-pass');
+  const emailInput = gv('l-user'); const p = gv('l-pass');
   const err = document.getElementById('l-err'); const btn = document.getElementById('l-btn');
   err.textContent = '';
-  if(!u || !p) { err.textContent = 'Username dan password wajib diisi.'; return; }
+  if(!emailInput || !p) { err.textContent = 'Email dan password wajib diisi.'; return; }
   btn.textContent = 'Memverifikasi...'; btn.disabled = true;
-  await delay(300);
-  const all = [LOCAL_ADMIN, ...S.users.filter(x => x.id !== LOCAL_ADMIN.id)];
-  const found = all.find(x => x.username === u && x.password === p && x.status !== 'nonaktif');
+
+  try {
+    // 1. Autentikasi lewat Firebase Auth (server-side)
+    const credential = await signInWithEmailAndPassword(auth, emailInput, p);
+    const firebaseUid = credential.user.uid;
+
+    // 2. Ambil profil user dari Realtime Database berdasarkan Firebase UID
+    const profileSnap = await get(dbRef(`users/${firebaseUid}`));
+    if(!profileSnap.exists()) {
+      err.textContent = 'Profil pengguna tidak ditemukan. Hubungi administrator.';
+      await signOut(auth);
+      btn.textContent = 'Masuk'; btn.disabled = false;
+      return;
+    }
+    const profile = profileSnap.val();
+    if(profile.status === 'nonaktif') {
+      err.textContent = 'Akun Anda dinonaktifkan. Hubungi administrator.';
+      await signOut(auth);
+      btn.textContent = 'Masuk'; btn.disabled = false;
+      return;
+    }
+
+    // 3. Login sukses
+    loginSuccess({id: firebaseUid, ...profile});
+
+  } catch(e) {
+    // Firebase Auth error codes
+    const msg = {
+      'auth/invalid-email'       : 'Format email tidak valid.',
+      'auth/user-not-found'      : 'Email tidak terdaftar.',
+      'auth/wrong-password'      : 'Password salah.',
+      'auth/invalid-credential'  : 'Email atau password salah.',
+      'auth/too-many-requests'   : 'Terlalu banyak percobaan. Coba lagi nanti.',
+      'auth/user-disabled'       : 'Akun dinonaktifkan oleh administrator.',
+    }[e.code] || 'Login gagal. Periksa koneksi dan coba lagi.';
+    err.textContent = msg;
+  }
   btn.textContent = 'Masuk'; btn.disabled = false;
-  if(!found) { err.textContent = 'Username atau password salah.'; return; }
-  loginSuccess(found);
 };
 
-window.doLogout = () => {
+window.doLogout = async () => {
   CU = null; clearSession();
+  try { await signOut(auth); } catch(e) {}
   document.getElementById('login-screen').style.display = 'flex';
   sv('l-user',''); sv('l-pass','');
 };
@@ -2226,19 +2275,46 @@ window.resetF = (type) => {
 };
 
 window.renderKK = () => {
-  const q = gv('kk-q').toUpperCase(); const dsn = gv('kk-dsn');
-  const dusuns = [...new Set(S.kk.map(k=>k.dusun).filter(Boolean))];
-  const df = document.getElementById('kk-dsn');
-  const prev = df.value;
-  df.innerHTML = '<option value="">Semua Dusun</option>' + dusuns.map(d=>`<option value="${d}"${d===prev?' selected':''}>${d}</option>`).join('');
+  const q    = gv('kk-q').toUpperCase();
+  const dsn  = gv('kk-dsn');
+  const rtF  = gv('kk-rt-f');
+  const rwF  = gv('kk-rw-f');
+  const jiwaF = gv('kk-jiwa-f');
 
-  const filtered = S.kk.filter(k =>
-    (!q || k.noKK?.includes(q) || (k.kepalaKeluarga||'').toUpperCase().includes(q)) &&
-    (!dsn || k.dusun === dsn)
-  );
+  // Populate Dusun dropdown
+  const dusuns = [...new Set(S.kk.map(k=>k.dusun).filter(Boolean))].sort();
+  const df = document.getElementById('kk-dsn');
+  const prevDsn = df.value;
+  df.innerHTML = '<option value="">Semua Dusun</option>' + dusuns.map(d=>`<option value="${d}"${d===prevDsn?' selected':''}>${d}</option>`).join('');
+
+  // Populate RT dropdown (dinamis dari data)
+  const rts = [...new Set(S.kk.map(k=>k.rt).filter(Boolean))].sort();
+  const rtEl = document.getElementById('kk-rt-f');
+  const prevRt = rtEl.value;
+  rtEl.innerHTML = '<option value="">Semua RT</option>' + rts.map(r=>`<option value="${r}"${r===prevRt?' selected':''}>${r}</option>`).join('');
+
+  // Populate RW dropdown (dinamis dari data)
+  const rws = [...new Set(S.kk.map(k=>k.rw).filter(Boolean))].sort();
+  const rwEl = document.getElementById('kk-rw-f');
+  const prevRw = rwEl.value;
+  rwEl.innerHTML = '<option value="">Semua RW</option>' + rws.map(r=>`<option value="${r}"${r===prevRw?' selected':''}>${r}</option>`).join('');
+
+  const angg = nkk => S.penduduk.filter(p => p.noKK === nkk).length;
+
+  const filtered = S.kk.filter(k => {
+    const jml = angg(k.noKK);
+    const jiwaOk = !jiwaF || (jiwaF === '6+' ? jml >= 6 : jml === parseInt(jiwaF));
+    return (
+      (!q    || k.noKK?.includes(q) || (k.kepalaKeluarga||'').toUpperCase().includes(q)) &&
+      (!dsn  || k.dusun === dsn) &&
+      (!rtF  || k.rt === rtF) &&
+      (!rwF  || k.rw === rwF) &&
+      jiwaOk
+    );
+  });
+
   const pages = Math.ceil(filtered.length / KK_PER);
   const slice = filtered.slice((KKP-1)*KK_PER, KKP*KK_PER);
-  const angg = nkk => S.penduduk.filter(p => p.noKK === nkk).length;
 
   document.getElementById('kk-tb').innerHTML = slice.length === 0
     ? `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🏠</div><div class="empty-title">Belum ada data KK</div></div></td></tr>`
@@ -2282,7 +2358,7 @@ window.detailKK = (id) => {
               <td style="padding:8px">${escapeHtml(p.namaLengkap||'-')}</td>
               <td style="padding:8px">${escapeHtml(p.hubKK||'-')}</td>
               <td style="padding:8px">${p.jenisKelamin==='L'?'L':'P'}</td>
-              <td style="padding:8px">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td>
+              <td style="padding:8px">${p.tanggalLahir?fmtTgl(p.tanggalLahir):'-'}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -2315,10 +2391,27 @@ window.saveKK = async () => {
   try {
     if(id) {
       await fbUpdate(`kk/${id}`, data); ups('kk',{id,...data}); addAct(`Update KK ${data.noKK}`);
+      closeMd('md-kk'); renderKK(); toast('KK diperbarui');
     } else {
       const nid = await fbPush('kk', data); S.kk.push({id:nid,...data}); addAct(`Tambah KK ${data.noKK}`);
+
+      // Otomatis buat data penduduk untuk Kepala Keluarga
+      const pddkData = {
+        nik: '', namaLengkap: data.kepalaKeluarga,
+        noKK: data.noKK, hubKK: 'Kepala Keluarga',
+        rt: data.rt, rw: data.rw, alamat: data.alamat,
+        jenisKelamin: 'L', tempatLahir: '', tanggalLahir: '',
+        agama: '', statusKawin: 'Kawin', pendidikan: '',
+        pekerjaan: '', golonganDarah: '-',
+        statusPenduduk: 'Aktif', asalDaerah: '',
+        namaAyah: '', namaIbu: ''
+      };
+      const pid = await fbPush('penduduk', pddkData);
+      S.penduduk.push({id: pid, ...pddkData});
+      addAct(`Auto-tambah penduduk: ${data.kepalaKeluarga} (Kepala KK)`);
+
+      closeMd('md-kk'); renderKK(); toast('KK ditambahkan & Kepala Keluarga otomatis masuk Data Penduduk — lengkapi NIK & data lainnya');
     }
-    closeMd('md-kk'); renderKK(); toast(id?'KK diperbarui':'KK ditambahkan');
   } catch(e) { toast('Gagal: '+e.message,'err'); }
 };
 
@@ -2517,7 +2610,7 @@ window.renderPddk = () => {
           <td><span style="font-family:'DM Mono',monospace;font-size:11px">${p.nik}</span></td>
           <td><strong>${p.namaLengkap}</strong></td>
           <td><span class="badge ${p.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${p.jenisKelamin==='L'?'L':'P'}</span></td>
-          <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):''}</div><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
+          <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?fmtTgl(p.tanggalLahir):''}</div><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
           <td><span class="chip ${p.hubKK==='Kepala Keluarga'?'chip-kepala':''}">${p.hubKK||'-'}</span></td>
           <td><span class="badge ${p.statusKawin==='Kawin'?'badge-green':p.statusKawin==='Belum Kawin'?'badge-blue':'badge-orange'}">${p.statusKawin||'-'}</span></td>
           <td style="font-size:12px">${p.agama||'-'}</td>
@@ -2707,6 +2800,30 @@ window.refreshHubKkOptions = () => {
   if(current && Array.from(sel.options).some(o => o.value === current)) {
     sel.value = current;
   }
+  // Setelah opsi diperbarui, jalankan logika JK otomatis
+  autoJkByHub();
+};
+
+window.autoJkByHub = () => {
+  const hub = gv('pddk-hubkk');
+  const jkSel = document.getElementById('pddk-jk2');
+  if(!jkSel) return;
+  // Istri → sudah pasti Perempuan
+  if(hub === 'Istri') {
+    jkSel.value = 'P';
+    jkSel.disabled = true;
+    jkSel.title = 'Otomatis terisi Perempuan karena Hubungan KK: Istri';
+  }
+  // Kepala Keluarga → umumnya Laki-laki (tapi tetap bisa diubah)
+  else if(hub === 'Kepala Keluarga') {
+    if(jkSel.value === 'P' && jkSel.disabled) jkSel.value = 'L';
+    jkSel.disabled = false;
+    jkSel.title = '';
+  }
+  else {
+    jkSel.disabled = false;
+    jkSel.title = '';
+  }
 };
 
 window.detailPddk = (id) => {
@@ -2719,7 +2836,7 @@ window.detailPddk = (id) => {
       <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${p.nik}</div>
     </div>
     ${dr('Jenis Kelamin',p.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
-    ${dr('Tgl. Lahir',(p.tanggalLahir?new Date(p.tanggalLahir).toLocaleDateString('id-ID'):'-')+` (${a} tahun)`)}
+    ${dr('Tgl. Lahir',(p.tanggalLahir?fmtTgl(p.tanggalLahir):'-')+` (${a} tahun)`)}
     ${dr('Tempat Lahir',p.tempatLahir||'-')}${dr('Agama',p.agama||'-')}
     ${dr('Status Kawin',p.statusKawin||'-')}${dr('Pendidikan',p.pendidikan||'-')}
     ${dr('Pekerjaan',p.pekerjaan||'-')}${dr('Gol. Darah',p.golonganDarah||'-')}
@@ -2752,8 +2869,8 @@ window.renderSem = () => {
           <td style="font-family:'DM Mono',monospace;font-size:11px">${s.nik}</td>
           <td><strong>${s.nama}</strong></td>
           <td>${s.asalDaerah||'-'}</td><td>${s.tujuan||'-'}</td>
-          <td style="font-size:12px">${s.tanggalMasuk?new Date(s.tanggalMasuk).toLocaleDateString('id-ID'):'-'}</td>
-          <td style="font-size:12px">${s.tanggalKeluar?new Date(s.tanggalKeluar).toLocaleDateString('id-ID'):'-'}</td>
+          <td style="font-size:12px">${s.tanggalMasuk?fmtTgl(s.tanggalMasuk):'-'}</td>
+          <td style="font-size:12px">${s.tanggalKeluar?fmtTgl(s.tanggalKeluar):'-'}</td>
           <td><span class="badge ${exp?'badge-red':'badge-green'}">${exp?'Berakhir':'Aktif'}</span></td>
           <td><div style="display:flex;gap:4px">
             <button type="button" class="btn btn-sm btn-secondary" onclick='detailSem(${JSON.stringify(s.id)})'>Lihat</button>
@@ -2797,8 +2914,8 @@ window.detailSem = (id) => {
     ${dr('Jenis Kelamin',s.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
     ${dr('Asal Daerah',s.asalDaerah||'-')}
     ${dr('Tujuan Domisili',s.tujuan||'-')}
-    ${dr('Tgl. Masuk',s.tanggalMasuk?new Date(s.tanggalMasuk).toLocaleDateString('id-ID'):'-')}
-    ${dr('Tgl. Keluar (Est.)',s.tanggalKeluar?new Date(s.tanggalKeluar).toLocaleDateString('id-ID'):'-')}
+    ${dr('Tgl. Masuk',s.tanggalMasuk?fmtTgl(s.tanggalMasuk):'-')}
+    ${dr('Tgl. Keluar (Est.)',s.tanggalKeluar?fmtTgl(s.tanggalKeluar):'-')}
     ${dr('No. Telepon',s.telepon||'-')}
     ${dr('Alamat di Desa',s.alamatDesa||'-')}`;
   document.getElementById('md-detail-title').textContent='Detail Penduduk Sementara';
@@ -2821,7 +2938,7 @@ window.renderLahir = () => {
     : list.map(k => `<tr>
         <td><strong>${k.namaBayi}</strong></td>
         <td><span class="badge ${k.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${k.jenisKelamin==='L'?'L':'P'}</span></td>
-        <td style="font-size:12px">${k.tanggalLahir?new Date(k.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td>
+        <td style="font-size:12px">${k.tanggalLahir?fmtTgl(k.tanggalLahir):'-'}</td>
         <td>${k.tempatLahir||'-'}</td><td>${k.namaIbu||'-'}</td>
         <td style="color:var(--text3)">${k.namaAyah||'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
@@ -2943,7 +3060,7 @@ window.detailLahir = (id) => {
       <div style="font-size:16px;font-weight:900">${k.namaBayi}</div>
       <div style="font-size:11px;color:var(--text3)">${k.jenisKelamin==='L'?'Laki-laki':'Perempuan'}</div>
     </div>
-    ${dr('Tgl. Lahir',k.tanggalLahir?new Date(k.tanggalLahir).toLocaleDateString('id-ID'):'-')}
+    ${dr('Tgl. Lahir',k.tanggalLahir?fmtTgl(k.tanggalLahir):'-')}
     ${dr('Tempat Lahir',k.tempatLahir||'-')}
     ${dr('Nama Ibu',k.namaIbu||'-')}
     ${dr('Nama Ayah',k.namaAyah||'-')}
@@ -3009,7 +3126,7 @@ window.pickMatiPddk = (id) => {
   document.getElementById('mati-suggest').style.display='none';
   document.getElementById('mati-suggest').innerHTML='';
   const prev = document.getElementById('mati-preview');
-  const tl = p.tanggalLahir ? new Date(p.tanggalLahir).toLocaleDateString('id-ID') : '—';
+  const tl = p.tanggalLahir ? fmtTgl(p.tanggalLahir) : '—';
   const jk = p.jenisKelamin==='L' ? 'Laki-laki' : 'Perempuan';
   prev.innerHTML = `<div style="font-size:11px;font-weight:900;margin-bottom:8px;letter-spacing:.03em;text-transform:uppercase;color:var(--text3)">Data penduduk</div>
     <div class="drow"><div class="dkey">NIK</div><div class="dval" style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(p.nik||'')}</div></div>
@@ -3043,7 +3160,7 @@ window.renderMati = () => {
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.nik}</td>
         <td><strong>${k.nama}</strong></td>
         <td><span class="badge ${k.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${k.jenisKelamin==='L'?'L':'P'}</span></td>
-        <td style="font-size:12px">${k.tanggalMeninggal?new Date(k.tanggalMeninggal).toLocaleDateString('id-ID'):'-'}</td>
+        <td style="font-size:12px">${k.tanggalMeninggal?fmtTgl(k.tanggalMeninggal):'-'}</td>
         <td style="font-size:12px">${k.usia!==undefined&&k.usia!==''?`${k.usia} th`:'-'}</td>
         <td>${k.tempatMeninggal||'-'}</td><td>${k.sebabKematian||'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${k.noKK||'-'}</td>
@@ -3141,7 +3258,7 @@ window.detailMati = (id) => {
       <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${k.nik||'-'}</div>
     </div>
     ${dr('Jenis Kelamin',k.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
-    ${dr('Tgl. Meninggal',k.tanggalMeninggal?new Date(k.tanggalMeninggal).toLocaleDateString('id-ID'):'-')}
+    ${dr('Tgl. Meninggal',k.tanggalMeninggal?fmtTgl(k.tanggalMeninggal):'-')}
     ${dr('Usia saat Meninggal',k.usia?k.usia+' tahun':'-')}
     ${dr('Tempat Meninggal',k.tempatMeninggal||'-')}
     ${dr('Sebab Kematian',k.sebabKematian||'-')}
@@ -3359,7 +3476,7 @@ window.renderMob = () => {
         <td><span class="badge ${m.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${m.jenisKelamin==='L'?'L':'P'}</span></td>
         <td>${m.asalTujuan||'-'}</td>
         <td style="font-size:11px">${m.alasanMasuk||m.alasanKeluar||'-'}</td>
-        <td style="font-size:12px">${m.tanggalPindah?new Date(m.tanggalPindah).toLocaleDateString('id-ID'):'-'}</td>
+        <td style="font-size:12px">${m.tanggalPindah?fmtTgl(m.tanggalPindah):'-'}</td>
         <td style="font-family:'DM Mono',monospace;font-size:11px">${m.noKKLama||'-'}</td>
         <td><div style="display:flex;gap:3px">
           <button type="button" class="btn btn-sm btn-secondary" onclick='detailMob(${JSON.stringify(m.id)})'>Lihat</button>
@@ -3576,7 +3693,7 @@ window.detailMob = (id) => {
     </div>
     ${dr('Jenis Kelamin',m.jenisKelamin==='L'?'Laki-laki':'Perempuan')}
     ${dr(isM?'Asal Daerah':'Tujuan Daerah',m.asalTujuan||'-')}
-    ${dr('Tanggal Pindah',m.tanggalPindah?new Date(m.tanggalPindah).toLocaleDateString('id-ID'):'-')}
+    ${dr('Tanggal Pindah',m.tanggalPindah?fmtTgl(m.tanggalPindah):'-')}
     ${dr('No. KK Asal',m.noKKLama||'-')}
     ${isM?dr('Alasan Masuk',m.alasanMasuk||'-'):''}
     ${isM&&m.kkTarget?dr('KK Tujuan',m.kkTarget):''}
@@ -3670,7 +3787,7 @@ window.genLaporan = () => {
     ${lahirP.length>0?`<div class="rsec"><div class="rsec-title">VII. Detail Kelahiran (${periodeLabel})</div>
       <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
         <thead><tr>${['Nama Bayi','JK','Tgl. Lahir','Nama Ibu','Penolong'].map(h=>`<th style="padding:6px;text-align:left;font-size:10px;font-weight:800;border-bottom:1px solid var(--bg3);color:var(--text3)">${h}</th>`).join('')}</tr></thead>
-        <tbody>${lahirP.map(k=>`<tr style="border-bottom:1px solid var(--bg3)"><td style="padding:6px">${k.namaBayi}</td><td style="padding:6px">${k.jenisKelamin==='L'?'L-L':'P'}</td><td style="padding:6px">${k.tanggalLahir?new Date(k.tanggalLahir).toLocaleDateString('id-ID'):'-'}</td><td style="padding:6px">${k.namaIbu}</td><td style="padding:6px">${k.penolong||'-'}</td></tr>`).join('')}</tbody>
+        <tbody>${lahirP.map(k=>`<tr style="border-bottom:1px solid var(--bg3)"><td style="padding:6px">${k.namaBayi}</td><td style="padding:6px">${k.jenisKelamin==='L'?'L-L':'P'}</td><td style="padding:6px">${k.tanggalLahir?fmtTgl(k.tanggalLahir):'-'}</td><td style="padding:6px">${k.namaIbu}</td><td style="padding:6px">${k.penolong||'-'}</td></tr>`).join('')}</tbody>
       </table></div>`:''}
 
     <div style="margin-top:36px;display:flex;justify-content:flex-end">
@@ -3931,6 +4048,17 @@ function renderPag(elId, current, total, handlerName) {
 /* ════════════════════════════════
    UTILS
 ════════════════════════════════ */
+/* Format tanggal → dd/mm/yyyy */
+const fmtTgl = (tgl, fallback='-') => {
+  if(!tgl) return fallback;
+  const d = new Date(tgl);
+  if(isNaN(d.getTime())) return fallback;
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+
 const gv   = id => document.getElementById(id)?.value?.trim() || '';
 // gvUp: ambil nilai input lalu jadikan HURUF KAPITAL — untuk data teks nama, alamat, dll.
 // CSS text-transform hanya mengubah tampilan, bukan nilai .value.
@@ -4011,11 +4139,10 @@ if(sess) {
   document.getElementById('sb-ava').textContent = sess.nama[0].toUpperCase();
   applyRoleUI(sess.role);
   addAct('Sesi dipulihkan');
+  // Load data juga saat sesi dipulihkan — user sudah terauth via Firebase
+  initApp();
   goPage('dashboard');
 }
-
-// Load Firebase in background
-initApp();
 </script>
 </body>
 </html>
