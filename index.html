@@ -246,16 +246,6 @@ body{
 .fb-dot.on{background:var(--accent);box-shadow:0 0 0 3px var(--accent-xs)}
 .fb-dot.spin{background:var(--orange);animation:fbpulse .8s infinite alternate}
 @keyframes fbpulse{to{opacity:.3}}
-.sb-logout{
-  width:100%;padding:10px;border:none;border-radius:var(--rx);cursor:pointer;
-  background:var(--red-xs);color:var(--red);font-family:'Figtree',sans-serif;
-  font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;
-  min-height:42px;
-  transition:background .12s ease;
-  touch-action:manipulation;
-}
-@media(hover:hover){.sb-logout:hover{background:rgba(255,59,48,.2)}}
-.sb-logout:active{background:rgba(255,59,48,.2)}
 
 /* TOPBAR */
 #topbar{
@@ -306,6 +296,17 @@ body{
 }
 .tb-dark:hover{background:var(--bg4)}
 .tb-dark:active{background:var(--bg4)}
+.tb-logout{
+  width:40px;height:40px;border:none;cursor:pointer;background:var(--red-xs);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  color:var(--red);
+  transition:background .15s ease;
+  touch-action:manipulation;
+  flex-shrink:0;
+}
+.tb-logout:hover{background:var(--red-xs);color:var(--red)}
+.tb-logout:active{background:var(--red-xs);color:var(--red)}
+.tb-logout svg{stroke:currentColor}
 
 /* MAIN */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -703,10 +704,7 @@ input[type=password].fc { text-transform:none }
 
 /* SIDEBAR OVERLAY */
 #sb-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.35);z-index:99;
-  /* GPU layer */
-  will-change:opacity;
+  display:none;
 }
 
 /* SPINNER */
@@ -726,25 +724,17 @@ input[type=password].fc { text-transform:none }
 }
 
 @media(max-width:768px){
-  /* Sidebar as drawer */
+  /* Sidebar as drawer - HIDDEN in mobile */
   #sidebar{
-    position:fixed;left:0;top:0;
-    transform:translate3d(-100%,0,0);
-    /* Remove backdrop-filter on mobile sidebar — too heavy on Android */
-    backdrop-filter:none;-webkit-backdrop-filter:none;
-    background:var(--bg2);
-    box-shadow:none;
-    border-right:1px solid var(--bg3);
+    display: none !important;
   }
-  #sidebar.open{
-    transform:translate3d(0,0,0);
-    box-shadow:4px 0 24px rgba(0,0,0,.15);
-  }
-  #sb-overlay{display:block;opacity:0;pointer-events:none;transition:opacity .2s ease}
-  #sb-overlay.open{opacity:1;pointer-events:all}
-  .tb-menu{display:flex}
+  #sb-overlay{display:none}
+  .tb-menu{display:none}
   .tb-search{min-width:120px;flex:1}
-  #content{padding:14px}
+  #content{
+    padding:14px;
+    padding-bottom:calc(14px + 80px + env(safe-area-inset-bottom));
+  }
   .stats-grid{grid-template-columns:1fr 1fr}
   .fr,.fr3{grid-template-columns:1fr}
   .g3{grid-template-columns:1fr}
@@ -753,22 +743,19 @@ input[type=password].fc { text-transform:none }
   tbody td{padding:12px 10px}
   thead th{padding:10px}
 
-  /* BOTTOM NAVIGATION */
+  /* BOTTOM NAVIGATION - Mobile sticky footer */
   #bottom-nav{
-    display:none !important;
-  }
-  @media(max-width:768px){
-    #bottom-nav{
-      display:flex !important;
-      position:fixed;bottom:0;left:0;right:0;
-      background:var(--glass-b);
-      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-      border-top:1px solid var(--bg3);
-      padding:8px;
-      padding-bottom:max(8px,env(safe-area-inset-bottom));
-      z-index:100;
-      box-shadow:0 -2px 10px rgba(0,0,0,.1);
-    }
+    display:flex !important;
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--glass-b);
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    border-top:1px solid var(--bg3);
+    padding:8px;
+    padding-bottom:max(8px,env(safe-area-inset-bottom));
+    z-index:100;
+    box-shadow:0 -2px 10px rgba(0,0,0,.1);
+    border-radius:0;
+    margin:0;
   }
   .bn-item{
     flex:1;
@@ -839,9 +826,10 @@ input[type=password].fc { text-transform:none }
 @media(max-width:480px){
   .stats-grid{grid-template-columns:1fr 1fr}
   .tb-search{display:none}
+  .tb-logout{width:36px;height:36px}
   #content{
     padding:12px;
-    padding-bottom:max(12px,env(safe-area-inset-bottom));
+    padding-bottom:calc(12px + 80px + env(safe-area-inset-bottom));
   }
   /* Full-screen bottom sheet modal on mobile */
   .mo{
@@ -869,7 +857,7 @@ input[type=password].fc { text-transform:none }
 /* Android Chrome specific: remove bottom nav bar overlap */
 @supports(height:100dvh){
   #app,#sidebar{height:100dvh}
-  #content{padding-bottom:max(20px,env(safe-area-inset-bottom))}
+}
 }
 
 @media print{
@@ -1076,10 +1064,6 @@ input[type=password].fc { text-transform:none }
         <div class="fb-dot spin" id="fb-dot"></div>
         <span id="fb-txt">Menghubungkan...</span>
       </div>
-      <button class="sb-logout" onclick="doLogout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Keluar
-      </button>
     </div>
   </aside>
 
@@ -1094,6 +1078,9 @@ input[type=password].fc { text-transform:none }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input id="g-search" placeholder="Cari NIK, nama..." oninput="gSearch(this.value)"/>
         </div>
+        <button class="tb-logout" onclick="doLogout()" title="Keluar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
         <button class="tb-dark" onclick="toggleDark()" id="dark-btn" title="Tema">🌙</button>
       </div>
     </div>
@@ -1305,11 +1292,15 @@ input[type=password].fc { text-transform:none }
                 <select class="fc" id="pddk-f-pendidikan" onchange="runPddkFilter()">
                   <option value="">Semua</option>
                   <option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option>
-                  <option value="SD/Sederajat">SD/Sederajat</option>
-                  <option value="SMP/Sederajat">SMP/Sederajat</option>
-                  <option value="SMA/Sederajat">SMA/Sederajat</option>
-                  <option value="D1/D2/D3">D1/D2/D3</option>
-                  <option value="S1/D4">S1/D4</option>
+                  <option value="Belum Tamat SD/Sederajat">Belum Tamat SD/Sederajat</option>
+                  <option value="Tamat SD/Sederajat">Tamat SD/Sederajat</option>
+                  <option value="SLTP/Sederajat">SLTP/Sederajat</option>
+                  <option value="SLTA/Sederajat">SLTA/Sederajat</option>
+                  <option value="Diploma I/II">Diploma I/II</option>
+                  <option value="Akademi/Diploma III/S. Muda">Akademi/Diploma III/S. Muda</option>
+                  <option value="Diploma IV/Strata I">Diploma IV/Strata I</option>
+                  <option value="Strata II">Strata II</option>
+                  <option value="Strata III">Strata III</option>
                   <option value="S2">S2</option>
                   <option value="S3">S3</option>
                 </select>
@@ -1656,8 +1647,8 @@ input[type=password].fc { text-transform:none }
       <div class="fr"><div class="fg"><label class="fl">RT (otomatis dari KK)</label><input class="fc" id="pddk-rt" maxlength="3" placeholder="Terisi otomatis" readonly style="background:var(--bg3)"/></div><div class="fg"><label class="fl">RW (otomatis dari KK)</label><input class="fc" id="pddk-rw" maxlength="3" placeholder="Terisi otomatis" readonly style="background:var(--bg3)"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Alamat Lengkap (otomatis dari KK)</label><input class="fc" id="pddk-alamat" placeholder="Terisi otomatis dari Kartu Keluarga" readonly style="background:var(--bg3)"/></div></div>
       <div class="fr"><div class="fg"><label class="fl">Jenis Kelamin *</label><select class="fc" id="pddk-jk2"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div><div class="fg"><label class="fl">Tempat Lahir *</label><input class="fc" id="pddk-tmplahir" placeholder="Kota/Kabupaten"/></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="pddk-tgllahir"/></div><div class="fg"><label class="fl">Agama *</label><select class="fc" id="pddk-agama"><option value="Islam">Islam</option><option value="Kristen">Kristen</option><option value="Katolik">Katolik</option><option value="Hindu">Hindu</option><option value="Buddha">Buddha</option><option value="Konghucu">Konghucu</option></select></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Status Perkawinan</label><select class="fc" id="pddk-kawin"><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div><div class="fg"><label class="fl">Pendidikan Terakhir</label><select class="fc" id="pddk-pendidikan"><option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option><option value="SD/Sederajat">SD/Sederajat</option><option value="SMP/Sederajat">SMP/Sederajat</option><option value="SMA/Sederajat">SMA/Sederajat</option><option value="D1/D2/D3">D1/D2/D3</option><option value="S1/D4">S1/D4</option><option value="S2">S2</option><option value="S3">S3</option></select></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Tanggal Lahir *</label><input class="fc" type="date" id="pddk-tgllahir" onchange="autoSetPendidikanByUsia()"/></div><div class="fg"><label class="fl">Agama *</label><select class="fc" id="pddk-agama"><option value="Islam">Islam</option><option value="Kristen">Kristen</option><option value="Katolik">Katolik</option><option value="Hindu">Hindu</option><option value="Buddha">Buddha</option><option value="Konghucu">Konghucu</option></select></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Status Perkawinan</label><select class="fc" id="pddk-kawin"><option value="Belum Kawin">Belum Kawin</option><option value="Kawin">Kawin</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div><div class="fg"><label class="fl">Pendidikan Terakhir</label><select class="fc" id="pddk-pendidikan"><option value="Tidak/Belum Sekolah">Tidak/Belum Sekolah</option><option value="Belum Tamat SD/Sederajat">Belum Tamat SD/Sederajat</option><option value="Tamat SD/Sederajat">Tamat SD/Sederajat</option><option value="SLTP/Sederajat">SLTP/Sederajat</option><option value="SLTA/Sederajat">SLTA/Sederajat</option><option value="Diploma I/II">Diploma I/II</option><option value="Akademi/Diploma III/S. Muda">Akademi/Diploma III/S. Muda</option><option value="Diploma IV/Strata I">Diploma IV/Strata I</option><option value="Strata II">Strata II</option><option value="Strata III">Strata III</option></select></div></div>
       <div class="fr"><div class="fg" style="position:relative;z-index:40"><label class="fl">Pekerjaan</label><input class="fc" id="pddk-pekerjaan" placeholder="Ketik untuk mencari, lalu pilih dari daftar" autocomplete="off" oninput="updPddkKerjaSearch()" onfocus="updPddkKerjaSearch()" onblur="setTimeout(()=>{const x=document.getElementById('pddk-kerja-dd');if(x)x.style.display='none'},180)"/><div id="pddk-kerja-dd" class="mati-suggest" style="display:none" onmousedown="event.preventDefault()"></div></div><div class="fg"><label class="fl">Golongan Darah</label><select class="fc" id="pddk-goldar"><option value="-">Tidak Tahu</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Asal Daerah (jika pindah)</label><input class="fc" id="pddk-asal" placeholder="Dari daerah mana"/></div><div class="fg"><label class="fl">Status Penduduk</label><select class="fc" id="pddk-sts"><option value="Aktif">Aktif</option><option value="Meninggal">Meninggal</option><option value="Pindah">Pindah</option></select></div></div>
       <div class="fr"><div class="fg"><label class="fl">Nama Ayah <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="pddk-ayah" placeholder="Nama ayah kandung"/></div><div class="fg"><label class="fl">Nama Ibu <span style="color:var(--text3);font-weight:500">(opsional)</span></label><input class="fc" id="pddk-ibu" placeholder="Nama ibu kandung"/></div></div>
@@ -1899,6 +1890,9 @@ window.toggleDark = () => {
 
 /* ── Sidebar ─────────────────────────────────────── */
 window.toggleSB = () => {
+  // Skip sidebar toggle on mobile since sidebar is hidden
+  if(window.innerWidth <= 768) return;
+
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('sb-overlay');
   const isOpen = sb.classList.contains('open');
@@ -1915,6 +1909,9 @@ window.toggleSB = () => {
   }
 };
 window.closeSB = () => {
+  // Skip on mobile since sidebar is hidden
+  if(window.innerWidth <= 768) return;
+
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sb-overlay').classList.remove('open');
   document.body.style.overflow = '';
@@ -2266,8 +2263,8 @@ window.renderDash = () => {
   }, 200);
 
   // Pendidikan
-  const pendOrder = ['Tidak/Belum Sekolah','SD/Sederajat','SMP/Sederajat','SMA/Sederajat','D1/D2/D3','S1/D4','S2','S3'];
-  const pendC = ['#ff3b30','#ff9500','#ffcc00','#34c759','#5ac8fa','#007aff','#5856d6','#af52de'];
+  const pendOrder = ['Tidak/Belum Sekolah','Belum Tamat SD/Sederajat','Tamat SD/Sederajat','SLTP/Sederajat','SLTA/Sederajat','Diploma I/II','Akademi/Diploma III/S. Muda','Diploma IV/Strata I','Strata II','Strata III'];
+  const pendC = ['#ff3b30','#ff6b35','#ff9500','#ffcc00','#34c759','#5ac8fa','#007aff','#5856d6','#af52de','#ff2d55'];
   const pendMap = {}; aktif.forEach(p => { pendMap[p.pendidikan||'N/A'] = (pendMap[p.pendidikan||'N/A']||0)+1; });
   animBar('c-pendidikan', pendOrder.map((k,i) => pendMap[k] ? {lbl:k,val:pendMap[k],col:pendC[i]} : null).filter(Boolean));
 
@@ -2996,6 +2993,20 @@ window.autoJkByHub = () => {
   else {
     jkSel.disabled = false;
     jkSel.title = '';
+  }
+};
+
+window.autoSetPendidikanByUsia = () => {
+  const tgl = gv('pddk-tgllahir');
+  const pddkSel = document.getElementById('pddk-pendidikan');
+  if(!tgl || !pddkSel) return;
+  const usia = Math.floor((Date.now() - new Date(tgl)) / 31557600000);
+  // Hanya isi otomatis jika usia 0–6 tahun DAN field belum diisi / masih default
+  if(usia >= 0 && usia <= 6) {
+    pddkSel.value = 'Tidak/Belum Sekolah';
+    pddkSel.title = 'Otomatis terisi karena usia 0–6 tahun';
+  } else {
+    pddkSel.title = '';
   }
 };
 
