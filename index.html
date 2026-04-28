@@ -861,46 +861,35 @@ input[type=password].fc { text-transform:none }
 }
 
 @media print{
-  @page{size:auto;margin:12mm}
-  #sidebar,#topbar,#toast-box,.no-print,
-  #pddk-filter-panel,#pddk-filter-tags{display:none!important}
-  html,body{height:auto!important;overflow:visible!important}
-  #app{
-    display:block;
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
+  @page{size:A4;margin:15mm 12mm}
+  html,body{
+    height:auto!important;overflow:visible!important;
+    background:#fff!important;color:#000!important;
+    font-family:'Figtree',sans-serif;font-size:13px;
   }
-  #main{
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
-  }
-  #content{
-    padding:0;
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
-  }
-  /* Sembunyikan semua halaman kecuali laporan saat cetak */
-  .page{display:none!important}
-  #page-laporan{display:block!important}
-  /* Bersihkan background agar tinta hemat */
-  body{background:#fff}
-  .card{box-shadow:none;border:1px solid #ddd}
-  .report-area{border:none;padding:0}
-  /* Pastikan lap-out penuh terlihat */
-  #lap-out{
+  /* Sembunyikan seluruh aplikasi */
+  #app,
+  #topbar,
+  #sidebar,
+  #bottom-nav,
+  #toast-box,
+  .mo,
+  .no-print{ display:none!important }
+
+  /* Tampilkan hanya #print-root yang di-inject JS */
+  #print-root{
     display:block!important;
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
+    position:static!important;
+    width:100%!important;
+    padding:0!important;margin:0!important;
+    background:#fff!important;color:#000!important;
   }
-  /* Biarkan browser otomatis menambah halaman saat konten memanjang */
-  .report-area{break-inside:auto;page-break-inside:auto}
+  .report-area{border:none!important;padding:0!important;box-shadow:none!important;background:#fff!important}
+  .card{box-shadow:none!important;border:1px solid #ddd!important}
   .rsec{break-inside:avoid-page;page-break-inside:avoid}
   .rsec-title{break-after:avoid-page;page-break-after:avoid}
-  table{break-inside:auto;page-break-inside:auto}
+  .rrow{break-inside:avoid-page}
+  table{break-inside:auto;page-break-inside:auto;width:100%}
   tr,td,th{break-inside:avoid-page;page-break-inside:avoid}
 }
 /* ── Multi-filter panel ─────────────────────────── */
@@ -1151,6 +1140,26 @@ input[type=password].fc { text-transform:none }
             <div class="card-body"><div class="bar-chart" id="c-pekerjaan"></div></div>
           </div>
         </div>
+        <!-- GRAFIK KELAHIRAN & KEMATIAN PER TAHUN -->
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-h">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" style="width:14px;height:14px"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+              Tren Kelahiran &amp; Kematian per Tahun
+            </div>
+            <div id="c-vital-legend" style="display:flex;gap:14px;font-size:11px;font-weight:800"></div>
+          </div>
+          <div class="card-body" style="padding-bottom:8px">
+            <div id="c-vital-chart" style="position:relative;width:100%;overflow-x:auto">
+              <canvas id="c-vital-canvas" height="180" style="width:100%;display:block"></canvas>
+            </div>
+            <div id="c-vital-empty" class="empty" style="display:none;padding:24px">
+              <div class="empty-icon">📊</div>
+              <div class="empty-sub">Belum ada data kelahiran atau kematian tercatat</div>
+            </div>
+          </div>
+        </div>
+
         <div class="g2">
           <div class="card">
             <div class="card-h"><div class="card-title">
@@ -1489,7 +1498,7 @@ input[type=password].fc { text-transform:none }
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
               Buat Laporan
             </button>
-            <button class="btn btn-secondary" onclick="window.print()">
+            <button class="btn btn-secondary" onclick="printLaporan()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
               Cetak
             </button>
@@ -1806,6 +1815,23 @@ input[type=password].fc { text-transform:none }
     <div class="md-head"><div class="md-title">Konfirmasi Hapus</div><button class="md-x" onclick="closeMd('md-confirm')">✕</button></div>
     <div class="md-body" id="confirm-body"><p style="font-size:14px;color:var(--text2)" id="confirm-msg"></p></div>
     <div class="md-foot"><button class="btn btn-secondary" onclick="closeMd('md-confirm')">Batal</button><button class="btn btn-danger" id="confirm-ok">Hapus</button></div>
+  </div>
+</div>
+
+<!-- DUPLIKAT WARNING MODAL -->
+<div class="mo" id="md-dup">
+  <div class="md" style="max-width:420px">
+    <div class="md-head" style="border-color:var(--red-xs)">
+      <div class="md-title" style="color:var(--red);display:flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Data Duplikat Terdeteksi
+      </div>
+      <button class="md-x" onclick="closeMd('md-dup')">✕</button>
+    </div>
+    <div class="md-body" id="dup-modal-body"></div>
+    <div class="md-foot">
+      <button class="btn btn-primary" onclick="closeMd('md-dup')">Mengerti, Tutup</button>
+    </div>
   </div>
 </div>
 
@@ -2227,7 +2253,7 @@ window.renderDash = () => {
 
   // Gender donut (animated)
   setTimeout(() => {
-    animDonut('c-gender', [lk, pr], ['#007aff','#ff3b30'], ['Laki-laki','Perempuan'], 'c-gender-leg', 'c-gender-total', tot);
+    animDonut('c-gender', [lk, pr], ['#0047AB','#E0115F'], ['Laki-laki','Perempuan'], 'c-gender-leg', 'c-gender-total', tot);
   }, 100);
 
   // Usia bars (animated)
@@ -2259,7 +2285,7 @@ window.renderDash = () => {
   const kkPr = S.kk.filter(k => { const p = S.penduduk.find(pd => pd.noKK===k.noKK && pd.hubKK==='Kepala Keluarga'); return p&&p.jenisKelamin==='P'; }).length;
   const kkTd = S.kk.length - kkLk - kkPr;
   setTimeout(() => {
-    animDonut('c-kk', [kkLk, kkPr, kkTd], ['#007aff','#ff3b30','#8e8e93'], ['KK Laki-laki','KK Perempuan','Tidak Diketahui'], 'c-kk-leg', 'c-kk-total', S.kk.length);
+    animDonut('c-kk', [kkLk, kkPr, kkTd], ['#0047AB','#E0115F','#8e8e93'], ['KK Laki-laki','KK Perempuan','Tidak Diketahui'], 'c-kk-leg', 'c-kk-total', S.kk.length);
   }, 200);
 
   // Pendidikan
@@ -2287,6 +2313,9 @@ window.renderDash = () => {
     ['Kelahiran', `${S.kelahiran.length} tercatat`],['Kematian', `${S.kematian.length} tercatat`],
     ['Pindah Masuk', `${S.mobilitas.filter(m=>m.jenis==='masuk').length}`],['Pindah Keluar', `${S.mobilitas.filter(m=>m.jenis==='keluar').length}`],
   ].map(([k,v]) => `<div class="drow"><div class="dkey">${k}</div><div class="dval">${v}</div></div>`).join('');
+
+  // Grafik kelahiran & kematian per tahun
+  renderDashVitalChart();
 };
 
 /* ── ANIMATED CHART ENGINES ──────────────────────── */
@@ -2558,6 +2587,21 @@ window.saveKK = async () => {
   const data = {noKK:gv('kk-nokk'),kepalaKeluarga:gvUp('kk-kepala'),dusun:gvUp('kk-dusun'),rt, rw, alamat:gvUp('kk-alamat'),status:gv('kk-status'),tanggalTerbit:gv('kk-tglterbit')};
   if(!data.noKK || !data.kepalaKeluarga) { toast('No. KK dan Kepala KK wajib diisi','warn'); return; }
   if(!data.rt || !data.rw || data.rt.length !== 3 || data.rw.length !== 3) { toast('RT dan RW wajib 3 digit (contoh: 001, 010, 016)','warn'); return; }
+  // ── VALIDASI DUPLIKAT No. KK ─────────────────────
+  if(!id) {
+    const dupKK = S.kk.find(k => k.noKK === data.noKK);
+    if(dupKK) {
+      showDupModal('nokk', data.noKK, dupKK);
+      return;
+    }
+  } else {
+    // Saat edit: pastikan No. KK yang diubah tidak bentrok dengan KK lain
+    const dupKK = S.kk.find(k => k.noKK === data.noKK && k.id !== id);
+    if(dupKK) {
+      showDupModal('nokk', data.noKK, dupKK);
+      return;
+    }
+  }
   try {
     if(id) {
       await fbUpdate(`kk/${id}`, data); ups('kk',{id,...data}); addAct(`Update KK ${data.noKK}`);
@@ -2906,6 +2950,20 @@ window.savePddk = async () => {
   data.rw = kkRef.rw || '';
   data.alamat = kkRef.alamat || '';
   if(data.pekerjaan && !PEKERJAAN_SET.has(data.pekerjaan)) { toast('Pekerjaan harus dipilih dari daftar (ketik untuk mencari lalu klik salah satu)','warn'); return; }
+  // ── VALIDASI DUPLIKAT NIK ─────────────────────────
+  if(!id) {
+    const dupNIK = S.penduduk.find(p => p.nik === data.nik);
+    if(dupNIK) {
+      showDupModal('nik', data.nik, dupNIK);
+      return;
+    }
+  } else {
+    const dupNIK = S.penduduk.find(p => p.nik === data.nik && p.id !== id);
+    if(dupNIK) {
+      showDupModal('nik', data.nik, dupNIK);
+      return;
+    }
+  }
   try {
     if(id) {
       await fbUpdate(`penduduk/${id}`, data); ups('penduduk',{id,...data}); addAct(`Update penduduk ${data.namaLengkap}`);
@@ -3664,13 +3722,37 @@ window.renderMob = () => {
         <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${m.noKKLama||'-'}</td>
         <td><div style="display:flex;gap:3px">
           <button type="button" class="btn btn-sm btn-secondary" onclick='detailMob(${JSON.stringify(m.id)})'>Lihat</button>
+          <button type="button" class="btn btn-sm btn-primary" onclick='editMob(${JSON.stringify(m.id)})'>Edit</button>
           <button type="button" class="btn btn-sm btn-danger" onclick='confirmDel("mobilitas", ${JSON.stringify(m.id)}, ${JSON.stringify(m.nama)})'>Hapus</button>
         </div></td>
       </tr>`).join('');
 };
 
 window.saveMob = async () => {
+  const id    = gv('mob-id');
   const jenis = gv('mob-jenis');
+
+  /* ── MODE EDIT: hanya update field yang bisa diubah ── */
+  if(id) {
+    const existing = S.mobilitas.find(m => m.id === id);
+    if(!existing) { toast('Data tidak ditemukan','err'); return; }
+
+    const updates = {
+      tanggalPindah : gv('mob-tgl') || existing.tanggalPindah,
+      asalTujuan    : gvUp('mob-asal') || existing.asalTujuan,
+      alasanMasuk   : existing.jenis === 'masuk' ? (gv('mob-alasan-m') || existing.alasanMasuk) : '',
+      alasanKeluar  : existing.jenis === 'keluar' ? (gvUp('mob-alasan-k') || existing.alasanKeluar) : '',
+      tujuanDaerah  : existing.jenis === 'keluar' ? gvUp('mob-tujuan') : (existing.tujuanDaerah || ''),
+    };
+
+    try {
+      await fbUpdate(`mobilitas/${id}`, updates);
+      Object.assign(existing, updates);
+      toast('Data mobilitas berhasil diperbarui');
+      closeMd('md-mob'); renderMob();
+    } catch(e) { toast('Gagal memperbarui: ' + e.message, 'err'); }
+    return;
+  }
 
   /* Pindah masuk — Pembuatan KK Baru: data KK sekali + tabel anggota */
   if(jenis === 'masuk' && gv('mob-alasan-m') === 'Pembuatan KK Baru') {
@@ -3686,6 +3768,12 @@ window.saveMob = async () => {
     if(!asal || !tgl || !rt || !rw || !alamat) { toast('Asal Daerah, Tanggal Pindah, RT, RW, dan Alamat Lengkap wajib diisi','warn'); return; }
     if(rt.length !== 3 || rw.length !== 3) { toast('RT dan RW wajib 3 digit (contoh: 001, 010, 016)','warn'); return; }
     if(rows.length === 0) { toast('Isi minimal satu anggota di tabel','warn'); return; }
+    // ── VALIDASI DUPLIKAT No. KK (hanya jika KK betul-betul baru) ─────
+    const kkExistCheck = S.kk.find(k => k.noKK === kkNew);
+    if(kkExistCheck) {
+      showDupModal('nokk', kkNew, kkExistCheck);
+      return;
+    }
     let nKep = 0, nIst = 0;
     const nikSeen = new Set();
     for(const r of rows) {
@@ -3694,7 +3782,11 @@ window.saveMob = async () => {
       if(!r.tanggalLahir) { toast('Setiap anggota wajib mengisi tanggal lahir','warn'); return; }
       if(nikSeen.has(r.nik)) { toast('NIK duplikat di tabel','warn'); return; }
       nikSeen.add(r.nik);
-      if(S.penduduk.some(p => p.nik === r.nik)) { toast(`NIK sudah terdaftar di Data Penduduk`,'warn'); return; }
+      if(S.penduduk.some(p => p.nik === r.nik)) { 
+        const dupPddk = S.penduduk.find(p => p.nik === r.nik);
+        showDupModal('nik', r.nik, dupPddk);
+        return; 
+      }
       if(r.hub === 'Kepala Keluarga') nKep++;
       if(r.hub === 'Istri') nIst++;
     }
@@ -3784,7 +3876,6 @@ window.saveMob = async () => {
     data.jenisKelamin = pKeluar.jenisKelamin || data.jenisKelamin;
     data.noKKLama = pKeluar.noKK || data.noKKLama;
     data.asalTujuan = data.asalTujuan || '-';
-    data.tujuanDaerah = '';
     data.sumberMobilitasMasukId = pKeluar.kelompokMasukId || pKeluar.sumberMobilitasId || '';
   }
 
@@ -3808,7 +3899,10 @@ window.saveMob = async () => {
       const nikBaru = data.nik;
       // Cek apakah NIK sudah ada di penduduk
       if(S.penduduk.find(p => p.nik === nikBaru)) {
-        toast('NIK sudah ada di Data Penduduk. Catatan mobilitas tersimpan, data penduduk tidak digandakan.','warn');
+        const dupPddk = S.penduduk.find(p => p.nik === nikBaru);
+        showDupModal('nik', nikBaru, dupPddk);
+        // Tetap simpan catatan mobilitas agar historis tercatat, tapi data penduduk tidak digandakan
+        toast('NIK sudah ada — catatan mobilitas tersimpan, data penduduk tidak digandakan.','warn');
       } else {
         let kkTargetFinal = data.kkTarget || '';
 
@@ -3864,6 +3958,55 @@ window.mobToPddk = (mobId) => {
   openMd('md-pddk');
 };
 
+window.editMob = (id) => {
+  const m = S.mobilitas.find(x => x.id === id);
+  if(!m) return;
+  const isKeluar = m.jenis === 'keluar';
+
+  window.openMob(m.jenis);
+  sv('mob-id', id);
+  document.getElementById('md-mob-t').textContent = isKeluar ? 'Edit Pindah Keluar' : 'Edit Pindah Masuk';
+
+  sv('mob-tgl',  m.tanggalPindah || '');
+  sv('mob-asal', m.asalTujuan    || '');
+
+  if(isKeluar) {
+    sv('mob-nik',      m.nik           || '');
+    sv('mob-nama',     m.nama          || '');
+    sv('mob-alasan-k', m.alasanKeluar  || '');
+    sv('mob-tujuan',   m.tujuanDaerah  || '');
+    // Sembunyikan search field, tampilkan field identitas statis
+    const srchWrap = document.getElementById('mob-keluar-search-wrap');
+    if(srchWrap) srchWrap.style.display = 'none';
+    const masukNormal = document.getElementById('mob-masuk-normal');
+    if(masukNormal) masukNormal.style.display = 'block';
+    document.getElementById('mob-alasan-masuk-wrap').style.display = 'none';
+    document.getElementById('mob-rtrw-wrap').style.display = 'none';
+    document.getElementById('mob-nokk-wrap').style.display  = 'none';
+    document.getElementById('mob-keluar-wrap').style.display = 'block';
+  } else {
+    sv('mob-nik',       m.nik           || '');
+    sv('mob-nama',      m.nama          || '');
+    selv('mob-jk',      m.jenisKelamin  || 'L');
+    sv('mob-rt',        m.rt            || '');
+    sv('mob-rw',        m.rw            || '');
+    sv('mob-nokk-lama', m.noKKLama      || '');
+    if(m.alasanMasuk) selv('mob-alasan-m', m.alasanMasuk);
+  }
+
+  // NIK & Nama readonly — sudah terhubung ke Data Penduduk
+  ['mob-nik','mob-nama'].forEach(fid => {
+    const el = document.getElementById(fid);
+    if(el) { el.readOnly = true; el.style.opacity = '.55'; }
+  });
+
+  const box = document.getElementById('mob-masuk-box');
+  if(box) {
+    box.textContent = 'Mode edit — NIK dan Nama tidak dapat diubah karena terhubung ke Data Penduduk.';
+    box.style.display = 'block';
+  }
+};
+
 window.detailMob = (id) => {
   const m = S.mobilitas.find(x=>x.id===id); if(!m) return;
   const isM = m.jenis === 'masuk';
@@ -3903,7 +4046,8 @@ window.initLaporan = () => {
   updLapPeriod();
 };
 window.updLapPeriod = () => {
-  document.getElementById('lap-bln-wrap').style.display = gv('lap-jenis')==='bulanan'?'block':'none';
+  const jenis = gv('lap-jenis');
+  document.getElementById('lap-bln-wrap').style.display = jenis==='bulanan'?'block':'none';
 };
 window.genLaporan = () => {
   const jenis = gv('lap-jenis');
@@ -3982,7 +4126,31 @@ window.genLaporan = () => {
         <div style="font-size:12px;font-weight:800;color:var(--text);border-top:1px solid var(--text);padding-top:4px">( __________________ )</div>
       </div>
     </div>
+
+    <!-- GRAFIK KELAHIRAN & KEMATIAN — di bawah laporan, tidak ikut cetak -->
+    <div class="no-print" style="margin-top:24px;border-top:2px dashed var(--bg3);padding-top:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:7px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" style="width:14px;height:14px"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+          <span id="lap-grafik-title" style="font-size:13px;font-weight:800;color:var(--text)">Grafik Kelahiran &amp; Kematian</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div id="lap-grafik-legend" style="display:flex;gap:14px;font-size:11px;font-weight:800"></div>
+          <select id="lap-grafik-mode" class="fsel" style="font-size:13px;min-height:34px;padding:5px 8px" onchange="updLapGrafik()">
+            <option value="bulanan">Per Bulan</option>
+            <option value="tahunan">Per Tahun</option>
+          </select>
+        </div>
+      </div>
+      <div style="position:relative;width:100%;max-height:240px;overflow:hidden">
+        <canvas id="lap-vital-canvas" height="220" style="width:100%;max-height:240px;display:block"></canvas>
+      </div>
+      <div id="lap-grafik-empty" style="display:none;text-align:center;padding:20px;font-size:12px;color:var(--text3);font-weight:700">Belum ada data kelahiran atau kematian tercatat</div>
+    </div>
   </div>`;
+
+  // Render grafik setelah konten laporan selesai
+  updLapGrafik();
 };
 
 /* ════════════════════════════════
@@ -4301,6 +4469,274 @@ const usiaSaatMatiThn = (tglLahir, tglMati) => {
 };
 
 /* ════════════════════════════════
+   LINE CHART ENGINE (Kelahiran & Kematian)
+════════════════════════════════ */
+/**
+ * Render animated line chart dengan dua dataset di atas sebuah canvas.
+ * labels  : string[] — label sumbu X
+ * datasets: [{label, values:number[], color:string}]
+ * canvasId: string
+ * legId   : string|null — elemen untuk legend
+ */
+function animLineChart(canvasId, labels, datasets, legId) {
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+
+  const dpr    = Math.min(window.devicePixelRatio || 1, 3);
+  const logW   = canvas.offsetWidth  || canvas.parentElement?.offsetWidth || 600;
+  const logH   = parseInt(canvas.getAttribute('height')) || 200;
+
+  canvas.width        = logW * dpr;
+  canvas.height       = logH * dpr;
+  canvas.style.width  = '100%';
+  canvas.style.height = logH + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
+
+  const isDark   = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textCol  = isDark ? '#8e8e93' : '#8e8e93';
+  const gridCol  = isDark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+
+  const padL = 38, padR = 16, padT = 16, padB = 40;
+  const W    = logW - padL - padR;
+  const H    = logH - padT - padB;
+
+  const allVals = datasets.flatMap(d => d.values);
+  const maxVal  = Math.max(...allVals, 1);
+  const steps   = 4;
+
+  const xPos = (i) => padL + (labels.length < 2 ? W / 2 : (i / (labels.length - 1)) * W);
+  const yPos = (v) => padT + H - (v / maxVal) * H;
+
+  // Duration varies with data length for feel
+  const duration = 800;
+  const t0 = performance.now();
+  if(canvas._lcRafId) { cancelAnimationFrame(canvas._lcRafId); canvas._lcRafId = null; }
+
+  function draw(now) {
+    const progress = Math.min((now - t0) / duration, 1);
+    const ease     = 1 - Math.pow(1 - progress, 3);
+
+    ctx.clearRect(0, 0, logW, logH);
+
+    // Grid lines + Y labels
+    ctx.textAlign    = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.font         = `600 10px Figtree, sans-serif`;
+    ctx.fillStyle    = textCol;
+    for(let s = 0; s <= steps; s++) {
+      const v    = Math.round((maxVal / steps) * s);
+      const y    = yPos(v);
+      ctx.strokeStyle = gridCol;
+      ctx.lineWidth   = 1;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + W, y); ctx.stroke();
+      ctx.fillStyle = textCol;
+      ctx.fillText(v, padL - 5, y);
+    }
+
+    // X labels
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle    = textCol;
+    labels.forEach((lbl, i) => {
+      ctx.fillText(lbl, xPos(i), padT + H + 8);
+    });
+
+    // Draw each dataset as animated line + area fill
+    datasets.forEach(ds => {
+      if(!ds.values.length) return;
+      const pts = ds.values.map((v, i) => ({ x: xPos(i), y: yPos(v * ease) }));
+
+      // Area fill
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, padT + H);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(pts[pts.length-1].x, padT + H);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, padT, 0, padT + H);
+      grad.addColorStop(0, ds.color + '33');
+      grad.addColorStop(1, ds.color + '00');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Line
+      ctx.beginPath();
+      ctx.strokeStyle = ds.color;
+      ctx.lineWidth   = 2.5;
+      ctx.lineJoin    = 'round';
+      ctx.lineCap     = 'round';
+      pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.stroke();
+
+      // Dots
+      pts.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle   = ds.color;
+        ctx.fill();
+        ctx.strokeStyle = isDark ? '#2c2c2e' : '#ffffff';
+        ctx.lineWidth   = 2;
+        ctx.stroke();
+      });
+    });
+
+    if(progress < 1) canvas._lcRafId = requestAnimationFrame(draw);
+    else canvas._lcRafId = null;
+  }
+  canvas._lcRafId = requestAnimationFrame(draw);
+
+  // Legend
+  if(legId) {
+    const el = document.getElementById(legId);
+    if(el) el.innerHTML = datasets.map(ds => `
+      <div style="display:flex;align-items:center;gap:5px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${ds.color};flex-shrink:0"></div>
+        <span style="color:var(--text2)">${ds.label}</span>
+      </div>`).join('');
+  }
+}
+
+/** Hitung agregat kelahiran/kematian per tahun dari seluruh data */
+function buildVitalByYear() {
+  const yearSet = new Set();
+  S.kelahiran.forEach(k => { if(k.tanggalLahir) yearSet.add(new Date(k.tanggalLahir).getFullYear()); });
+  S.kematian.forEach(k  => { if(k.tanggalMeninggal) yearSet.add(new Date(k.tanggalMeninggal).getFullYear()); });
+  if(!yearSet.size) return null;
+  const years = [...yearSet].sort();
+  const lahir = years.map(y => S.kelahiran.filter(k => k.tanggalLahir && new Date(k.tanggalLahir).getFullYear() === y).length);
+  const mati  = years.map(y => S.kematian.filter( k => k.tanggalMeninggal && new Date(k.tanggalMeninggal).getFullYear() === y).length);
+  return { labels: years.map(String), lahir, mati };
+}
+
+/** Hitung agregat per bulan dalam satu tahun */
+function buildVitalByMonth(tahun) {
+  const bulanNama = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  const lahir = Array(12).fill(0);
+  const mati  = Array(12).fill(0);
+  S.kelahiran.forEach(k => {
+    if(k.tanggalLahir) { const d = new Date(k.tanggalLahir); if(d.getFullYear() === tahun) lahir[d.getMonth()]++; }
+  });
+  S.kematian.forEach(k => {
+    if(k.tanggalMeninggal) { const d = new Date(k.tanggalMeninggal); if(d.getFullYear() === tahun) mati[d.getMonth()]++; }
+  });
+  return { labels: bulanNama, lahir, mati };
+}
+
+/** Render grafik vital di Dashboard (selalu per tahun) */
+function renderDashVitalChart() {
+  const data = buildVitalByYear();
+  const emptyEl = document.getElementById('c-vital-empty');
+  const chartEl = document.getElementById('c-vital-chart');
+  if(!data) {
+    if(emptyEl) emptyEl.style.display = 'block';
+    if(chartEl) chartEl.style.display = 'none';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = 'none';
+  if(chartEl) chartEl.style.display = 'block';
+  // slight delay so canvas has rendered width
+  setTimeout(() => {
+    animLineChart('c-vital-canvas', data.labels,
+      [
+        { label: 'Kelahiran', values: data.lahir, color: '#34c759' },
+        { label: 'Kematian',  values: data.mati,  color: '#ff3b30' },
+      ],
+      'c-vital-legend'
+    );
+  }, 80);
+}
+
+/** Render/re-render grafik vital di Laporan */
+window.updLapGrafik = () => {
+  const mode   = gv('lap-grafik-mode');   // 'bulanan' | 'tahunan'
+  const tahun  = parseInt(gv('lap-thn')) || new Date().getFullYear();
+  const title  = document.getElementById('lap-grafik-title');
+  const emptyEl= document.getElementById('lap-grafik-empty');
+  const canvas = document.getElementById('lap-vital-canvas');
+
+  // Elemen hanya ada setelah genLaporan() dipanggil
+  if(!canvas) return;
+
+  let data;
+  if(mode === 'tahunan') {
+    data = buildVitalByYear();
+    if(title) title.textContent = 'Grafik Kelahiran & Kematian per Tahun';
+  } else {
+    data = buildVitalByMonth(tahun);
+    if(title) title.textContent = `Grafik Kelahiran & Kematian per Bulan — ${tahun}`;
+  }
+
+  const empty = !data || (data.lahir.every(v=>v===0) && data.mati.every(v=>v===0));
+  if(emptyEl) emptyEl.style.display = empty ? 'block' : 'none';
+  if(canvas)  canvas.style.display  = empty ? 'none'  : 'block';
+  if(empty) return;
+
+  setTimeout(() => {
+    animLineChart('lap-vital-canvas', data.labels,
+      [
+        { label: 'Kelahiran', values: data.lahir, color: '#34c759' },
+        { label: 'Kematian',  values: data.mati,  color: '#ff3b30' },
+      ],
+      'lap-grafik-legend'
+    );
+  }, 60);
+};
+
+/* ════════════════════════════════
+   DUPLICATE DETECTION
+════════════════════════════════ */
+/**
+ * Tampilkan modal peringatan data duplikat.
+ * type: 'nik' | 'nokk'
+ * value: nilai yang duplikat (string)
+ * existing: objek data yang sudah ada
+ */
+window.showDupModal = (type, value, existing) => {
+  const isNik  = type === 'nik';
+  const label  = isNik ? 'NIK' : 'No. Kartu Keluarga';
+  const icon   = isNik ? '🪪' : '🏠';
+
+  let detailHtml = '';
+  if(isNik) {
+    detailHtml = `
+      <div style="background:var(--bg);border-radius:var(--rx);padding:12px 14px;margin-top:12px;font-size:12px">
+        <div style="font-size:10px;font-weight:900;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Data yang sudah terdaftar</div>
+        ${dr('Nama',     escapeHtml(existing.namaLengkap || '-'))}
+        ${dr('NIK',      `<span style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(existing.nik || '-')}</span>`)}
+        ${dr('No. KK',   `<span style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(existing.noKK || '-')}</span>`)}
+        ${dr('Hub. KK',  escapeHtml(existing.hubKK || '-'))}
+        ${dr('Status',   `<span class="badge ${existing.statusPenduduk === 'Aktif' ? 'badge-green' : 'badge-red'}">${existing.statusPenduduk || 'Aktif'}</span>`)}
+      </div>`;
+  } else {
+    detailHtml = `
+      <div style="background:var(--bg);border-radius:var(--rx);padding:12px 14px;margin-top:12px;font-size:12px">
+        <div style="font-size:10px;font-weight:900;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">KK yang sudah terdaftar</div>
+        ${dr('No. KK',        `<span style="font-family:'DM Mono',monospace;font-size:11px">${escapeHtml(existing.noKK || '-')}</span>`)}
+        ${dr('Kepala KK',     escapeHtml(existing.kepalaKeluarga || '-'))}
+        ${dr('Dusun / RT RW', `${escapeHtml(existing.dusun || '-')} / RT ${escapeHtml(existing.rt || '-')} RW ${escapeHtml(existing.rw || '-')}`)}
+        ${dr('Status',        `<span class="badge ${existing.status === 'Aktif' ? 'badge-green' : 'badge-gray'}">${existing.status || '-'}</span>`)}
+      </div>`;
+  }
+
+  document.getElementById('dup-modal-body').innerHTML = `
+    <div style="text-align:center;padding:4px 0 12px">
+      <div style="font-size:36px;margin-bottom:8px">${icon}</div>
+      <div style="font-size:15px;font-weight:900;color:var(--red)">${label} Sudah Terdaftar</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px">Data dengan ${label} berikut sudah ada di sistem</div>
+      <div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:800;color:var(--red);margin-top:8px;padding:6px 14px;background:var(--red-xs);border-radius:8px;display:inline-block">${escapeHtml(value)}</div>
+    </div>
+    ${detailHtml}
+    <div style="margin-top:14px;padding:10px 14px;background:var(--orange-xs);border:1px solid rgba(255,149,0,.3);border-radius:var(--rx);font-size:12px;font-weight:700;color:var(--orange);display:flex;align-items:flex-start;gap:8px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Sistem tidak mengizinkan data ${label} yang sama untuk mencegah duplikasi. Periksa kembali data yang dimasukkan.
+    </div>`;
+
+  openMd('md-dup');
+};
+
+/* ════════════════════════════════
    BOOT
 ════════════════════════════════ */
 // Set laporan year
@@ -4336,6 +4772,48 @@ function updateBottomNav() {
   }
 }
 window.addEventListener('resize', updateBottomNav);
+
+/* Saat print: clone lap-out ke body langsung (di luar #app) */
+(function(){
+  let _pr = null;
+
+  function injectPrintRoot() {
+    // Hapus dulu kalau ada sisa
+    const old = document.getElementById('print-root');
+    if(old) old.remove();
+
+    const lapOut = document.getElementById('lap-out');
+    if(!lapOut || !lapOut.innerHTML.trim()) return;
+
+    _pr = document.createElement('div');
+    _pr.id = 'print-root';
+    _pr.innerHTML = lapOut.innerHTML;
+    // Sisipkan langsung sebagai child pertama body (bukan dalam #app)
+    document.body.insertBefore(_pr, document.body.firstChild);
+  }
+
+  function removePrintRoot() {
+    const el = document.getElementById('print-root');
+    if(el) el.remove();
+    _pr = null;
+  }
+
+  window.addEventListener('beforeprint', injectPrintRoot);
+  window.addEventListener('afterprint',  removePrintRoot);
+
+  // Override printLaporan agar inject dulu sebelum window.print()
+  window.printLaporan = () => {
+    const lapOut = document.getElementById('lap-out');
+    if(!lapOut || !lapOut.innerHTML.trim()) {
+      toast('Buat laporan terlebih dahulu sebelum mencetak', 'warn');
+      return;
+    }
+    injectPrintRoot();
+    window.print();
+    // afterprint akan cleanup, tapi fallback jika event tidak terpanggil
+    setTimeout(removePrintRoot, 1000);
+  };
+})();
 updateBottomNav(); // Initial check
 </script>
 </body>
