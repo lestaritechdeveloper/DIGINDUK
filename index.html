@@ -36,16 +36,34 @@
   --ease:cubic-bezier(.4,0,.2,1); --t:.2s var(--ease);
 }
 [data-theme=dark]{
-  --bg:#1c1c1e; --bg2:#2c2c2e; --bg3:#3a3a3c; --bg4:#48484a;
-  --ink:#f2f2f7;
-  --sidebar-bg:rgba(28,28,30,.92);
-  --glass:rgba(44,44,46,.8); --glass-b:rgba(84,84,88,.5);
-  --text:#f2f2f7; --text2:#e5e5ea; --text3:#8e8e93; --text4:#636366;
-  --blue-xs:rgba(0,122,255,.18); --accent-xs:rgba(52,199,89,.18);
-  --red-xs:rgba(255,59,48,.18); --orange-xs:rgba(255,149,0,.18);
-  --purple-xs:rgba(175,82,222,.18); --indigo-xs:rgba(88,86,214,.18);
-  --sh0:0 1px 4px rgba(0,0,0,.3); --sh1:0 4px 16px rgba(0,0,0,.4);
-  --sh2:0 12px 40px rgba(0,0,0,.5);
+  /* ── Backgrounds: charcoal navy, bukan abu murni ── */
+  --bg:#0d1117;   /* base — sangat gelap navy, seperti GitHub dark */
+  --bg2:#161b22;  /* card surface */
+  --bg3:#21262d;  /* border / divider */
+  --bg4:#30363d;  /* hover / subtle */
+
+  --ink:#e6edf3;
+  --sidebar-bg:rgba(13,17,23,.95);
+  --glass:rgba(22,27,34,.88); --glass-b:rgba(48,54,61,.6);
+
+  /* ── Typography ── */
+  --text:#e6edf3;   /* putih gading — tidak menyilaukan */
+  --text2:#c9d1d9;  /* sekunder */
+  --text3:#6e7681;  /* tersier / label */
+  --text4:#484f58;  /* sangat muted */
+
+  /* ── Accent overlays: sedikit lebih terang agar pop di atas navy ── */
+  --blue-xs:rgba(31,111,235,.2);
+  --accent-xs:rgba(46,160,67,.2);
+  --red-xs:rgba(248,81,73,.2);
+  --orange-xs:rgba(210,153,34,.2);
+  --purple-xs:rgba(163,113,247,.2);
+  --indigo-xs:rgba(79,86,214,.2);
+
+  /* ── Shadows: lebih dalam agar kartu terasa lebih berat & solid ── */
+  --sh0:0 1px 3px rgba(0,0,0,.5);
+  --sh1:0 4px 20px rgba(0,0,0,.6);
+  --sh2:0 16px 48px rgba(0,0,0,.75);
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
