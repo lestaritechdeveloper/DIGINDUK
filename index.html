@@ -472,7 +472,7 @@ body{
    label appears only via title tooltip on hover (desktop) */
 .fab-label{
   position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%);
-  background:var(--ink);color:#fff;
+  background:var(--ink);color:var(--bg2);
   font-size:12px;font-weight:700;white-space:nowrap;
   padding:7px 12px;border-radius:8px;
   opacity:0;pointer-events:none;
@@ -646,13 +646,7 @@ input[type=number].fc,
 input[type=password].fc { text-transform:none }
 /* Placeholder tetap normal agar terbaca */
 .fc::placeholder { text-transform:none; color:var(--text3) }
-/* Lock canvas visual size — prevents JS canvas.width/height affecting layout */
-#c-vital-canvas{
-  display:block;
-  width:100% !important;
-  height:180px !important;
-  max-height:180px;
-}
+/* Filter search input */
 .tb-search input { text-transform:none }
 /* Autocomplete suggestion juga jangan uppercase */
 .mati-sug-btn, .mati-suggest { text-transform:none }
@@ -762,29 +756,116 @@ input[type=password].fc { text-transform:none }
 }
 .bar-val{font-size:12px;font-weight:800;color:var(--text);width:32px;flex-shrink:0;min-width:0}
 
-.donut-wrap{display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;gap:2px;flex-wrap:wrap;min-width:0}
-.donut-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:100%;max-width:160px}
+/* VITAL BAR CHART — grouped vertical bars, interaktif */
+.vital-chart{
+  display:flex;align-items:flex-end;gap:4px;
+  padding:24px 8px 0;
+  height:188px;
+  position:relative;overflow-x:auto;overflow-y:visible;
+  -webkit-overflow-scrolling:touch;
+}
+.vital-col{
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;flex:1;min-width:28px;max-width:60px;
+  cursor:default;
+}
+.vital-bars-wrap{
+  display:flex;gap:2px;align-items:flex-end;
+  width:100%;
+}
+.vital-bar{
+  flex:1;border-radius:4px 4px 0 0;
+  min-height:2px;height:0;
+  transition:height .65s cubic-bezier(.25,1,.3,1);
+  position:relative;
+}
+.vital-bar-l{background:linear-gradient(180deg,#34c759,#2daa4c)}
+.vital-bar-m{background:linear-gradient(180deg,#ff3b30,#d42c23)}
+.vital-col:hover .vital-bar{opacity:.82;filter:brightness(1.08)}
+.vital-x-lbl{
+  font-size:9px;font-weight:700;color:var(--text3);
+  white-space:nowrap;margin-top:5px;letter-spacing:.01em;
+}
+/* Y-axis grid lines rendered as pseudo-elements via JS */
+.vital-grid-wrap{
+  position:absolute;inset:24px 0 28px 28px;
+  pointer-events:none;
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.vital-grid-line{
+  width:100%;height:1px;background:var(--bg3);position:relative;
+}
+.vital-grid-line::before{
+  content:attr(data-v);
+  position:absolute;right:calc(100% + 4px);top:-7px;
+  font-size:8px;font-weight:700;color:var(--text3);white-space:nowrap;
+}
+/* Tooltip */
+.vital-col:hover .vital-tip{opacity:1;transform:translateX(-50%) translateY(-2px)}
+.vital-tip{
+  position:absolute;bottom:calc(100% + 28px);left:50%;
+  transform:translateX(-50%) translateY(4px);
+  background:var(--ink);color:#fff;
+  font-size:10px;font-weight:700;line-height:1.5;
+  padding:5px 9px;border-radius:7px;white-space:nowrap;
+  pointer-events:none;z-index:30;text-align:center;
+  opacity:0;transition:opacity .15s,transform .15s;
+  box-shadow:0 4px 14px rgba(0,0,0,.3);
+}
+.vital-tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:4px solid transparent;border-top-color:var(--ink);
+}
+
+
+/* DONUT CHART — layout adaptif tanpa container query:
+   - Saat lebar cukup: canvas kiri + legend kanan (row)
+   - Saat lebar sempit (card < ~280px): canvas atas + legend bawah (wrap otomatis)
+     Legend di bawah canvas mengambil lebar penuh dan item-itemnya
+     beralih ke arah horizontal agar ringkas dan tidak membuang ruang vertikal. */
+.donut-wrap{
+  display:flex;flex-direction:row;
+  align-items:flex-start;
+  gap:14px;flex-wrap:wrap;min-width:0;
+}
+/* Canvas: fixed width agar tidak dipaksa menyempit oleh legend.
+   Saat kartu terlalu sempit, flex-wrap menendang canvas ke baris baru. */
+.donut-canvas-wrap{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;
+  width:120px;min-width:120px;max-width:140px;
+}
 .donut-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
-.donut-center-val{font-size:26px;font-weight:900;color:var(--text);line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.05)}
-.donut-center-lbl{font-size:12px;font-weight:700;color:var(--text3);margin-top:2px}
-.donut-legend{display:flex;flex-direction:column;gap:10px;align-items:flex-start;min-width:0;flex:1;}
+.donut-center-val{font-size:24px;font-weight:900;color:var(--text);line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.05)}
+.donut-center-lbl{font-size:11px;font-weight:700;color:var(--text3);margin-top:2px}
+/* Legend: flex:1 dengan min-width kecil.
+   flex-basis:0 berarti ia mau menyempit sampai 0 sebelum wrap terjadi —
+   tapi min-width:100px mencegah itu. Ketika total (canvas+gap+legend) > card,
+   flex-wrap akan melempar legend ke baris baru.
+   Ketika di baris baru, legend punya flex-basis 100% (karena tidak ada flex sibling
+   di baris itu), sehingga ia mengambil lebar penuh card secara otomatis. */
+.donut-legend{
+  display:flex;flex-wrap:wrap;flex-direction:row;
+  gap:8px 14px;align-items:center;
+  min-width:100px;flex:1;
+}
 .donut-legend-item{
-  display:flex;align-items:center;gap:10px;
+  display:flex;align-items:center;gap:8px;
   font-size:12px;font-weight:700;color:var(--text2);
-  white-space:normal;min-width:0;word-break:break-word;flex-wrap:wrap;
+  min-width:0;white-space:nowrap;
 }
 .donut-dot{
-  width:12px;height:12px;border-radius:50%;flex-shrink:0;
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
   box-shadow:0 2px 6px rgba(0,0,0,.15);
 }
 .donut-pill{
   font-size:11px;font-weight:900;letter-spacing:.02em;
-  padding:4px 10px;border-radius:9px;
+  padding:3px 9px;border-radius:9px;
   background:var(--bg3);color:var(--text2);
-  display:inline-flex;align-items:center;gap:6px;
-  max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-break:break-word;flex-shrink:1;
+  display:inline-flex;align-items:center;
+  max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:1;
 }
-.donut-pct{font-size:14px;font-weight:900;color:var(--text)}
+.donut-pct{font-size:13px;font-weight:900;color:var(--text);flex-shrink:0}
 .donut-val{font-size:12px;font-weight:700;color:var(--text3)}
 
 /* Subtle modern shadows for infographics */
@@ -963,8 +1044,10 @@ input[type=password].fc { text-transform:none }
   .dash-row-3{grid-template-columns:1fr}
 }
 @media(max-width:560px){
-  .donut-wrap{flex-direction:column;align-items:center}
-  .donut-legend{align-items:center;min-width:0}
+  /* Donut di mobile: canvas kecil + legend horizontal di bawah, center */
+  .donut-wrap{justify-content:center}
+  .donut-canvas-wrap{width:110px;min-width:110px}
+  .donut-legend{justify-content:center;min-width:0}
 }
 
 @media(max-width:768px){
@@ -1221,6 +1304,12 @@ input[type=password].fc { text-transform:none }
   touch-action:manipulation;
   white-space:nowrap;
 }
+.pddk-preset-chip .preset-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:18px;margin-left:6px;padding:0 6px;
+  border-radius:99px;background:var(--bg3);color:var(--text2);
+  font-size:10px;font-weight:900;line-height:1;
+}
 .pddk-preset-chip:hover,.pddk-preset-chip:active {
   border-color:var(--blue);
   background:var(--blue-xs);
@@ -1230,6 +1319,9 @@ input[type=password].fc { text-transform:none }
   border-color:var(--blue);
   background:var(--blue);
   color:#fff;
+}
+.pddk-preset-chip.active-preset .preset-count{
+  background:rgba(255,255,255,.22);color:#fff;
 }
 
 /* Active filter tag pills (shown when filter active) */
@@ -1319,22 +1411,22 @@ input[type=password].fc { text-transform:none }
         <span>Data Penduduk</span>
       </div>
       <div class="sb-item" data-page="sementara" onclick="goPage('sementara')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 19v-1a4 4 0 00-4-4H6a4 4 0 00-4 4v1"/><circle cx="8" cy="7" r="4"/><circle cx="18" cy="18" r="4"/><path d="M18 16v2l1.2 1.2"/></svg>
         <span>Penduduk Sementara</span>
       </div>
     </div>
     <div class="sb-sec">
       <div class="sb-sec-label">Peristiwa</div>
       <div class="sb-item" data-page="kelahiran" onclick="goPage('kelahiran')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M8 7a4 4 0 018 0"/><circle cx="12" cy="11" r="7"/><path d="M9 19v2"/><path d="M15 19v2"/><path d="M9 4.5C9.5 3 11 2 12.5 2"/></svg>
         <span>Kelahiran</span>
       </div>
       <div class="sb-item" data-page="kematian" onclick="goPage('kematian')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 017 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21h16"/><path d="M7 21V8a5 5 0 0110 0v13"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>
         <span>Kematian</span>
       </div>
       <div class="sb-item" data-page="mobilitas" onclick="goPage('mobilitas')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16"/><path d="M16 3l4 4-4 4"/><path d="M20 17H4"/><path d="M8 13l-4 4 4 4"/></svg>
         <span>Mobilitas Penduduk</span>
       </div>
     </div>
@@ -1479,17 +1571,19 @@ input[type=password].fc { text-transform:none }
 
         <!-- ZONA 5: TREN — full width, paling bawah untuk narrative -->
         <div class="dash-zone-label">Tren &amp; Ringkasan</div>
-        <div class="card dash-chart-card" style="margin-bottom:12px">
+        <div class="card dash-chart-card" id="c-vital-card" onclick="toggleVitalPeriod(this)" style="margin-bottom:12px;cursor:pointer;position:relative" title="Klik untuk toggle per tahun / per bulan">
+          <div class="chart-mode-tooltip" style="position:absolute;top:10px;right:10px;background:var(--blue);color:#fff;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;opacity:0;transition:opacity .3s;pointer-events:none;z-index:10;white-space:nowrap">Tampil Per Tahun</div>
           <div class="card-h">
             <div class="card-title">
               <span class="card-icon-badge" style="background:linear-gradient(135deg,#00c7be,#34c759)"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:14px;height:14px"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></span>
-              Tren Kelahiran &amp; Kematian per Tahun
+              <span id="c-vital-title">Tren Kelahiran &amp; Kematian per Tahun</span>
             </div>
             <div id="c-vital-legend" style="display:flex;gap:14px;font-size:11px;font-weight:800"></div>
           </div>
           <div class="card-body" style="padding-bottom:10px">
-            <div id="c-vital-chart" style="position:relative;width:100%;overflow-x:auto">
-              <canvas id="c-vital-canvas" height="180" style="width:100%;display:block"></canvas>
+            <div id="c-vital-chart" style="position:relative;width:100%">
+              <div id="c-vital-bars"></div>
+              <canvas id="c-vital-line" height="220" style="width:100%;max-height:240px;display:none"></canvas>
             </div>
             <div id="c-vital-empty" class="empty" style="display:none;padding:20px">
               <div class="empty-icon">📊</div>
@@ -1716,12 +1810,12 @@ input[type=password].fc { text-transform:none }
                 </div>
                 <!-- Quick-pick usia preset chips -->
                 <div style="display:flex;gap:6px;flex-wrap:wrap" id="pddk-usia-presets">
-                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(0,5)">0–5</button>
-                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(6,17)">6–17</button>
-                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(18,35)">18–35</button>
-                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(36,60)">36–60</button>
-                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(61,150)">&gt;60</button>
-                  <button type="button" class="pddk-preset-chip" onclick="setUsiaPreset(17,17)">17 th</button>
+                  <button type="button" class="pddk-preset-chip" data-min="0" data-max="5" onclick="setUsiaPreset(0,5)"><span>0-5</span><span class="preset-count">0</span></button>
+                  <button type="button" class="pddk-preset-chip" data-min="6" data-max="17" onclick="setUsiaPreset(6,17)"><span>6-17</span><span class="preset-count">0</span></button>
+                  <button type="button" class="pddk-preset-chip" data-min="18" data-max="35" onclick="setUsiaPreset(18,35)"><span>18-35</span><span class="preset-count">0</span></button>
+                  <button type="button" class="pddk-preset-chip" data-min="36" data-max="60" onclick="setUsiaPreset(36,60)"><span>36-60</span><span class="preset-count">0</span></button>
+                  <button type="button" class="pddk-preset-chip" data-min="61" data-max="150" onclick="setUsiaPreset(61,150)"><span>&gt;60</span><span class="preset-count">0</span></button>
+                  <button type="button" class="pddk-preset-chip" data-min="17" data-max="17" onclick="setUsiaPreset(17,17)"><span>17 th</span><span class="preset-count">0</span></button>
                 </div>
               </div>
             </div>
@@ -2330,14 +2424,14 @@ window.showSubmenu = (type) => {
     items = [
       {page: 'kk', label: 'Kartu Keluarga', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>'},
       {page: 'penduduk', label: 'Data Penduduk', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'},
-      {page: 'sementara', label: 'Penduduk Sementara', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>'}
+      {page: 'sementara', label: 'Penduduk Sementara', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 19v-1a4 4 0 00-4-4H6a4 4 0 00-4 4v1"/><circle cx="8" cy="7" r="4"/><circle cx="18" cy="18" r="4"/><path d="M18 16v2l1.2 1.2"/></svg>'}
     ];
   } else if(type === 'peristiwa') {
     title.textContent = 'Peristiwa';
     items = [
-      {page: 'kelahiran', label: 'Kelahiran', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'},
-      {page: 'kematian', label: 'Kematian', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 017 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>'},
-      {page: 'mobilitas', label: 'Mobilitas Penduduk', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'}
+      {page: 'kelahiran', label: 'Kelahiran', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M8 7a4 4 0 018 0"/><circle cx="12" cy="11" r="7"/><path d="M9 19v2"/><path d="M15 19v2"/><path d="M9 4.5C9.5 3 11 2 12.5 2"/></svg>'},
+      {page: 'kematian', label: 'Kematian', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21h16"/><path d="M7 21V8a5 5 0 0110 0v13"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>'},
+      {page: 'mobilitas', label: 'Mobilitas Penduduk', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16"/><path d="M16 3l4 4-4 4"/><path d="M20 17H4"/><path d="M8 13l-4 4 4 4"/></svg>'}
     ];
   } else if(type === 'sistem' && isAdmin) {
     title.textContent = 'Sistem';
@@ -2626,10 +2720,10 @@ window.renderDash = () => {
   const stats = [
     {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',val:tot,lbl:'Total Penduduk Aktif',col:'#fff',bg:'linear-gradient(135deg,#007aff,#5ac8fa)',sub:`${lk} L / ${pr} P`},
     {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>',val:activeKKLen,lbl:'Kartu Keluarga',col:'#fff',bg:'linear-gradient(135deg,#5856d6,#af52de)',sub:`~${activeKKLen?(tot/activeKKLen).toFixed(1):0} jiwa/KK`},
-    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',val:S.kelahiran.length,lbl:'Kelahiran Tercatat',col:'#fff',bg:'linear-gradient(135deg,#34c759,#30d158)',sub:'Peristiwa'},
-    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 017 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 017-7z"/><circle cx="12" cy="9" r="2.5"/></svg>',val:S.kematian.length,lbl:'Kematian Tercatat',col:'#fff',bg:'linear-gradient(135deg,#636366,#48484a)',sub:'Peristiwa'},
-    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>',val:S.sementara.length,lbl:'Penduduk Sementara',col:'#fff',bg:'linear-gradient(135deg,#ff9500,#ffcc00)',sub:'Berdomisili'},
-    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',val:S.mobilitas.length,lbl:'Mobilitas Penduduk',col:'#fff',bg:'linear-gradient(135deg,#ff2d55,#ff6b6b)',sub:`${S.mobilitas.filter(m=>m.jenis==='masuk').length} masuk / ${S.mobilitas.filter(m=>m.jenis==='keluar').length} keluar`},
+    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6"/><path d="M9 16h6"/><path d="M8 7a4 4 0 018 0"/><circle cx="12" cy="11" r="7"/><path d="M9 19v2"/><path d="M15 19v2"/><path d="M9 4.5C9.5 3 11 2 12.5 2"/></svg>',val:S.kelahiran.length,lbl:'Kelahiran Tercatat',col:'#fff',bg:'linear-gradient(135deg,#34c759,#30d158)',sub:'Peristiwa'},
+    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21h16"/><path d="M7 21V8a5 5 0 0110 0v13"/><path d="M9 12h6"/><path d="M9 16h6"/></svg>',val:S.kematian.length,lbl:'Kematian Tercatat',col:'#fff',bg:'linear-gradient(135deg,#636366,#48484a)',sub:'Peristiwa'},
+    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 19v-1a4 4 0 00-4-4H6a4 4 0 00-4 4v1"/><circle cx="8" cy="7" r="4"/><circle cx="18" cy="18" r="4"/><path d="M18 16v2l1.2 1.2"/></svg>',val:S.sementara.length,lbl:'Penduduk Sementara',col:'#fff',bg:'linear-gradient(135deg,#ff9500,#ffcc00)',sub:'Berdomisili'},
+    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16"/><path d="M16 3l4 4-4 4"/><path d="M20 17H4"/><path d="M8 13l-4 4 4 4"/></svg>',val:S.mobilitas.length,lbl:'Mobilitas Penduduk',col:'#fff',bg:'linear-gradient(135deg,#ff2d55,#ff6b6b)',sub:`${S.mobilitas.filter(m=>m.jenis==='masuk').length} masuk / ${S.mobilitas.filter(m=>m.jenis==='keluar').length} keluar`},
   ];
   document.getElementById('stat-cards').innerHTML = stats.map(s => `
     <div class="stat-card">
@@ -3306,6 +3400,29 @@ function updateFilterUI() {
 
   // Active filter tags below panel
   renderFilterTags();
+  updateUsiaPresetCounts();
+}
+
+function updateUsiaPresetCounts() {
+  const chips = document.querySelectorAll('#pddk-usia-presets .pddk-preset-chip');
+  if(!chips.length) return;
+
+  const baseFilter = {...PDDK_F, usiaMin:null, usiaMax:null};
+  const baseList = S.penduduk.filter(p => matchesPddkFilter(p, baseFilter));
+
+  chips.forEach(chip => {
+    const min = parseInt(chip.dataset.min);
+    const max = parseInt(chip.dataset.max);
+    const count = baseList.reduce((total, p) => {
+      const usia = calcAge(p.tanggalLahir);
+      return usia !== null && usia >= min && usia <= max ? total + 1 : total;
+    }, 0);
+    const countEl = chip.querySelector('.preset-count');
+    if(countEl) countEl.textContent = count;
+
+    const currentMax = PDDK_F.usiaMax === null && max === 150 ? 150 : PDDK_F.usiaMax;
+    chip.classList.toggle('active-preset', PDDK_F.usiaMin === min && currentMax === max);
+  });
 }
 
 /* ── Render tag pills showing active filters ─────── */
@@ -3376,11 +3493,27 @@ window.renderPddk = () => {
         return `<tr>
           <td><span style="font-family:'DM Mono',monospace;font-size:11px;font-weight: 500">${p.nik}</span></td>
           <td>${namaLink('pddk', p.id, p.namaLengkap)}${!isPddkAktif(p) ? ` <span class="badge badge-gray">${p.statusPenduduk}</span>` : ''}</td>
-          <td><span class="badge ${p.jenisKelamin==='L'?'badge-blue':'badge-purple'}">${p.jenisKelamin==='L'?'L':'P'}</span></td>
+          <td>${p.jenisKelamin==='L'
+            ? `<span title="Laki-laki" aria-label="Laki-laki" style="display:inline-flex;align-items:center;justify-content:center;background:rgba(0,71,171,.12);color:#0047AB;border-radius:99px;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="width:17px;height:17px;stroke:#0047AB"><circle cx="10" cy="14" r="5"/><path d="M19 5l-5.5 5.5M19 5h-5M19 5v5"/></svg></span>`
+            : `<span title="Perempuan" aria-label="Perempuan" style="display:inline-flex;align-items:center;justify-content:center;background:rgba(224,17,95,.1);color:#c01060;border-radius:99px;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" style="width:17px;height:17px;stroke:#c01060"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="19" x2="15" y2="19"/></svg></span>`
+          }</td>
           <td style="font-size:12px;white-space:nowrap">${usiaStr}<div style="font-size:10px;color:var(--text3)">${p.tanggalLahir?fmtTgl(p.tanggalLahir):''}</div><div style="font-size:10px;color:var(--text3)">${p.tempatLahir||''}</div></td>
           <td><span class="chip ${p.hubKK==='Kepala Keluarga'?'chip-kepala':''}">${p.hubKK||'-'}</span></td>
           <td><span class="badge ${p.statusKawin==='Kawin'?'badge-green':p.statusKawin==='Belum Kawin'?'badge-blue':'badge-orange'}">${p.statusKawin||'-'}</span></td>
-          <td style="font-size:12px">${p.agama||'-'}</td>
+          <td>${(()=>{
+            const a = p.agama||'-';
+            const agamaMap = {
+              'Islam':    {sym:'☽',  bg:'rgba(0,122,204,.1)',  col:'#007acc', label:'Islam'},
+              'Kristen':  {sym:'✝',  bg:'rgba(52,120,246,.1)', col:'#3478f6', label:'Kristen'},
+              'Katolik':  {sym:'✝',  bg:'rgba(99,89,235,.1)',  col:'#6359eb', label:'Katolik'},
+              'Hindu':    {sym:'ॐ',  bg:'rgba(255,149,0,.12)', col:'#c97000', label:'Hindu'},
+              'Buddha':   {sym:'☸',  bg:'rgba(52,199,89,.1)',  col:'#1a8c3a', label:'Buddha'},
+              'Konghucu': {sym:'☯',  bg:'rgba(255,59,48,.1)',  col:'#c0392b', label:'Konghucu'},
+            };
+            const m = agamaMap[a];
+            if(!m) return `<span title="${escapeHtml(a)}" aria-label="${escapeHtml(a)}" style="display:inline-flex;align-items:center;justify-content:center;background:var(--bg3);color:var(--text3);border-radius:8px;width:28px;height:28px;font-size:15px;font-weight:900">?</span>`;
+            return `<span title="${m.label}" aria-label="${m.label}" style="display:inline-flex;align-items:center;justify-content:center;background:${m.bg};color:${m.col};border-radius:8px;width:28px;height:28px;font-weight:900;white-space:nowrap"><span style="font-size:17px;line-height:1">${m.sym}</span></span>`;
+          })()}</td>
           <td style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${escapeHtml(p.pekerjaan||'-')}">${p.pekerjaan||'-'}</td>
           <td><div style="display:flex;gap:3px">
             <button type="button" class="btn btn-sm btn-secondary" onclick='detailPddk(${JSON.stringify(p.id)})'>Lihat</button>
@@ -3455,8 +3588,7 @@ window.setUsiaPreset = (min, max) => {
   } else {
     mnEl.value = min; mxEl.value = max === 150 ? '' : max;
     document.querySelectorAll('.pddk-preset-chip').forEach(c => {
-      c.classList.toggle('active-preset',
-        parseInt(c.getAttribute('onclick').match(/setUsiaPreset\((\d+)/)?.[1]) === min);
+      c.classList.toggle('active-preset', parseInt(c.dataset.min) === min && parseInt(c.dataset.max) === max);
     });
   }
   PP = window.PP = 1; renderPddk();
@@ -5263,30 +5395,124 @@ function buildVitalByMonth(tahun) {
   return { labels: bulanNama, lahir, mati };
 }
 
-/** Render grafik vital di Dashboard (selalu per tahun) */
+/* State toggle untuk kartu Tren Kelahiran & Kematian (dashboard) */
+let VITAL_PERIOD = 'tahunan'; // 'tahunan' | 'bulanan'
+
+/** Render infografis bar Kelahiran & Kematian di Dashboard */
 function renderDashVitalChart() {
-  const data = buildVitalByYear();
+  const titleEl = document.getElementById('c-vital-title');
   const emptyEl = document.getElementById('c-vital-empty');
   const chartEl = document.getElementById('c-vital-chart');
-  if(!data) {
-    if(emptyEl) emptyEl.style.display = 'block';
-    if(chartEl) chartEl.style.display = 'none';
+  const barsEl  = document.getElementById('c-vital-bars');
+  const lineEl  = document.getElementById('c-vital-line');
+  const legEl   = document.getElementById('c-vital-legend');
+
+  const data = VITAL_PERIOD === 'bulanan'
+    ? buildVitalByMonth(new Date().getFullYear())
+    : buildVitalByYear();
+
+  if(titleEl) {
+    titleEl.textContent = VITAL_PERIOD === 'bulanan'
+      ? `Tren Kelahiran & Kematian per Bulan \u2014 ${new Date().getFullYear()}`
+      : 'Tren Kelahiran & Kematian per Tahun';
+  }
+
+  // Legend
+  if(legEl) legEl.innerHTML = `
+    <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:800">
+      <span style="width:10px;height:10px;border-radius:3px;background:#34c759;display:inline-block;flex-shrink:0"></span>Kelahiran
+    </span>
+    <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:800">
+      <span style="width:10px;height:10px;border-radius:3px;background:#ff3b30;display:inline-block;flex-shrink:0"></span>Kematian
+    </span>`;
+
+  const isEmpty = !data || (data.lahir.every(v=>v===0) && data.mati.every(v=>v===0));
+  if(isEmpty) {
+    if(emptyEl) emptyEl.style.display='block';
+    if(chartEl) chartEl.style.display='none';
     return;
   }
-  if(emptyEl) emptyEl.style.display = 'none';
-  if(chartEl) chartEl.style.display = 'block';
-  // slight delay so canvas has rendered width — but skip if dashboard no longer active
-  setTimeout(() => {
-    if(!document.getElementById('page-dashboard')?.classList.contains('active')) return;
-    animLineChart('c-vital-canvas', data.labels,
-      [
-        { label: 'Kelahiran', values: data.lahir, color: '#34c759' },
-        { label: 'Kematian',  values: data.mati,  color: '#ff3b30' },
-      ],
-      'c-vital-legend'
-    );
-  }, 80);
+  if(emptyEl) emptyEl.style.display='none';
+  if(chartEl) chartEl.style.display='block';
+
+  if(VITAL_PERIOD === 'bulanan') {
+    if(barsEl) barsEl.style.display = 'none';
+    if(lineEl) {
+      lineEl.style.display = 'block';
+      setTimeout(() => {
+        animLineChart('c-vital-line', data.labels,
+          [
+            { label: 'Kelahiran', values: data.lahir, color: '#34c759' },
+            { label: 'Kematian',  values: data.mati,  color: '#ff3b30' },
+          ],
+          'c-vital-legend'
+        );
+      }, 60);
+    }
+    return;
+  }
+
+  if(lineEl) lineEl.style.display = 'none';
+  if(barsEl) barsEl.style.display = 'block';
+  if(!barsEl) return;
+
+  const allVals = [...data.lahir, ...data.mati];
+  const maxVal  = Math.max(...allVals, 1);
+  const steps   = 4;
+  const chartH  = 160; // px — area batang (tidak termasuk label X dan padding atas)
+
+  // Grid lines HTML
+  const gridLines = Array.from({length:steps+1}, (_,i)=>{
+    const v = Math.round(maxVal*(steps-i)/steps);
+    return `<div class="vital-grid-line" data-v="${v}"></div>`;
+  }).join('');
+
+  // Columns HTML
+  const cols = data.labels.map((lbl, i) => {
+    const lVal = data.lahir[i] || 0;
+    const mVal = data.mati[i]  || 0;
+    const lH   = Math.round((lVal/maxVal)*chartH);
+    const mH   = Math.round((mVal/maxVal)*chartH);
+    return `<div class="vital-col" style="position:relative">
+      <div class="vital-tip">${lbl}<br>
+        <span style="color:#34c759">▲ ${lVal} lahir</span><br>
+        <span style="color:#ff6b6b">▼ ${mVal} meninggal</span>
+      </div>
+      <div class="vital-bars-wrap" style="height:${chartH}px;align-items:flex-end">
+        <div class="vital-bar vital-bar-l" style="height:${lH}px" title="${lVal} kelahiran"></div>
+        <div class="vital-bar vital-bar-m" style="height:${mH}px" title="${mVal} kematian"></div>
+      </div>
+      <div class="vital-x-lbl">${lbl}</div>
+    </div>`;
+  }).join('');
+
+  barsEl.innerHTML = `
+    <div style="position:relative">
+      <div class="vital-grid-wrap">${gridLines}</div>
+      <div class="vital-chart" style="height:${chartH+28}px">${cols}</div>
+    </div>`;
+
+  // Animasi: set height ke 0 dulu, lalu ke nilai aslinya setelah paint
+  const bars = barsEl.querySelectorAll('.vital-bar');
+  bars.forEach(b => { b._targetH = b.style.height; b.style.height='0px'; });
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    bars.forEach(b => { b.style.height = b._targetH; });
+  }));
 }
+
+/** Toggle kartu Tren antara tampilan per tahun ↔ per bulan */
+window.toggleVitalPeriod = (cardEl) => {
+  VITAL_PERIOD = (VITAL_PERIOD === 'tahunan') ? 'bulanan' : 'tahunan';
+  renderDashVitalChart();
+  if(cardEl) {
+    const tooltip = cardEl.querySelector('.chart-mode-tooltip');
+    if(tooltip) {
+      tooltip.textContent = `Tampil Per ${VITAL_PERIOD === 'tahunan' ? 'Tahun' : 'Bulan'}`;
+      tooltip.style.opacity = '1';
+      setTimeout(() => { tooltip.style.opacity = '0'; }, 2000);
+    }
+  }
+};
 
 /** Render/re-render grafik vital di Laporan */
 window.updLapGrafik = () => {
